@@ -49,24 +49,33 @@
             </div>
             <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                 @foreach($latestCourses as $course)
-                <a href="{{ route('courses.show', $course) }}" class="group block bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-amber-100 transition">
-                    <div class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-4xl text-slate-400">
-                        @if($course->banner_url)
-                            <img src="{{ $course->banner_url }}" alt="" class="w-full h-full object-cover">
-                        @else
-                            📖
-                        @endif
-                    </div>
-                    <div class="p-5">
-                        <span class="text-xs font-medium text-amber-600 uppercase tracking-wide">{{ $course->category->name ?? 'Course' }}</span>
-                        <h3 class="mt-2 font-display font-semibold text-slate-900 group-hover:text-amber-700 line-clamp-2">{{ $course->title }}</h3>
-                        <p class="mt-2 text-sm text-slate-500 line-clamp-2">{{ Str::limit($course->description, 80) }}</p>
-                        <div class="mt-4 flex items-center justify-between text-sm">
-                            <span class="text-slate-500">{{ $course->duration ?? 'Self-paced' }}</span>
-                            <span class="font-semibold text-amber-600">@if($course->price > 0) ${{ number_format($course->price, 0) }} @else Free @endif</span>
+                    @php $isRealCourse = $course instanceof \App\Models\Course; @endphp
+                    @if($isRealCourse)
+                        <a href="{{ route('courses.show', $course) }}" class="group block bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:border-amber-100 transition">
+                    @else
+                        <div class="group block bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                    @endif
+                            <div class="aspect-video bg-gradient-to-br from-slate-200 to-slate-300 flex items-center justify-center text-4xl text-slate-400">
+                                @if(!empty($course->banner_url))
+                                    <img src="{{ $course->banner_url }}" alt="" class="w-full h-full object-cover">
+                                @else
+                                    📖
+                                @endif
+                            </div>
+                            <div class="p-5">
+                                <span class="text-xs font-medium text-amber-600 uppercase tracking-wide">{{ $course->category->name ?? 'Course' }}</span>
+                                <h3 class="mt-2 font-display font-semibold text-slate-900 group-hover:text-amber-700 line-clamp-2">{{ $course->title }}</h3>
+                                <p class="mt-2 text-sm text-slate-500 line-clamp-2">{{ Str::limit($course->description, 80) }}</p>
+                                <div class="mt-4 flex items-center justify-between text-sm">
+                                    <span class="text-slate-500">{{ $course->duration ?? 'Self-paced' }}</span>
+                                    <span class="font-semibold text-amber-600">@if(($course->price ?? 0) > 0) ${{ number_format($course->price, 0) }} @else Free @endif</span>
+                                </div>
+                            </div>
+                    @if($isRealCourse)
+                        </a>
+                    @else
                         </div>
-                    </div>
-                </a>
+                    @endif
                 @endforeach
             </div>
         </div>
