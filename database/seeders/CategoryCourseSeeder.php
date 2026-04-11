@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Category;
 use App\Models\Course;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CategoryCourseSeeder extends Seeder
 {
@@ -18,20 +19,29 @@ class CategoryCourseSeeder extends Seeder
         ];
 
         foreach ($categoryData as $cat) {
-            $category = Category::create(array_merge($cat, ['courses_count' => 0]));
+            $category = Category::firstOrCreate(
+                ['slug' => $cat['slug']],
+                array_merge($cat, ['courses_count' => 0])
+            );
+
             $titles = $this->courseTitles($category->slug);
             foreach ($titles as $i => $title) {
-                Course::create([
-                    'category_id' => $category->id,
-                    'title' => $title,
-                    'slug' => \Illuminate\Support\Str::slug($title) . '-' . $category->id . '-' . ($i + 1),
-                    'description' => 'Learn essential skills with hands-on projects and expert instruction. Perfect for beginners and intermediate learners.',
-                    'price' => $i === 0 ? 0 : rand(29, 99),
-                    'duration' => rand(2, 12) . ' hours',
-                    'level' => ['beginner', 'intermediate', 'advanced'][rand(0, 2)],
-                    'students_count' => rand(100, 5000),
-                ]);
+                $slug = Str::slug($title).'-'.$category->id.'-'.($i + 1);
+
+                Course::firstOrCreate(
+                    ['slug' => $slug],
+                    [
+                        'category_id' => $category->id,
+                        'title' => $title,
+                        'description' => 'Learn essential skills with hands-on projects and expert instruction. Perfect for beginners and intermediate learners.',
+                        'price' => $i === 0 ? 0 : rand(29, 99),
+                        'duration' => rand(2, 12).' hours',
+                        'level' => ['beginner', 'intermediate', 'advanced'][rand(0, 2)],
+                        'students_count' => rand(100, 5000),
+                    ]
+                );
             }
+
             $category->update(['courses_count' => $category->courses()->count()]);
         }
     }
