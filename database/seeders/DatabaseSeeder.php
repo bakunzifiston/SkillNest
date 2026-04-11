@@ -26,8 +26,9 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
+        // Super admin (matches common Laravel / Breeze convention)
         User::firstOrCreate(
-            ['email' => 'admin@skillnest.example'],
+            ['email' => 'admin@example.com'],
             [
                 'name' => 'Super Admin',
                 'password' => bcrypt('password'),

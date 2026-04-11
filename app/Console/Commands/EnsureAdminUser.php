@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 
 class EnsureAdminUser extends Command
 {
-    protected $signature = 'admin:ensure {--email=admin@skillnest.example : Admin email} {--password=password : Admin password}';
+    protected $signature = 'admin:ensure {--email=admin@example.com : Admin email} {--password=password : Admin password}';
 
     protected $description = 'Create or update the super admin user so login works.';
 
