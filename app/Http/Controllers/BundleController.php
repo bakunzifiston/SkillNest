@@ -38,7 +38,7 @@ class BundleController extends Controller
     public function enroll(Request $request, Bundle $bundle): RedirectResponse
     {
         if (! auth()->check()) {
-            session()->put('url.intended', route('bundles.show', $bundle));
+            session()->put('url.intended', route('bundles.show', $bundle, false));
             return redirect()->route('login');
         }
         if ($bundle->status !== Bundle::STATUS_PUBLISHED) {

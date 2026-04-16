@@ -15,7 +15,7 @@ class QuizController extends Controller
     public function show(Course $course, Quiz $quiz): View|RedirectResponse
     {
         if (! auth()->check()) {
-            session()->put('url.intended', route('courses.quizzes.show', [$course, $quiz]));
+            session()->put('url.intended', route('courses.quizzes.show', [$course, $quiz], false));
             return redirect()->route('login');
         }
         if ($quiz->course_id !== $course->id) {

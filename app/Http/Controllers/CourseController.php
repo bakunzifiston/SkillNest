@@ -45,7 +45,7 @@ class CourseController extends Controller
     public function enroll(Request $request, Course $course): RedirectResponse
     {
         if (! auth()->check()) {
-            session()->put('url.intended', route('courses.show', $course));
+            session()->put('url.intended', route('courses.show', $course, false));
             return redirect()->route('login');
         }
 
@@ -74,7 +74,7 @@ class CourseController extends Controller
     public function showLesson(Course $course, Lesson $lesson): View|RedirectResponse
     {
         if (! auth()->check()) {
-            session()->put('url.intended', route('courses.lessons.show', [$course, $lesson]));
+            session()->put('url.intended', route('courses.lessons.show', [$course, $lesson], false));
             return redirect()->route('login');
         }
         if (! auth()->user()->hasEnrolled($course)) {
