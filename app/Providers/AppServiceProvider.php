@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,16 +21,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $appUrl = rtrim((string) config('app.url'), '/');
-
-        if ($appUrl !== '') {
-            URL::forceRootUrl($appUrl);
-
-            if (str_starts_with($appUrl, 'https://')) {
-                URL::forceScheme('https');
-            }
-        }
-
         $siteLogoUrl = null;
         if (Schema::hasTable('settings')) {
             $logoPath = Setting::get(Setting::KEY_SITE_LOGO);
