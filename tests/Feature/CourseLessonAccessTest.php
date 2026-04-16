@@ -15,7 +15,7 @@ class CourseLessonAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_mismatched_lesson_url_redirects_to_first_lesson_in_course(): void
+    public function test_mismatched_lesson_url_returns_not_found(): void
     {
         $user = User::factory()->create();
         $category = Category::create([
@@ -38,7 +38,7 @@ class CourseLessonAccessTest extends TestCase
             'sort_order' => 1,
         ]);
 
-        $firstLesson = Lesson::create([
+        Lesson::create([
             'chapter_id' => $courseChapter->id,
             'title' => 'Introduction',
             'type' => Lesson::TYPE_TEXT,
@@ -78,7 +78,6 @@ class CourseLessonAccessTest extends TestCase
             ->actingAs($user)
             ->get(route('courses.lessons.show', [$course, $wrongLesson]));
 
-        $response->assertRedirect(route('courses.lessons.show', [$course, $firstLesson], false));
-        $response->assertSessionHas('error', 'That lesson link is no longer valid for this course. We redirected you to the first lesson.');
+        $response->assertNotFound();
     }
 }

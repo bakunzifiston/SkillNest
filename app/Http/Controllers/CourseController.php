@@ -81,20 +81,7 @@ class CourseController extends Controller
             return redirect()->route('courses.show', $course)->with('error', 'Please enroll in this course first.');
         }
         if ($lesson->chapter->course_id !== $course->id) {
-            $course->loadMissing(['chapters.lessons']);
-            $firstLesson = $course->chapters
-                ->flatMap(fn ($chapter) => $chapter->lessons)
-                ->first();
-
-            if ($firstLesson) {
-                return redirect()
-                    ->route('courses.lessons.show', [$course, $firstLesson])
-                    ->with('error', 'That lesson link is no longer valid for this course. We redirected you to the first lesson.');
-            }
-
-            return redirect()
-                ->route('courses.show', $course)
-                ->with('error', 'That lesson link is no longer valid for this course.');
+            abort(404, 'Lesson does not belong to this course.');
         }
 
         $course->load(['chapters.lessons']);
