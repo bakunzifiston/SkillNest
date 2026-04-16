@@ -81,7 +81,9 @@ class CourseController extends Controller
             return redirect()->route('courses.show', $course)->with('error', 'Please enroll in this course first.');
         }
         if ($lesson->chapter->course_id !== $course->id) {
-            abort(404, 'Lesson does not belong to this course.');
+            return redirect()
+                ->route('courses.show', $course)
+                ->with('error', 'That lesson link is no longer valid for this course.');
         }
 
         $course->load(['chapters.lessons']);

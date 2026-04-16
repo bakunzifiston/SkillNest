@@ -15,7 +15,7 @@ class CourseLessonAccessTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_mismatched_lesson_url_returns_not_found(): void
+    public function test_mismatched_lesson_url_redirects_to_course_page(): void
     {
         $user = User::factory()->create();
         $category = Category::create([
@@ -78,6 +78,7 @@ class CourseLessonAccessTest extends TestCase
             ->actingAs($user)
             ->get(route('courses.lessons.show', [$course, $wrongLesson]));
 
-        $response->assertNotFound();
+        $response->assertRedirect(route('courses.show', $course, false));
+        $response->assertSessionHas('error', 'That lesson link is no longer valid for this course.');
     }
 }
