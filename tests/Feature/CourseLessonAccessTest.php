@@ -15,6 +15,47 @@ class CourseLessonAccessTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_logged_in_user_can_open_free_course_lesson_without_manual_enrollment(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'name' => 'Design',
+            'slug' => 'design',
+        ]);
+
+        $course = Course::create([
+            'category_id' => $category->id,
+            'title' => 'Web Design',
+            'slug' => 'web-design',
+            'description' => 'Course description',
+            'price' => 0,
+            'level' => 'beginner',
+        ]);
+
+        $chapter = Chapter::create([
+            'course_id' => $course->id,
+            'title' => 'Getting Started',
+            'sort_order' => 1,
+        ]);
+
+        $lesson = Lesson::create([
+            'chapter_id' => $chapter->id,
+            'title' => 'Introduction',
+            'type' => Lesson::TYPE_TEXT,
+            'content' => 'Welcome',
+            'sort_order' => 1,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('courses.lessons.show', [$course, $lesson]));
+
+        $response->assertOk();
+        $this->assertTrue(
+            Enrollment::where('user_id', $user->id)->where('course_id', $course->id)->exists()
+        );
+    }
+
     public function test_mismatched_lesson_url_redirects_to_course_page(): void
     {
         $user = User::factory()->create();

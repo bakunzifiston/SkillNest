@@ -77,13 +77,26 @@ class CourseController extends Controller
             session()->put('url.intended', route('courses.lessons.show', [$course, $lesson], false));
             return redirect()->route('login');
         }
-        if (! auth()->user()->hasEnrolled($course)) {
-            return redirect()->route('courses.show', $course)->with('error', 'Please enroll in this course first.');
-        }
         if ($lesson->chapter->course_id !== $course->id) {
             return redirect()
                 ->route('courses.show', $course)
                 ->with('error', 'That lesson link is no longer valid for this course.');
+        }
+
+        if (! auth()->user()->hasEnrolled($course)) {
+            // Allow direct lesson access for free courses by auto-enrolling.
+            if ((float) ($course->price ?? 0) <= 0) {
+                $enrollment = Enrollment::firstOrCreate([
+                    'user_id' => auth()->id(),
+                    'course_id' => $course->id,
+                ]);
+
+                if ($enrollment->wasRecentlyCreated) {
+                    $course->increment('students_count');
+                }
+            } else {
+                return redirect()->route('courses.show', $course)->with('error', 'Please enroll in this course first.');
+            }
         }
 
         $course->load(['chapters.lessons']);

@@ -115,15 +115,11 @@
                             <ul class="divide-y divide-slate-100">
                                 @foreach($chapter->lessons as $lesson)
                                     <li class="flex items-center gap-3 px-5 py-3">
-                                        @if($enrolled)
-                                            <a href="{{ route('courses.lessons.show', [$course, $lesson]) }}" class="flex-1 text-slate-700 hover:text-amber-600 font-medium">
-                                                {{ $lesson->title }}
-                                            </a>
-                                            @if($completedLessonIds->contains($lesson->id))
-                                                <span class="text-emerald-600 text-sm font-medium" aria-label="Completed">✓</span>
-                                            @endif
-                                        @else
-                                            <span class="flex-1 text-slate-600">{{ $lesson->title }}</span>
+                                        <a href="{{ route('courses.lessons.show', [$course, $lesson]) }}" class="flex-1 {{ $enrolled ? 'text-slate-700 hover:text-amber-600' : 'text-slate-600 hover:text-amber-600' }} font-medium">
+                                            {{ $lesson->title }}
+                                        </a>
+                                        @if($enrolled && $completedLessonIds->contains($lesson->id))
+                                            <span class="text-emerald-600 text-sm font-medium" aria-label="Completed">✓</span>
                                         @endif
                                     </li>
                                 @endforeach
