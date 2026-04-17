@@ -78,9 +78,16 @@ class CourseController extends Controller
             return redirect()->route('login');
         }
         if ($lesson->chapter->course_id !== $course->id) {
-            return redirect()
-                ->route('courses.show', $course)
-                ->with('error', 'That lesson link is no longer valid for this course.');
+            $course->loadMissing(['chapters.lessons']);
+            $firstLesson = $course->chapters
+                ->flatMap(fn ($chapter) => $chapter->lessons)
+                ->first();
+
+            if ($firstLesson) {
+                return redirect()->route('courses.lessons.show', [$course, $firstLesson]);
+            }
+
+            return redirect()->route('courses.show', $course);
         }
 
         if (! auth()->user()->hasEnrolled($course)) {

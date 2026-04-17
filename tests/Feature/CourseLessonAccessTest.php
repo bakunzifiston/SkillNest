@@ -56,7 +56,7 @@ class CourseLessonAccessTest extends TestCase
         );
     }
 
-    public function test_mismatched_lesson_url_redirects_to_course_page(): void
+    public function test_mismatched_lesson_url_redirects_to_first_lesson_in_course(): void
     {
         $user = User::factory()->create();
         $category = Category::create([
@@ -79,7 +79,7 @@ class CourseLessonAccessTest extends TestCase
             'sort_order' => 1,
         ]);
 
-        Lesson::create([
+        $firstLesson = Lesson::create([
             'chapter_id' => $courseChapter->id,
             'title' => 'Introduction',
             'type' => Lesson::TYPE_TEXT,
@@ -119,7 +119,6 @@ class CourseLessonAccessTest extends TestCase
             ->actingAs($user)
             ->get(route('courses.lessons.show', [$course, $wrongLesson]));
 
-        $response->assertRedirect(route('courses.show', $course, false));
-        $response->assertSessionHas('error', 'That lesson link is no longer valid for this course.');
+        $response->assertRedirect(route('courses.lessons.show', [$course, $firstLesson], false));
     }
 }
