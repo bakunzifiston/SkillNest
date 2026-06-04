@@ -4,8 +4,9 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Serve course images from storage (works without storage:link)
+// Serve course images and lesson uploads from storage (works without storage:link)
 Route::get('course-image/{path}', [\App\Http\Controllers\StorageController::class, 'courseImage'])->where('path', '.*')->name('course.image');
+Route::get('lesson-file/{path}', [\App\Http\Controllers\StorageController::class, 'lessonFile'])->where('path', '.*')->name('lesson.file');
 
 // Public site
 Route::get('/', [PageController::class, 'home'])->name('home');

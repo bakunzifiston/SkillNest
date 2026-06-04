@@ -11,7 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Honor X-Forwarded-* headers when running behind reverse proxies / TLS terminators.
+        // Trust reverse proxies so HTTPS/host are detected correctly (prevents redirect loops).
         $middleware->trustProxies(at: '*');
 
         $middleware->alias([

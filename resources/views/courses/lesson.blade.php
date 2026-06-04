@@ -72,7 +72,7 @@
                                     @break
                                 @case(\App\Models\Lesson::TYPE_PDF)
                                     @if(!empty($lesson->file_path))
-                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($lesson->file_path) }}" target="_blank" rel="noopener" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600">
+                                        <a href="{{ $lesson->fileUrl() }}" target="_blank" rel="noopener" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600">
                                             Download / View PDF
                                         </a>
                                     @elseif(!empty($lesson->source_url))
@@ -87,7 +87,7 @@
                                 @case(\App\Models\Lesson::TYPE_VIDEO)
                                     @if(!empty($lesson->file_path))
                                         <video class="w-full rounded-xl border border-slate-200" controls>
-                                            <source src="{{ \Illuminate\Support\Facades\Storage::url($lesson->file_path) }}" type="video/mp4">
+                                            <source src="{{ $lesson->fileUrl() }}" type="video/mp4">
                                             Your browser does not support the video tag.
                                         </video>
                                     @elseif(!empty($lesson->source_url))

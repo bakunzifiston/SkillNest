@@ -23,6 +23,21 @@ class Lesson extends Model
         ];
     }
 
+    /**
+     * Public URL for uploaded lesson files (video/PDF), without relying on storage:link.
+     */
+    public function fileUrl(): ?string
+    {
+        if (empty($this->file_path)) {
+            return null;
+        }
+        if (str_starts_with($this->file_path, 'http')) {
+            return $this->file_path;
+        }
+
+        return url('lesson-file/' . ltrim($this->file_path, '/'));
+    }
+
     public function chapter()
     {
         return $this->belongsTo(Chapter::class);

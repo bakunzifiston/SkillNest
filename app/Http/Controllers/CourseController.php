@@ -91,17 +91,21 @@ class CourseController extends Controller
             session()->put('url.intended', route('courses.lessons.show', [$course, $lesson], false));
             return redirect()->route('login');
         }
-        if ($lesson->chapter->course_id !== $course->id) {
+        $lesson->loadMissing('chapter');
+        if ((int) $lesson->chapter->course_id !== (int) $course->id) {
             $course->loadMissing(['chapters.lessons']);
             $firstLesson = $course->chapters
                 ->flatMap(fn ($chapter) => $chapter->lessons)
+                ->sortBy('sort_order')
                 ->first();
 
-            if ($firstLesson) {
+            if ($firstLesson && $firstLesson->id !== $lesson->id) {
                 return redirect()->route('courses.lessons.show', [$course, $firstLesson]);
             }
 
-            return redirect()->route('courses.show', $course);
+            return redirect()
+                ->route('courses.show', $course)
+                ->with('error', 'That lesson does not belong to this course.');
         }
 
         if (! auth()->user()->hasEnrolled($course)) {
