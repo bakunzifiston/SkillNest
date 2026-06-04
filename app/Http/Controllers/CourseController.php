@@ -57,7 +57,21 @@ class CourseController extends Controller
         Enrollment::create(['user_id' => $user->id, 'course_id' => $course->id]);
         $course->increment('students_count');
 
-        return redirect()->route('courses.show', $course)->with('success', 'You are enrolled! You can start the course below.');
+        $course->loadMissing(['chapters.lessons']);
+        $firstLesson = $course->chapters
+            ->flatMap(fn ($chapter) => $chapter->lessons)
+            ->sortBy('sort_order')
+            ->first();
+
+        if ($firstLesson) {
+            return redirect()
+                ->route('courses.lessons.show', [$course, $firstLesson])
+                ->with('success', 'You are enrolled! Let us start with the first lesson.');
+        }
+
+        return redirect()
+            ->route('courses.show', $course)
+            ->with('info', 'You are enrolled! This course has no lessons yet.');
     }
 
     public function myCourses(): View

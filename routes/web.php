@@ -50,6 +50,8 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () { return redirect()->route('admin.dashboard'); });
     Route::get('/dashboard', \App\Http\Controllers\Admin\DashboardController::class)->name('dashboard');
+    Route::resource('contact-messages', \App\Http\Controllers\Admin\ContactMessageController::class)->only(['index', 'show', 'destroy']);
+    Route::post('contact-messages/destroy-all', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroyAll'])->name('contact-messages.destroy-all');
     Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
     Route::get('course-progress', [\App\Http\Controllers\Admin\CourseProgressController::class, 'index'])->name('course-progress.index');

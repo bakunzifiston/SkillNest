@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ContactMessageReceived;
 use App\Models\Category;
+use App\Models\ContactMessage;
 use App\Models\Course;
 use App\Models\Partner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class PageController extends Controller
@@ -77,12 +80,25 @@ class PageController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email',
+            'email' => 'required|email|max:255',
             'subject' => 'nullable|string|max:255',
             'message' => 'required|string|max:5000',
         ]);
 
-        // TODO: send email or store in DB
-        return redirect()->route('contact')->with('success', 'Thanks! We’ve received your message and will get back to you soon.');
+        // Save the contact message to database
+        $contactMessage = ContactMessage::create($validated);
+
+        // Send notification email to admin (if admin email is configured)
+        $adminEmails = [config('mail.from.address')];
+        if (!empty($adminEmails[0])) {
+            try {
+                Mail::to($adminEmails)->send(new ContactMessageReceived($contactMessage));
+            } catch (\Exception $e) {
+                // Log error but still show success message to user
+                \Illuminate\Support\Facades\Log::error('Failed to send contact message notification: ' . $e->getMessage());
+            }
+        }
+
+        return redirect()->route('contact')->with('success', 'Thanks! We\'ve received your message and will get back to you soon.');
     }
 }
