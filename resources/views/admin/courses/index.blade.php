@@ -15,7 +15,7 @@
                 </select>
             </form>
         </div>
-        <a href="{{ route('admin.courses.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add course</a>
+        <a href="{{ route('admin.courses.create') }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add course</a>
     </div>
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
@@ -36,7 +36,7 @@
                     <td class="px-6 py-4 text-gray-500">{{ $course->price > 0 ? '$' . number_format($course->price, 0) : 'Free' }}</td>
                     <td class="px-6 py-4 text-gray-500">{{ $course->duration ?? '—' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.courses.edit', $course) }}" class="text-amber-600 hover:underline mr-2">Edit</a>
+                        <a href="{{ route('admin.courses.edit', $course) }}" class="text-primary hover:underline mr-2">Edit</a>
                         <a href="{{ route('admin.courses.edit', $course) }}?tab=curriculum" class="text-gray-600 hover:underline mr-2">Curriculum</a>
                         <form action="{{ route('admin.courses.destroy', $course) }}" method="post" class="inline" onsubmit="return confirm('Delete this course?');">
                             @csrf
@@ -47,7 +47,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No courses yet. <a href="{{ route('admin.courses.create') }}" class="text-amber-600 hover:underline">Add one</a>.</td>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No courses yet. <a href="{{ route('admin.courses.create') }}" class="text-primary hover:underline">Add one</a>.</td>
                 </tr>
                 @endforelse
             </tbody>

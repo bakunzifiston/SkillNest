@@ -17,7 +17,7 @@
         <p>{{ $liveSession->description }}</p>
     @endif
     <p style="margin-top: 24px;">
-        <a href="{{ $liveSession->meeting_url }}" style="display: inline-block; padding: 12px 24px; background: #d97706; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">Join the session</a>
+        <a href="{{ $liveSession->meeting_url }}" style="display: inline-block; padding: 12px 24px; background: #EF9F27; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">Join the session</a>
     </p>
     @if($liveSession->meeting_password)
         <p style="margin-top: 12px; font-size: 14px; color: #64748b;">Meeting password: <strong>{{ $liveSession->meeting_password }}</strong></p>

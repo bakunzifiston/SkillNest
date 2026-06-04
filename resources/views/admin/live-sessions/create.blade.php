@@ -10,7 +10,7 @@
             @csrf
             <div>
                 <label for="course_id" class="block text-sm font-medium text-gray-700">Course</label>
-                <select name="course_id" id="course_id" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <select name="course_id" id="course_id" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     <option value="">Select course</option>
                     @foreach($courses as $c)
                         <option value="{{ $c->id }}" {{ old('course_id', $selectedCourseId ?? '') == $c->id ? 'selected' : '' }}>{{ $c->title }}</option>
@@ -20,51 +20,51 @@
             </div>
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-                <input type="text" name="title" id="title" value="{{ old('title') }}" required placeholder="e.g. Week 1 Q&A" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <input type="text" name="title" id="title" value="{{ old('title') }}" required placeholder="e.g. Week 1 Q&A" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700">Description (optional)</label>
-                <textarea name="description" id="description" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">{{ old('description') }}</textarea>
+                <textarea name="description" id="description" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('description') }}</textarea>
                 @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label for="scheduled_at" class="block text-sm font-medium text-gray-700">Date & time</label>
-                    <input type="datetime-local" name="scheduled_at" id="scheduled_at" value="{{ old('scheduled_at') }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                    <input type="datetime-local" name="scheduled_at" id="scheduled_at" value="{{ old('scheduled_at') }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     @error('scheduled_at')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="duration_minutes" class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
-                    <input type="number" name="duration_minutes" id="duration_minutes" value="{{ old('duration_minutes', 60) }}" min="5" max="480" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                    <input type="number" name="duration_minutes" id="duration_minutes" value="{{ old('duration_minutes', 60) }}" min="5" max="480" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     @error('duration_minutes')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div>
                 <label for="meeting_url" class="block text-sm font-medium text-gray-700">Meeting URL</label>
-                <input type="url" name="meeting_url" id="meeting_url" value="{{ old('meeting_url') }}" required placeholder="https://zoom.us/j/..." class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <input type="url" name="meeting_url" id="meeting_url" value="{{ old('meeting_url') }}" required placeholder="https://zoom.us/j/..." class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('meeting_url')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label for="meeting_password" class="block text-sm font-medium text-gray-700">Meeting password (optional)</label>
-                <input type="text" name="meeting_password" id="meeting_password" value="{{ old('meeting_password') }}" placeholder="e.g. 123456" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <input type="text" name="meeting_password" id="meeting_password" value="{{ old('meeting_password') }}" placeholder="e.g. 123456" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('meeting_password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div id="invitees-wrap">
                 <p class="text-sm font-medium text-gray-700 mb-2">Invite students (they will receive an email notification)</p>
                 <div class="flex flex-wrap gap-2 mb-2" id="invited-tags"></div>
                 <div class="relative" id="invitee-wrap">
-                    <input type="text" id="invitee-search" placeholder="Search or click to see list…" autocomplete="off" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500" disabled data-url="{{ url('admin/courses') }}">
+                    <input type="text" id="invitee-search" placeholder="Search or click to see list…" autocomplete="off" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent" disabled data-url="{{ url('admin/courses') }}">
                     <div id="invitee-dropdown" class="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto hidden"></div>
                 </div>
                 <p class="mt-1.5 text-sm text-gray-500">
-                    <button type="button" id="invitee-show-list" class="text-amber-600 hover:text-amber-700 font-medium hidden">Show dropdown list</button>
+                    <button type="button" id="invitee-show-list" class="text-primary hover:text-accent-dark font-medium hidden">Show dropdown list</button>
                     <span id="invitee-hint" class="text-gray-500">Select a course first.</span>
                 </p>
                 <input type="hidden" name="invited_user_ids" id="invited_user_ids_input" value="">
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Create live session</button>
+                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Create live session</button>
                 <a href="{{ route('admin.live-sessions.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
             </div>
         </form>
@@ -85,9 +85,9 @@
                 el.innerHTML = '';
                 selected.forEach(function (id) {
                     var tag = document.createElement('span');
-                    tag.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-amber-100 text-amber-800';
+                    tag.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-accent-muted text-accent-darker';
                     tag.dataset.id = id;
-                    tag.innerHTML = ((window._invitedNames && window._invitedNames[id]) || 'ID ' + id) + ' <button type="button" class="hover:text-amber-900">&times;</button>';
+                    tag.innerHTML = ((window._invitedNames && window._invitedNames[id]) || 'ID ' + id) + ' <button type="button" class="hover:text-accent-darker">&times;</button>';
                     tag.querySelector('button').onclick = function () {
                         selected = selected.filter(function (i) { return i !== id; });
                         delete (window._invitedNames || {})[id];
@@ -109,7 +109,7 @@
                         if (selected.indexOf(String(u.id)) !== -1) return;
                         var row = document.createElement('button');
                         row.type = 'button';
-                        row.className = 'w-full text-left px-3 py-2 text-sm hover:bg-amber-50 border-b border-gray-100 last:border-0';
+                        row.className = 'w-full text-left px-3 py-2 text-sm hover:bg-accent-light border-b border-gray-100 last:border-0';
                         row.textContent = (u.name || u.email) + ' (' + u.email + ')';
                         row.onclick = function () {
                             selected.push(String(u.id));

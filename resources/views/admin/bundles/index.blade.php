@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('admin.bundles.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add bundle</a>
+        <a href="{{ route('admin.bundles.create') }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add bundle</a>
     </div>
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
@@ -25,7 +25,7 @@
                     <td class="px-6 py-4 text-gray-500 text-sm">{{ $bundle->slug }}</td>
                     <td class="px-6 py-4">
                         <span class="px-2 py-1 text-xs font-medium rounded-full
-                            @if($bundle->status === 'published') bg-green-100 text-green-800
+                            @if($bundle->status === 'published') bg-success-light text-success-darker
                             @elseif($bundle->status === 'archived') bg-gray-100 text-gray-600
                             @else bg-yellow-100 text-yellow-800 @endif">
                             {{ $bundle->status }}
@@ -33,7 +33,7 @@
                     </td>
                     <td class="px-6 py-4 text-gray-500">{{ $bundle->courses_count }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.bundles.edit', $bundle) }}" class="text-amber-600 hover:underline mr-2">Edit</a>
+                        <a href="{{ route('admin.bundles.edit', $bundle) }}" class="text-primary hover:underline mr-2">Edit</a>
                         <form action="{{ route('admin.bundles.destroy', $bundle) }}" method="post" class="inline" onsubmit="return confirm('Delete this bundle?');">
                             @csrf
                             @method('DELETE')
@@ -43,7 +43,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No bundles yet. <a href="{{ route('admin.bundles.create') }}" class="text-amber-600 hover:underline">Create one</a>.</td>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No bundles yet. <a href="{{ route('admin.bundles.create') }}" class="text-primary hover:underline">Create one</a>.</td>
                 </tr>
                 @endforelse
             </tbody>

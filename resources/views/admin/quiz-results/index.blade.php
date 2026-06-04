@@ -6,7 +6,7 @@
 @section('content')
     <div class="mb-6 flex flex-wrap justify-between items-center gap-4">
         <p class="text-gray-600">View and export student quiz attempts.</p>
-        <a href="{{ route('admin.quiz-results.export') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Export CSV</a>
+        <a href="{{ route('admin.quiz-results.export') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Export CSV</a>
     </div>
     <div class="mb-4 flex flex-wrap gap-3">
         <form method="get" class="flex gap-2 items-center flex-wrap">
@@ -46,14 +46,14 @@
                     <td class="px-6 py-4">{{ $a->score }} / {{ $a->total_points }} ({{ $a->percentage !== null ? round($a->percentage, 1) : 0 }}%)</td>
                     <td class="px-6 py-4">
                         @if($a->passed)
-                            <span class="text-green-600 font-medium">Passed</span>
+                            <span class="text-success-dark font-medium">Passed</span>
                         @else
                             <span class="text-red-600">Failed</span>
                         @endif
                     </td>
                     <td class="px-6 py-4 text-gray-500">{{ $a->submitted_at?->format('M j, Y H:i') ?? '—' }}</td>
                     <td class="px-6 py-4 text-right">
-                        <a href="{{ route('admin.quiz-results.show', $a) }}" class="text-amber-600 hover:underline">View</a>
+                        <a href="{{ route('admin.quiz-results.show', $a) }}" class="text-primary hover:underline">View</a>
                     </td>
                 </tr>
                 @empty

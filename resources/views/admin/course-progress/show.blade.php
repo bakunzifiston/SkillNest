@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('admin.course-progress.index') }}" class="text-amber-600 hover:underline">← All courses</a>
+        <a href="{{ route('admin.course-progress.index') }}" class="text-primary hover:underline">← All courses</a>
     </div>
     <p class="mb-4 text-gray-600">{{ $course->title }} — {{ $rows->count() }} student(s) enrolled. Total lessons: {{ $totalLessons }}.</p>
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -30,7 +30,7 @@
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <div class="w-16 h-2 rounded-full bg-gray-200 overflow-hidden">
-                                <div class="h-full rounded-full bg-amber-500" style="width: {{ $row->completion_percent }}%"></div>
+                                <div class="h-full rounded-full bg-accent" style="width: {{ $row->completion_percent }}%"></div>
                             </div>
                             <span class="text-sm text-gray-700">{{ $row->completed_count }} / {{ $row->total_lessons }} ({{ $row->completion_percent }}%)</span>
                         </div>

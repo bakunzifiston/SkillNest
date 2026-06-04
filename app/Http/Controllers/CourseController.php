@@ -6,6 +6,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonCompletion;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -128,33 +129,54 @@ class CourseController extends Controller
         $lesson->load('chapter');
         $completedLessonIds = auth()->user()->lessonCompletions()->pluck('lesson_id');
         $completed = $completedLessonIds->contains($lesson->id);
+        $completedCount = auth()->user()->completedLessonsCountForCourse($course);
+        $totalLessons = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
 
-        return view('courses.lesson', compact('course', 'lesson', 'completed', 'completedLessonIds'));
+        return view('courses.lesson', compact('course', 'lesson', 'completed', 'completedLessonIds', 'completedCount', 'totalLessons'));
     }
 
-    public function completeLesson(Request $request, Lesson $lesson): RedirectResponse
+    public function completeLesson(Request $request, Lesson $lesson): RedirectResponse|JsonResponse
     {
         if (! auth()->check()) {
-            return redirect()->route('login');
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Unauthenticated.'], 401)
+                : redirect()->route('login');
         }
 
         $course = $lesson->chapter->course;
         if (! auth()->user()->hasEnrolled($course)) {
-            return redirect()->route('courses.show', $course);
+            return $request->expectsJson()
+                ? response()->json(['message' => 'Not enrolled in this course.'], 403)
+                : redirect()->route('courses.show', $course);
         }
 
-        LessonCompletion::firstOrCreate(
+        $completion = LessonCompletion::firstOrCreate(
             ['user_id' => auth()->id(), 'lesson_id' => $lesson->id],
             ['completed_at' => now()]
         );
 
-        // Refresh bundle progress for any bundle that includes this course
         $course->load('bundles');
         foreach ($course->bundles as $bundle) {
             $be = auth()->user()->bundleEnrollments()->where('bundle_id', $bundle->id)->first();
             if ($be) {
                 $be->refreshProgress();
             }
+        }
+
+        $course->loadMissing(['chapters.lessons']);
+        $completedCount = auth()->user()->completedLessonsCountForCourse($course);
+        $totalLessons = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'completed' => true,
+                'already_completed' => ! $completion->wasRecentlyCreated,
+                'completed_count' => $completedCount,
+                'total_lessons' => $totalLessons,
+                'message' => $completion->wasRecentlyCreated
+                    ? 'Progress saved automatically.'
+                    : 'Lesson already completed.',
+            ]);
         }
 
         $nextLesson = $lesson->chapter->lessons->where('sort_order', '>', $lesson->sort_order)->first()

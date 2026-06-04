@@ -6,7 +6,7 @@
 @section('content')
     <div class="mb-6 flex flex-wrap justify-between items-center gap-4">
         <p class="text-gray-600">Schedule live sessions (Zoom, Meet, etc.) and add the join link. Students see upcoming sessions on the course page.</p>
-        <a href="{{ route('admin.live-sessions.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add live session</a>
+        <a href="{{ route('admin.live-sessions.create') }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add live session</a>
     </div>
     <div class="mb-4">
         <form method="get" class="flex gap-2 items-center">
@@ -39,7 +39,7 @@
                     <td class="px-6 py-4 text-gray-500">{{ $session->duration_minutes }} min</td>
                     <td class="px-6 py-4 text-gray-600">{{ $session->invited_attendees_count ?? 0 }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.live-sessions.edit', $session) }}" class="text-amber-600 hover:underline mr-3">Edit</a>
+                        <a href="{{ route('admin.live-sessions.edit', $session) }}" class="text-primary hover:underline mr-3">Edit</a>
                         <form action="{{ route('admin.live-sessions.destroy', $session) }}" method="post" class="inline" onsubmit="return confirm('Delete this live session?');">
                             @csrf
                             @method('DELETE')
@@ -49,7 +49,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">No live sessions yet. <a href="{{ route('admin.live-sessions.create') }}" class="text-amber-600 hover:underline">Add one</a>.</td>
+                    <td colspan="6" class="px-6 py-8 text-center text-gray-500">No live sessions yet. <a href="{{ route('admin.live-sessions.create') }}" class="text-primary hover:underline">Add one</a>.</td>
                 </tr>
                 @endforelse
             </tbody>

@@ -5,10 +5,10 @@
 
 @section('content')
     @if(session('success'))
-        <div class="mb-4 px-4 py-2 bg-green-100 text-green-800 rounded-lg">{{ session('success') }}</div>
+        <div class="mb-4 px-4 py-2 bg-success-light text-success-darker rounded-lg">{{ session('success') }}</div>
     @endif
     @if(session('info'))
-        <div class="mb-4 px-4 py-2 bg-amber-100 text-amber-800 rounded-lg">{{ session('info') }}</div>
+        <div class="mb-4 px-4 py-2 bg-accent-muted text-accent-darker rounded-lg">{{ session('info') }}</div>
     @endif
 
     <div class="max-w-2xl mb-10">
@@ -17,19 +17,19 @@
             @method('PUT')
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-                <input type="text" name="title" id="title" value="{{ old('title', $bundle->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <input type="text" name="title" id="title" value="{{ old('title', $bundle->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label for="slug" class="block text-sm font-medium text-gray-700">Slug</label>
-                <input type="text" name="slug" id="slug" value="{{ old('slug', $bundle->slug) }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <input type="text" name="slug" id="slug" value="{{ old('slug', $bundle->slug) }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('slug')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                <textarea name="description" id="description" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">{{ old('description', $bundle->description) }}</textarea>
+                <textarea name="description" id="description" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('description', $bundle->description) }}</textarea>
             </div>
-            <div class="p-4 bg-amber-50/50 rounded-xl border border-amber-100">
+            <div class="p-4 bg-accent-light/50 rounded-xl border border-accent-muted">
                 <label for="thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail</label>
                 @if($bundle->thumbnail_url)
                     <div class="mt-2 mb-3">
@@ -37,18 +37,18 @@
                         <p class="mt-1 text-xs text-gray-500">Upload new to replace.</p>
                     </div>
                 @endif
-                <input type="file" name="thumbnail" id="thumbnail" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-500 file:text-white file:font-medium hover:file:bg-amber-600">
+                <input type="file" name="thumbnail" id="thumbnail" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent file:text-white file:font-medium hover:file:bg-accent-dark">
             </div>
             <div>
                 <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                <select name="status" id="status" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <select name="status" id="status" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     <option value="draft" {{ old('status', $bundle->status) === 'draft' ? 'selected' : '' }}>Draft</option>
                     <option value="published" {{ old('status', $bundle->status) === 'published' ? 'selected' : '' }}>Published</option>
                     <option value="archived" {{ old('status', $bundle->status) === 'archived' ? 'selected' : '' }}>Archived</option>
                 </select>
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Save bundle</button>
+                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Save bundle</button>
                 <a href="{{ route('admin.bundles.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Back to bundles</a>
             </div>
         </form>
@@ -103,7 +103,7 @@
                     <option value="{{ $c->id }}">{{ $c->title }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600">Add</button>
+            <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-dark">Add</button>
         </form>
         @if($coursesNotInBundle->isEmpty())
             <p class="mt-2 text-sm text-gray-500">All courses are already in this bundle.</p>

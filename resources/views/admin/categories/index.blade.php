@@ -6,7 +6,7 @@
 @section('content')
     <div class="mb-6 flex justify-between items-center">
         <p class="text-gray-600">Add and edit course categories.</p>
-        <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add category</a>
+        <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add category</a>
     </div>
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
@@ -27,7 +27,7 @@
                     <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ $category->icon ?? '—' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-gray-500">{{ $category->courses_count }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.categories.edit', $category) }}" class="text-amber-600 hover:underline mr-3">Edit</a>
+                        <a href="{{ route('admin.categories.edit', $category) }}" class="text-primary hover:underline mr-3">Edit</a>
                         <form action="{{ route('admin.categories.destroy', $category) }}" method="post" class="inline" onsubmit="return confirm('Delete this category? Courses in it will also be deleted.');">
                             @csrf
                             @method('DELETE')
@@ -37,7 +37,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No categories yet. <a href="{{ route('admin.categories.create') }}" class="text-amber-600 hover:underline">Add one</a>.</td>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No categories yet. <a href="{{ route('admin.categories.create') }}" class="text-primary hover:underline">Add one</a>.</td>
                 </tr>
                 @endforelse
             </tbody>

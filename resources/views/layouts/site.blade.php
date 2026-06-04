@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Learn Online') — {{ config('app.name') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=outfit:400,500,600,700|dm-sans:400,500,600" rel="stylesheet" />
@@ -22,18 +23,18 @@
                     @endif
                 </a>
                 <nav class="hidden md:flex items-center gap-8">
-                    <a href="{{ route('home') }}" class="text-slate-600 hover:text-amber-600 font-medium {{ request()->routeIs('home') ? 'text-amber-600' : '' }}">Home</a>
-                    <a href="{{ route('courses.index') }}" class="text-slate-600 hover:text-amber-600 font-medium {{ request()->routeIs('courses.*') ? 'text-amber-600' : '' }}">Courses</a>
-                    <a href="{{ route('bundles.index') }}" class="text-slate-600 hover:text-amber-600 font-medium {{ request()->routeIs('bundles.*') ? 'text-amber-600' : '' }}">Bundles</a>
-                    <a href="{{ route('about') }}" class="text-slate-600 hover:text-amber-600 font-medium {{ request()->routeIs('about') ? 'text-amber-600' : '' }}">About</a>
-                    <a href="{{ route('contact') }}" class="text-slate-600 hover:text-amber-600 font-medium {{ request()->routeIs('contact') ? 'text-amber-600' : '' }}">Contact</a>
+                    <a href="{{ route('home') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('home') ? 'text-primary' : '' }}">Home</a>
+                    <a href="{{ route('courses.index') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('courses.*') ? 'text-primary' : '' }}">Courses</a>
+                    <a href="{{ route('bundles.index') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('bundles.*') ? 'text-primary' : '' }}">Bundles</a>
+                    <a href="{{ route('about') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('about') ? 'text-primary' : '' }}">About</a>
+                    <a href="{{ route('contact') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('contact') ? 'text-primary' : '' }}">Contact</a>
                     @auth
                         @if(!(auth()->user()->is_admin ?? false))
-                            <a href="{{ route('courses.my-courses') }}" class="text-slate-600 hover:text-amber-600 font-medium {{ request()->routeIs('courses.my-courses') ? 'text-amber-600' : '' }}">My courses</a>
-                            <a href="{{ route('bundles.my-bundles') }}" class="text-slate-600 hover:text-amber-600 font-medium {{ request()->routeIs('bundles.my-bundles') ? 'text-amber-600' : '' }}">My bundles</a>
+                            <a href="{{ route('courses.my-courses') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('courses.my-courses') ? 'text-primary' : '' }}">My courses</a>
+                            <a href="{{ route('bundles.my-bundles') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('bundles.my-bundles') ? 'text-primary' : '' }}">My bundles</a>
                         @endif
                         @if(auth()->user()->is_admin ?? false)
-                            <a href="{{ route('admin.dashboard') }}" class="text-amber-600 hover:text-amber-700 font-medium">Admin</a>
+                            <a href="{{ route('admin.dashboard') }}" class="text-primary hover:text-accent-dark font-medium">Admin</a>
                         @endif
                     @endauth
                 </nav>
@@ -46,28 +47,28 @@
                         <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-sm">Dashboard</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
-                            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg bg-slate-800 text-white hover:bg-slate-700 font-medium text-sm">Log out</button>
+                            <button type="submit" class="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark font-medium text-sm">Log out</button>
                         </form>
                     @else
                         <a href="{{ route('login') }}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium text-sm">Log in</a>
-                        <a href="{{ route('register') }}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg text-amber-600 hover:text-amber-700 font-semibold text-sm">Sign up</a>
-                        <a href="{{ route('courses.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg bg-amber-500 text-white hover:bg-amber-600 font-medium text-sm">Get Started</a>
+                        <a href="{{ route('register') }}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg text-primary hover:text-accent-dark font-semibold text-sm">Sign up</a>
+                        <a href="{{ route('courses.index') }}" class="inline-flex items-center px-4 py-2 rounded-lg bg-accent text-white hover:bg-accent-dark font-medium text-sm">Get Started</a>
                     @endauth
                 </div>
             </div>
             <div class="md:hidden border-t border-slate-100 px-4 py-3 flex flex-wrap gap-2">
-                <a href="{{ route('home') }}" class="text-sm text-slate-600 hover:text-amber-600">Home</a>
-                <a href="{{ route('courses.index') }}" class="text-sm text-slate-600 hover:text-amber-600">Courses</a>
-                <a href="{{ route('bundles.index') }}" class="text-sm text-slate-600 hover:text-amber-600">Bundles</a>
-                <a href="{{ route('about') }}" class="text-sm text-slate-600 hover:text-amber-600">About</a>
-                <a href="{{ route('contact') }}" class="text-sm text-slate-600 hover:text-amber-600">Contact</a>
+                <a href="{{ route('home') }}" class="text-sm text-slate-600 hover:text-primary">Home</a>
+                <a href="{{ route('courses.index') }}" class="text-sm text-slate-600 hover:text-primary">Courses</a>
+                <a href="{{ route('bundles.index') }}" class="text-sm text-slate-600 hover:text-primary">Bundles</a>
+                <a href="{{ route('about') }}" class="text-sm text-slate-600 hover:text-primary">About</a>
+                <a href="{{ route('contact') }}" class="text-sm text-slate-600 hover:text-primary">Contact</a>
                 @auth
                     @if(!(auth()->user()->is_admin ?? false))
-                        <a href="{{ route('courses.my-courses') }}" class="text-sm text-slate-600 hover:text-amber-600">My courses</a>
-                    <a href="{{ route('bundles.my-bundles') }}" class="text-sm text-slate-600 hover:text-amber-600">My bundles</a>
+                        <a href="{{ route('courses.my-courses') }}" class="text-sm text-slate-600 hover:text-primary">My courses</a>
+                    <a href="{{ route('bundles.my-bundles') }}" class="text-sm text-slate-600 hover:text-primary">My bundles</a>
                     @endif
                     @if(auth()->user()->is_admin ?? false)
-                        <a href="{{ route('admin.dashboard') }}" class="text-sm text-amber-600 font-medium">Admin</a>
+                        <a href="{{ route('admin.dashboard') }}" class="text-sm text-primary font-medium">Admin</a>
                     @endif
                 @endauth
             </div>
@@ -78,7 +79,7 @@
         @yield('content')
     </main>
 
-    <footer class="bg-slate-900 text-slate-300">
+    <footer class="bg-primary-darker text-slate-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
                 <div class="lg:col-span-1">
@@ -113,7 +114,7 @@
                     <p class="text-sm text-slate-400">bakunzifiston@gmail.com</p>
                 </div>
             </div>
-            <div class="mt-12 pt-8 border-t border-slate-800 text-center text-sm text-slate-500">
+            <div class="mt-12 pt-8 border-t border-primary-dark text-center text-sm text-slate-500">
                 &copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
             </div>
         </div>

@@ -6,7 +6,7 @@
 @section('content')
     <div class="mb-6 flex justify-between items-center">
         <p class="text-gray-600">Manage instructors. Add instructors before creating courses so you can assign them.</p>
-        <a href="{{ route('admin.instructors.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add instructor</a>
+        <a href="{{ route('admin.instructors.create') }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add instructor</a>
     </div>
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200">
@@ -25,7 +25,7 @@
                     <td class="px-6 py-4 text-gray-500">{{ $instructor->email ?? '—' }}</td>
                     <td class="px-6 py-4 text-gray-500">{{ $instructor->courses_count }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.instructors.edit', $instructor) }}" class="text-amber-600 hover:underline mr-3">Edit</a>
+                        <a href="{{ route('admin.instructors.edit', $instructor) }}" class="text-primary hover:underline mr-3">Edit</a>
                         <form action="{{ route('admin.instructors.destroy', $instructor) }}" method="post" class="inline" onsubmit="return confirm('Delete this instructor? Their courses will be unassigned.');">
                             @csrf
                             @method('DELETE')
@@ -35,7 +35,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">No instructors yet. <a href="{{ route('admin.instructors.create') }}" class="text-amber-600 hover:underline">Add one</a> to assign to courses.</td>
+                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">No instructors yet. <a href="{{ route('admin.instructors.create') }}" class="text-primary hover:underline">Add one</a> to assign to courses.</td>
                 </tr>
                 @endforelse
             </tbody>

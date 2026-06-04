@@ -24,7 +24,7 @@
             </div>
         </dl>
         <div class="mt-4">
-            <a href="{{ route('admin.users.index') }}" class="text-sm text-amber-600 hover:underline">← Back to users</a>
+            <a href="{{ route('admin.users.index') }}" class="text-sm text-primary hover:underline">← Back to users</a>
         </div>
     </div>
 
@@ -47,7 +47,7 @@
                     <td class="px-6 py-4 text-gray-500">{{ $row->course->category->name ?? '—' }}</td>
                     <td class="px-6 py-4">
                         @if($row->enrolled)
-                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-emerald-100 text-emerald-800">Enrolled</span>
+                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-success-muted text-success-darker">Enrolled</span>
                         @else
                             <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">Not enrolled</span>
                         @endif
@@ -56,7 +56,7 @@
                         @if($row->enrolled)
                             <div class="flex items-center gap-2">
                                 <div class="w-24 h-2 rounded-full bg-gray-200 overflow-hidden">
-                                    <div class="h-full rounded-full bg-amber-500" style="width: {{ $row->percent }}%"></div>
+                                    <div class="h-full rounded-full bg-accent" style="width: {{ $row->percent }}%"></div>
                                 </div>
                                 <span class="text-sm text-gray-600">{{ $row->completed }} / {{ $row->total_lessons }} ({{ $row->percent }}%)</span>
                             </div>

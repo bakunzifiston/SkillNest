@@ -6,10 +6,10 @@
     <section class="bg-white border-b border-slate-200 py-8 lg:py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             @if(session('success'))
-                <div class="mb-6 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200">{{ session('success') }}</div>
+                <div class="mb-6 p-4 rounded-xl bg-success-light text-success-darker border border-success-muted">{{ session('success') }}</div>
             @endif
             @if(session('info'))
-                <div class="mb-6 p-4 rounded-xl bg-amber-50 text-amber-800 border border-amber-200">{{ session('info') }}</div>
+                <div class="mb-6 p-4 rounded-xl bg-accent-light text-accent-darker border border-accent-muted">{{ session('info') }}</div>
             @endif
 
             @if($bundle->thumbnail_url)
@@ -29,7 +29,7 @@
                                 <span>{{ $bundleEnrollment->completed_courses }} / {{ $bundleEnrollment->total_courses }} courses ({{ (int) $bundleEnrollment->bundle_completion_percentage }}%)</span>
                             </div>
                             @if($bundleEnrollment->completed_at)
-                                <span class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-medium">Bundle completed</span>
+                                <span class="inline-flex items-center px-4 py-2 rounded-xl bg-success-muted text-success-darker font-medium">Bundle completed</span>
                             @endif
                         @endif
                         <a href="{{ route('courses.my-courses') }}" class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">My courses</a>
@@ -37,7 +37,7 @@
                 @else
                     <form action="{{ route('bundles.enroll', $bundle) }}" method="POST" class="inline">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
                             Enroll in this bundle
                         </button>
                     </form>
@@ -58,15 +58,15 @@
             <div class="space-y-4">
                 @foreach($bundle->courses as $index => $course)
                 <div class="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-semibold flex items-center justify-center text-sm">{{ $index + 1 }}</span>
+                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-accent-muted text-accent-darker font-semibold flex items-center justify-center text-sm">{{ $index + 1 }}</span>
                     <div class="flex-1 min-w-0">
-                        <a href="{{ route('courses.show', $course) }}" class="font-medium text-slate-900 hover:text-amber-600">{{ $course->title }}</a>
+                        <a href="{{ route('courses.show', $course) }}" class="font-medium text-slate-900 hover:text-primary">{{ $course->title }}</a>
                         @if($course->category)
                             <span class="text-sm text-slate-500 ml-2">— {{ $course->category->name }}</span>
                         @endif
                     </div>
                     @if($enrolled)
-                        <a href="{{ route('courses.show', $course) }}" class="flex-shrink-0 text-sm font-medium text-amber-600 hover:underline">Open course</a>
+                        <a href="{{ route('courses.show', $course) }}" class="flex-shrink-0 text-sm font-medium text-primary hover:underline">Open course</a>
                     @endif
                 </div>
                 @endforeach

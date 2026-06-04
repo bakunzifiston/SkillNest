@@ -5,48 +5,29 @@
 @section('content')
     <div class="flex flex-col lg:flex-row">
         @if($enrolled && $course->chapters->isNotEmpty())
-        {{-- Sidebar: chapters & lessons (for enrolled learners) --}}
-        <aside class="lg:w-72 lg:min-w-[18rem] flex-shrink-0 bg-white border-b lg:border-b-0 lg:border-r border-slate-200 order-first">
-            <div class="p-4 border-b border-slate-200 bg-slate-50">
-                <h2 class="font-display font-semibold text-slate-900 text-sm">Curriculum</h2>
-                <p class="text-xs text-slate-500 mt-0.5">{{ $completedCount }} / {{ $totalLessons }} lessons</p>
-            </div>
-            <nav class="py-3 overflow-y-auto max-h-[50vh] lg:max-h-[70vh]" aria-label="Course curriculum">
-                @foreach($course->chapters as $chapter)
-                    <div class="mb-2">
-                        <div class="px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500">{{ $chapter->title }}</div>
-                        <ul class="space-y-0.5">
-                            @foreach($chapter->lessons as $l)
-                                <li>
-                                    <a href="{{ route('courses.lessons.show', [$course, $l]) }}" class="flex items-center gap-2 py-2 px-4 text-sm text-slate-700 hover:bg-amber-50 hover:text-amber-800 border-l-2 border-transparent hover:border-amber-300">
-                                        <span class="flex-1 min-w-0 truncate">{{ $l->title }}</span>
-                                        @if($completedLessonIds->contains($l->id))
-                                            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">✓</span>
-                                        @endif
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endforeach
-            </nav>
-        </aside>
+        @include('courses.partials.curriculum-sidebar', [
+            'course' => $course,
+            'completedLessonIds' => $completedLessonIds,
+            'completedCount' => $completedCount,
+            'totalLessons' => $totalLessons,
+            'sidebarClass' => 'order-first',
+        ])
         @endif
         <div class="flex-1 min-w-0">
     <section class="bg-white border-b border-slate-200 py-8 lg:py-12">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             @if(session('success'))
-                <div class="mb-6 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200">{{ session('success') }}</div>
+                <div class="mb-6 p-4 rounded-xl bg-success-light text-success-darker border border-success-muted">{{ session('success') }}</div>
             @endif
             @if(session('info'))
-                <div class="mb-6 p-4 rounded-xl bg-amber-50 text-amber-800 border border-amber-200">{{ session('info') }}</div>
+                <div class="mb-6 p-4 rounded-xl bg-accent-light text-accent-darker border border-accent-muted">{{ session('info') }}</div>
             @endif
             @if(session('error'))
                 <div class="mb-6 p-4 rounded-xl bg-red-50 text-red-800 border border-red-200">{{ session('error') }}</div>
             @endif
 
             @if($course->category ?? null)
-                <span class="text-sm font-medium text-amber-600 uppercase tracking-wide">{{ $course->category->name }}</span>
+                <span class="text-sm font-medium text-primary uppercase tracking-wide">{{ $course->category->name }}</span>
             @endif
             <h1 class="mt-2 font-display font-bold text-3xl lg:text-4xl text-slate-900">{{ $course->title }}</h1>
             @if($course->instructor ?? null)
@@ -56,9 +37,9 @@
                 <span>{{ $course->duration ?? 'Self-paced' }}</span>
                 <span>{{ $totalLessons }} {{ Str::plural('lesson', $totalLessons) }}</span>
                 @if(($course->price ?? 0) > 0)
-                    <span class="font-semibold text-amber-600">${{ number_format($course->price, 0) }}</span>
+                    <span class="font-semibold text-primary">${{ number_format($course->price, 0) }}</span>
                 @else
-                    <span class="font-semibold text-amber-600">Free</span>
+                    <span class="font-semibold text-primary">Free</span>
                 @endif
             </div>
 
@@ -70,18 +51,18 @@
                             <span>{{ $completedCount }} / {{ $totalLessons }} lessons</span>
                         </div>
                         @if($resumeLesson)
-                            <a href="{{ route('courses.lessons.show', [$course, $resumeLesson]) }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition">
+                            <a href="{{ route('courses.lessons.show', [$course, $resumeLesson]) }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
                                 {{ $completedCount > 0 ? 'Resume course' : 'Start course' }}
                             </a>
                         @else
-                            <span class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-100 text-emerald-800 font-medium">Course completed</span>
+                            <span class="inline-flex items-center px-4 py-2 rounded-xl bg-success-muted text-success-darker font-medium">Course completed</span>
                         @endif
                         <a href="{{ route('courses.my-courses') }}" class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">My courses</a>
                     </div>
                 @else
                     <form action="{{ route('courses.enroll', $course) }}" method="POST" class="inline">
                         @csrf
-                        <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
                             Enroll in this course
                         </button>
                     </form>
@@ -115,11 +96,11 @@
                             <ul class="divide-y divide-slate-100">
                                 @foreach($chapter->lessons as $lesson)
                                     <li class="flex items-center gap-3 px-5 py-3">
-                                        <a href="{{ route('courses.lessons.show', [$course, $lesson]) }}" class="flex-1 {{ $enrolled ? 'text-slate-700 hover:text-amber-600' : 'text-slate-600 hover:text-amber-600' }} font-medium">
+                                        <a href="{{ route('courses.lessons.show', [$course, $lesson]) }}" class="flex-1 {{ $enrolled ? 'text-slate-700 hover:text-primary' : 'text-slate-600 hover:text-primary' }} font-medium">
                                             {{ $lesson->title }}
                                         </a>
                                         @if($enrolled && $completedLessonIds->contains($lesson->id))
-                                            <span class="text-emerald-600 text-sm font-medium" aria-label="Completed">✓</span>
+                                            <span class="text-success-dark text-sm font-medium" aria-label="Completed">✓</span>
                                         @endif
                                     </li>
                                 @endforeach
@@ -148,7 +129,7 @@
                             @php $isInvited = auth()->check() && $session->invitedAttendees->contains('id', auth()->id()); @endphp
                             @if($isInvited)
                                 <div class="flex flex-col items-end gap-1">
-                                    <a href="{{ $session->meeting_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-amber-500 text-white font-semibold hover:bg-amber-600 transition">Join session</a>
+                                    <a href="{{ $session->meeting_url }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">Join session</a>
                                     @if($session->meeting_password)
                                         <span class="text-xs text-slate-500">Password: {{ $session->meeting_password }}</span>
                                     @endif
@@ -169,7 +150,7 @@
                 <h2 class="font-display font-bold text-xl text-slate-900 mb-6">Quizzes</h2>
                 <div class="space-y-4">
                     @foreach($course->quizzes as $quiz)
-                        <a href="{{ route('courses.quizzes.show', [$course, $quiz]) }}" class="block border border-slate-200 rounded-xl p-5 bg-white hover:border-amber-300 hover:shadow-md transition">
+                        <a href="{{ route('courses.quizzes.show', [$course, $quiz]) }}" class="block border border-slate-200 rounded-xl p-5 bg-white hover:border-primary hover:shadow-md transition">
                             <span class="font-semibold text-slate-900">{{ $quiz->title }}</span>
                             <p class="text-sm text-slate-500 mt-1">Passing grade: {{ $quiz->passing_grade }}% · {{ $quiz->questions_count ?? 0 }} questions</p>
                         </a>

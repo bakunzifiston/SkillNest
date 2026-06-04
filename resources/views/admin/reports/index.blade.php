@@ -14,7 +14,7 @@
                 <label for="to" class="block text-xs font-medium text-gray-500">To</label>
                 <input type="date" name="to" id="to" value="{{ $dateTo->format('Y-m-d') }}" class="mt-1 rounded-lg border-gray-300 text-sm">
             </div>
-            <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600">Apply</button>
+            <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-dark">Apply</button>
         </form>
         <p class="text-xs text-gray-500 mt-2">Date range applies to enrollment-over-time and period totals where relevant.</p>
     </div>
@@ -38,16 +38,16 @@
                         <p class="text-2xl font-bold text-gray-900">{{ $studentsWithQuizAttempts }}</p>
                         <p class="text-sm text-gray-500">Students with at least one quiz attempt</p>
                     </div>
-                    <div class="p-4 rounded-lg bg-amber-50 border border-amber-100">
-                        <p class="text-2xl font-bold text-amber-700">{{ $recentEnrollmentsCount }}</p>
+                    <div class="p-4 rounded-lg bg-accent-light border border-accent-muted">
+                        <p class="text-2xl font-bold text-accent-dark">{{ $recentEnrollmentsCount }}</p>
                         <p class="text-sm text-gray-500">Enrollments (last 7 days)</p>
                     </div>
-                    <div class="p-4 rounded-lg bg-amber-50 border border-amber-100">
-                        <p class="text-2xl font-bold text-amber-700">{{ $recentCompletionsCount }}</p>
+                    <div class="p-4 rounded-lg bg-accent-light border border-accent-muted">
+                        <p class="text-2xl font-bold text-accent-dark">{{ $recentCompletionsCount }}</p>
                         <p class="text-sm text-gray-500">Lesson completions (last 7 days)</p>
                     </div>
-                    <div class="p-4 rounded-lg bg-amber-50 border border-amber-100">
-                        <p class="text-2xl font-bold text-amber-700">{{ $recentQuizAttemptsCount }}</p>
+                    <div class="p-4 rounded-lg bg-accent-light border border-accent-muted">
+                        <p class="text-2xl font-bold text-accent-dark">{{ $recentQuizAttemptsCount }}</p>
                         <p class="text-sm text-gray-500">Quiz attempts submitted (last 7 days)</p>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                                     <td class="px-4 py-2 text-gray-500">{{ $i + 1 }}</td>
                                     <td class="px-4 py-2 font-medium text-gray-900">{{ $c->title }}</td>
                                     <td class="px-4 py-2 text-gray-600">{{ $c->category->name ?? '—' }}</td>
-                                    <td class="px-4 py-2 text-right font-medium text-amber-600">{{ $c->enrollments_count }}</td>
+                                    <td class="px-4 py-2 text-right font-medium text-primary">{{ $c->enrollments_count }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -88,7 +88,7 @@
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Revenue reports</h3>
                 <p class="text-sm text-gray-500 mb-4">Estimated revenue (course price × enrollments). Does not reflect actual payments.</p>
                 <div class="mb-4">
-                    <span class="text-2xl font-bold text-amber-600">{{ number_format($totalRevenue, 2) }}</span>
+                    <span class="text-2xl font-bold text-primary">{{ number_format($totalRevenue, 2) }}</span>
                     <span class="text-gray-500 ml-2">Total estimated revenue</span>
                 </div>
                 <div class="overflow-x-auto">
@@ -133,7 +133,7 @@
                                     <td class="px-4 py-2 font-medium text-gray-900">{{ $e->instructor->name }}</td>
                                     <td class="px-4 py-2 text-right text-gray-600">{{ $e->courses_count }}</td>
                                     <td class="px-4 py-2 text-right text-gray-600">{{ $e->total_enrollments }}</td>
-                                    <td class="px-4 py-2 text-right font-medium text-amber-600">{{ number_format($e->estimated_earnings, 2) }}</td>
+                                    <td class="px-4 py-2 text-right font-medium text-primary">{{ number_format($e->estimated_earnings, 2) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -165,7 +165,7 @@
                 @else
                     <div class="flex flex-wrap gap-4">
                         @foreach($enrollmentsOverTime as $e)
-                            <span class="px-3 py-1.5 bg-amber-50 text-amber-800 rounded-lg text-sm">{{ $e->month }}: <strong>{{ $e->count }}</strong></span>
+                            <span class="px-3 py-1.5 bg-accent-light text-accent-darker rounded-lg text-sm">{{ $e->month }}: <strong>{{ $e->count }}</strong></span>
                         @endforeach
                     </div>
                 @endif

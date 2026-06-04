@@ -7,10 +7,10 @@
     <div class="mb-6 flex flex-wrap justify-between items-center gap-4">
         <div class="flex items-center gap-3">
             <p class="text-gray-600">Create quizzes, add questions (MCQ / True–False), set passing grade.</p>
-            <a href="{{ route('admin.quiz-results.index') }}" class="text-amber-600 hover:underline">View results</a>
-            <a href="{{ route('admin.quiz-results.export') }}" class="text-amber-600 hover:underline">Export CSV</a>
+            <a href="{{ route('admin.quiz-results.index') }}" class="text-primary hover:underline">View results</a>
+            <a href="{{ route('admin.quiz-results.export') }}" class="text-primary hover:underline">Export CSV</a>
         </div>
-        <a href="{{ route('admin.quizzes.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Create quiz</a>
+        <a href="{{ route('admin.quizzes.create') }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Create quiz</a>
     </div>
     <div class="mb-4">
         <form method="get" class="flex gap-2 items-center">
@@ -41,8 +41,8 @@
                     <td class="px-6 py-4 text-gray-500">{{ $quiz->passing_grade }}%</td>
                     <td class="px-6 py-4 text-gray-500">{{ $quiz->questions()->count() }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.quizzes.questions.index', $quiz) }}" class="text-amber-600 hover:underline mr-3">Questions</a>
-                        <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="text-amber-600 hover:underline mr-3">Edit</a>
+                        <a href="{{ route('admin.quizzes.questions.index', $quiz) }}" class="text-primary hover:underline mr-3">Questions</a>
+                        <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="text-primary hover:underline mr-3">Edit</a>
                         <form action="{{ route('admin.quizzes.destroy', $quiz) }}" method="post" class="inline" onsubmit="return confirm('Delete this quiz and all its questions?');">
                             @csrf
                             @method('DELETE')
@@ -52,7 +52,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No quizzes yet. <a href="{{ route('admin.quizzes.create') }}" class="text-amber-600 hover:underline">Create one</a>.</td>
+                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No quizzes yet. <a href="{{ route('admin.quizzes.create') }}" class="text-primary hover:underline">Create one</a>.</td>
                 </tr>
                 @endforelse
             </tbody>

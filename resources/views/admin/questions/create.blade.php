@@ -9,7 +9,7 @@
             @csrf
             <div>
                 <label for="type" class="block text-sm font-medium text-gray-700">Type</label>
-                <select name="type" id="type" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <select name="type" id="type" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     <option value="mcq" {{ old('type') === 'mcq' ? 'selected' : '' }}>Multiple choice (MCQ)</option>
                     <option value="true_false" {{ old('type') === 'true_false' ? 'selected' : '' }}>True / False</option>
                 </select>
@@ -17,23 +17,23 @@
             </div>
             <div>
                 <label for="question_text" class="block text-sm font-medium text-gray-700">Question text</label>
-                <textarea name="question_text" id="question_text" rows="3" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">{{ old('question_text') }}</textarea>
+                <textarea name="question_text" id="question_text" rows="3" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('question_text') }}</textarea>
                 @error('question_text')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
                 <label for="points" class="block text-sm font-medium text-gray-700">Points</label>
-                <input type="number" name="points" id="points" value="{{ old('points', 1) }}" min="1" max="100" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                <input type="number" name="points" id="points" value="{{ old('points', 1) }}" min="1" max="100" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('points')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div id="true-false-options" class="space-y-3 hidden">
                 <p class="text-sm font-medium text-gray-700">Correct answer</p>
                 <label class="flex items-center gap-2">
-                    <input type="radio" name="true_false_correct" value="true" {{ old('true_false_correct') === 'true' ? 'checked' : '' }} class="text-amber-600 focus:ring-amber-500">
+                    <input type="radio" name="true_false_correct" value="true" {{ old('true_false_correct') === 'true' ? 'checked' : '' }} class="text-primary focus:ring-accent">
                     <span>True</span>
                 </label>
                 <label class="flex items-center gap-2">
-                    <input type="radio" name="true_false_correct" value="false" {{ old('true_false_correct') === 'false' ? 'checked' : '' }} class="text-amber-600 focus:ring-amber-500">
+                    <input type="radio" name="true_false_correct" value="false" {{ old('true_false_correct') === 'false' ? 'checked' : '' }} class="text-primary focus:ring-accent">
                     <span>False</span>
                 </label>
             </div>
@@ -42,15 +42,15 @@
                 <p class="text-sm font-medium text-gray-700">Options (select correct one)</p>
                 @for($i = 0; $i < 4; $i++)
                 <div class="flex items-center gap-2">
-                    <input type="radio" name="correct_option" value="{{ $i }}" {{ old('correct_option', 0) == $i ? 'checked' : '' }} class="text-amber-600 focus:ring-amber-500">
-                    <input type="text" name="options[]" value="{{ old('options.'.$i) }}" placeholder="Option {{ $i + 1 }}" class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                    <input type="radio" name="correct_option" value="{{ $i }}" {{ old('correct_option', 0) == $i ? 'checked' : '' }} class="text-primary focus:ring-accent">
+                    <input type="text" name="options[]" value="{{ old('options.'.$i) }}" placeholder="Option {{ $i + 1 }}" class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 </div>
                 @endfor
                 @error('options')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add question</button>
+                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add question</button>
                 <a href="{{ route('admin.quizzes.questions.index', $quiz) }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
             </div>
         </form>

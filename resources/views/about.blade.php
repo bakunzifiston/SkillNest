@@ -28,7 +28,7 @@
                     We believe everyone deserves access to high-quality education. By combining clear instruction, practical projects, and a supportive community, we help learners worldwide reach their goals and grow their careers.
                 </p>
                 <p class="mt-6">
-                    <a href="{{ route('courses.index') }}" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-amber-500 text-white font-semibold hover:bg-amber-600 transition">Explore courses</a>
+                    <a href="{{ route('courses.index') }}" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-accent text-white font-semibold hover:bg-accent-dark transition">Explore courses</a>
                 </p>
             </div>
         </div>

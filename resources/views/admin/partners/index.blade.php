@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('admin.partners.create') }}" class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add partner logo</a>
+        <a href="{{ route('admin.partners.create') }}" class="inline-flex items-center px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add partner logo</a>
     </div>
     <p class="text-gray-500 text-sm mb-4">These logos appear in the "Trusted by teams everywhere" section on the home page.</p>
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -25,7 +25,7 @@
                     </td>
                     <td class="px-6 py-4 text-gray-600">{{ $partner->name ?? '—' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.partners.edit', $partner) }}" class="text-amber-600 hover:underline mr-2">Edit</a>
+                        <a href="{{ route('admin.partners.edit', $partner) }}" class="text-primary hover:underline mr-2">Edit</a>
                         <form action="{{ route('admin.partners.destroy', $partner) }}" method="post" class="inline" onsubmit="return confirm('Remove this partner?');">
                             @csrf
                             @method('DELETE')
@@ -35,7 +35,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="3" class="px-6 py-8 text-center text-gray-500">No partners yet. <a href="{{ route('admin.partners.create') }}" class="text-amber-600 hover:underline">Add one</a>.</td>
+                    <td colspan="3" class="px-6 py-8 text-center text-gray-500">No partners yet. <a href="{{ route('admin.partners.create') }}" class="text-primary hover:underline">Add one</a>.</td>
                 </tr>
                 @endforelse
             </tbody>

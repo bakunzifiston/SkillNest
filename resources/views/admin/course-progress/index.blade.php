@@ -22,7 +22,7 @@
                     <td class="px-6 py-4 text-gray-500">{{ $course->category->name ?? '—' }}</td>
                     <td class="px-6 py-4 text-gray-500">{{ $course->enrollments_count }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.course-progress.show', $course) }}" class="text-amber-600 hover:underline font-medium">View students</a>
+                        <a href="{{ route('admin.course-progress.show', $course) }}" class="text-primary hover:underline font-medium">View students</a>
                     </td>
                 </tr>
                 @empty

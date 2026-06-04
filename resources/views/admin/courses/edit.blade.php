@@ -8,10 +8,10 @@
 
     {{-- Clear tabs (Thinkific-style) - very visible --}}
     <div class="bg-white rounded-xl border border-gray-200 p-2 mb-8 inline-flex gap-1 shadow-sm">
-        <a href="{{ route('admin.courses.edit', $course) }}?tab=overview" class="px-6 py-3 rounded-lg font-medium text-sm {{ $activeTab === 'overview' ? 'bg-amber-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+        <a href="{{ route('admin.courses.edit', $course) }}?tab=overview" class="px-6 py-3 rounded-lg font-medium text-sm {{ $activeTab === 'overview' ? 'bg-accent text-white' : 'text-gray-600 hover:bg-gray-100' }}">
             Overview
         </a>
-        <a href="{{ route('admin.courses.edit', $course) }}?tab=curriculum" class="px-6 py-3 rounded-lg font-medium text-sm {{ $activeTab === 'curriculum' ? 'bg-amber-500 text-white' : 'text-gray-600 hover:bg-gray-100' }}">
+        <a href="{{ route('admin.courses.edit', $course) }}?tab=curriculum" class="px-6 py-3 rounded-lg font-medium text-sm {{ $activeTab === 'curriculum' ? 'bg-accent text-white' : 'text-gray-600 hover:bg-gray-100' }}">
             Curriculum
         </a>
     </div>
@@ -25,7 +25,7 @@
                 @method('PUT')
                 <div>
                     <label for="category_id" class="block text-sm font-medium text-gray-700">Category</label>
-                    <select name="category_id" id="category_id" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                    <select name="category_id" id="category_id" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ old('category_id', $course->category_id) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                         @endforeach
@@ -34,7 +34,7 @@
                 </div>
                 <div>
                     <label for="instructor_id" class="block text-sm font-medium text-gray-700">Instructor</label>
-                    <select name="instructor_id" id="instructor_id" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                    <select name="instructor_id" id="instructor_id" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                         <option value="">Select instructor (optional)</option>
                         @foreach($instructors as $inst)
                             <option value="{{ $inst->id }}" {{ old('instructor_id', $course->instructor_id) == $inst->id ? 'selected' : '' }}>{{ $inst->name }}</option>
@@ -43,23 +43,23 @@
                 </div>
                 <div>
                     <label for="title" class="block text-sm font-medium text-gray-700">Course title</label>
-                    <input type="text" name="title" id="title" value="{{ old('title', $course->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                    <input type="text" name="title" id="title" value="{{ old('title', $course->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
                     <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea name="description" id="description" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">{{ old('description', $course->description) }}</textarea>
+                    <textarea name="description" id="description" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('description', $course->description) }}</textarea>
                 </div>
                 <div>
                     <span class="block text-sm font-medium text-gray-700 mb-2">Pricing</span>
                     @php $isFree = old('is_free', $course->price == 0 ? '1' : '0'); @endphp
                     <div class="flex gap-6">
                         <label class="inline-flex items-center">
-                            <input type="radio" name="is_free" value="1" {{ $isFree == '1' ? 'checked' : '' }} class="rounded-full border-gray-300 text-amber-600 focus:ring-amber-500">
+                            <input type="radio" name="is_free" value="1" {{ $isFree == '1' ? 'checked' : '' }} class="rounded-full border-gray-300 text-primary focus:ring-accent">
                             <span class="ml-2">Free</span>
                         </label>
                         <label class="inline-flex items-center">
-                            <input type="radio" name="is_free" value="0" {{ $isFree == '0' ? 'checked' : '' }} class="rounded-full border-gray-300 text-amber-600 focus:ring-amber-500">
+                            <input type="radio" name="is_free" value="0" {{ $isFree == '0' ? 'checked' : '' }} class="rounded-full border-gray-300 text-primary focus:ring-accent">
                             <span class="ml-2">Paid</span>
                         </label>
                     </div>
@@ -68,7 +68,7 @@
                     <label for="price" class="block text-sm font-medium text-gray-700">Price ($)</label>
                     <input type="number" name="price" id="price" value="{{ old('price', $course->price) }}" min="0" step="0.01" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm max-w-xs">
                 </div>
-                <div class="p-4 bg-amber-50/50 rounded-xl border border-amber-100">
+                <div class="p-4 bg-accent-light/50 rounded-xl border border-accent-muted">
                     <label for="banner" class="block text-sm font-medium text-gray-700">Course banner</label>
                     @if($course->banner_url)
                         <div class="mt-2 mb-3">
@@ -77,18 +77,18 @@
                             <p class="mt-1 text-xs text-gray-500">Upload a new file below to replace.</p>
                         </div>
                     @endif
-                    <input type="file" name="banner" id="banner" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-500 file:text-white file:font-medium hover:file:bg-amber-600">
+                    <input type="file" name="banner" id="banner" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent file:text-white file:font-medium hover:file:bg-accent-dark">
                     <p class="mt-1 text-xs text-gray-500">JPEG, PNG, GIF or WebP. Max 2MB.</p>
                     @error('banner')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label for="duration" class="block text-sm font-medium text-gray-700">Duration</label>
-                        <input type="text" name="duration" id="duration" value="{{ old('duration', $course->duration) }}" placeholder="e.g. 8 hours" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        <input type="text" name="duration" id="duration" value="{{ old('duration', $course->duration) }}" placeholder="e.g. 8 hours" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     </div>
                     <div>
                         <label for="level" class="block text-sm font-medium text-gray-700">Level</label>
-                        <select name="level" id="level" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500">
+                        <select name="level" id="level" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                             <option value="beginner" {{ old('level', $course->level) == 'beginner' ? 'selected' : '' }}>Beginner</option>
                             <option value="intermediate" {{ old('level', $course->level) == 'intermediate' ? 'selected' : '' }}>Intermediate</option>
                             <option value="advanced" {{ old('level', $course->level) == 'advanced' ? 'selected' : '' }}>Advanced</option>
@@ -96,7 +96,7 @@
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Save course</button>
+                    <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Save course</button>
                     <a href="{{ route('admin.courses.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Back to courses</a>
                 </div>
             </form>
@@ -119,13 +119,13 @@
                             <span class="text-sm text-gray-500">({{ $chapter->lessons->count() }} lesson{{ $chapter->lessons->count() !== 1 ? 's' : '' }})</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('admin.chapters.edit', $chapter) }}" class="text-sm text-gray-600 hover:text-amber-600">Edit</a>
+                            <a href="{{ route('admin.chapters.edit', $chapter) }}" class="text-sm text-gray-600 hover:text-primary">Edit</a>
                             <form action="{{ route('admin.chapters.destroy', $chapter) }}" method="post" class="inline" onsubmit="return confirm('Delete this section and all its lessons?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="text-sm text-red-600 hover:underline">Delete</button>
                             </form>
-                            <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="ml-2 text-sm px-3 py-1.5 bg-amber-500 text-white rounded-lg hover:bg-amber-600">Add lesson</a>
+                            <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="ml-2 text-sm px-3 py-1.5 bg-accent text-white rounded-lg hover:bg-accent-dark">Add lesson</a>
                         </div>
                     </div>
                     {{-- Lessons list --}}
@@ -145,7 +145,7 @@
                                 <span class="font-medium text-gray-900">{{ $lesson->title }}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.lessons.edit', $lesson) }}" class="text-sm text-amber-600 hover:underline">Edit</a>
+                                <a href="{{ route('admin.lessons.edit', $lesson) }}" class="text-sm text-primary hover:underline">Edit</a>
                                 <form action="{{ route('admin.lessons.destroy', $lesson) }}" method="post" class="inline" onsubmit="return confirm('Delete this lesson?');">
                                     @csrf
                                     @method('DELETE')
@@ -155,7 +155,7 @@
                         </li>
                         @empty
                         <li class="px-5 py-6 text-center text-gray-500 text-sm">
-                            No lessons in this section. <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="text-amber-600 hover:underline">Add lesson</a>
+                            No lessons in this section. <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="text-primary hover:underline">Add lesson</a>
                         </li>
                         @endforelse
                     </ul>
@@ -164,7 +164,7 @@
             </div>
 
             <div class="mt-8">
-                <a href="{{ route('admin.courses.chapters.create', $course) }}" class="inline-flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-amber-400 hover:text-amber-600 font-medium">
+                <a href="{{ route('admin.courses.chapters.create', $course) }}" class="inline-flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-accent hover:text-primary font-medium">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Add section
                 </a>
@@ -173,7 +173,7 @@
             @if($course->chapters->isEmpty())
             <div class="mt-6 p-6 bg-gray-50 rounded-xl border border-gray-200 text-center text-gray-600">
                 <p class="mb-3">You don’t have any sections yet.</p>
-                <a href="{{ route('admin.courses.chapters.create', $course) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg font-medium hover:bg-amber-600">Add your first section</a>
+                <a href="{{ route('admin.courses.chapters.create', $course) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add your first section</a>
             </div>
             @endif
         </div>

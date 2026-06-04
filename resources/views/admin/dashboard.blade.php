@@ -8,22 +8,22 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <a href="{{ route('admin.categories.index') }}" class="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition">
             <h3 class="font-semibold text-gray-800">Categories</h3>
-            <p class="mt-1 text-2xl font-bold text-amber-600">{{ $stats['categories'] }}</p>
+            <p class="mt-1 text-2xl font-bold text-primary">{{ $stats['categories'] }}</p>
             <p class="mt-1 text-sm text-gray-500">Manage course categories</p>
         </a>
         <a href="{{ route('admin.courses.index') }}" class="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition">
             <h3 class="font-semibold text-gray-800">Courses</h3>
-            <p class="mt-1 text-2xl font-bold text-amber-600">{{ $stats['courses'] }}</p>
+            <p class="mt-1 text-2xl font-bold text-primary">{{ $stats['courses'] }}</p>
             <p class="mt-1 text-sm text-gray-500">Manage courses</p>
         </a>
         <a href="{{ route('admin.bundles.index') }}" class="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition">
             <h3 class="font-semibold text-gray-800">Bundles</h3>
-            <p class="mt-1 text-2xl font-bold text-amber-600">{{ $stats['bundles'] }}</p>
+            <p class="mt-1 text-2xl font-bold text-primary">{{ $stats['bundles'] }}</p>
             <p class="mt-1 text-sm text-gray-500">Manage course bundles</p>
         </a>
         <a href="{{ route('admin.users.index') }}" class="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition">
             <h3 class="font-semibold text-gray-800">Users</h3>
-            <p class="mt-1 text-2xl font-bold text-amber-600">{{ $stats['users'] }}</p>
+            <p class="mt-1 text-2xl font-bold text-primary">{{ $stats['users'] }}</p>
             <p class="mt-1 text-sm text-gray-500">View users & student progress</p>
         </a>
         <a href="{{ route('admin.course-progress.index') }}" class="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition">
@@ -36,7 +36,7 @@
         </a>
         <a href="{{ route('admin.partners.index') }}" class="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition">
             <h3 class="font-semibold text-gray-800">Partner logos</h3>
-            <p class="mt-1 text-2xl font-bold text-amber-600">{{ $stats['partners'] }}</p>
+            <p class="mt-1 text-2xl font-bold text-primary">{{ $stats['partners'] }}</p>
             <p class="mt-1 text-sm text-gray-500">Trusted by section on home</p>
         </a>
         <a href="{{ route('home') }}" class="block p-6 bg-white rounded-xl border border-gray-200 hover:shadow-md transition" target="_blank">
@@ -50,8 +50,8 @@
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
             <h2 class="text-lg font-semibold text-gray-800">Enrollments over time</h2>
             <div class="flex gap-2">
-                <a href="{{ route('admin.dashboard', ['chart_period' => 'weekly']) }}" class="px-3 py-1.5 rounded-lg text-sm font-medium {{ ($chartPeriod ?? 'monthly') === 'weekly' ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">Weekly</a>
-                <a href="{{ route('admin.dashboard', ['chart_period' => 'monthly']) }}" class="px-3 py-1.5 rounded-lg text-sm font-medium {{ ($chartPeriod ?? 'monthly') === 'monthly' ? 'bg-amber-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">Monthly</a>
+                <a href="{{ route('admin.dashboard', ['chart_period' => 'weekly']) }}" class="px-3 py-1.5 rounded-lg text-sm font-medium {{ ($chartPeriod ?? 'monthly') === 'weekly' ? 'bg-accent-dark text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">Weekly</a>
+                <a href="{{ route('admin.dashboard', ['chart_period' => 'monthly']) }}" class="px-3 py-1.5 rounded-lg text-sm font-medium {{ ($chartPeriod ?? 'monthly') === 'monthly' ? 'bg-accent-dark text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">Monthly</a>
             </div>
         </div>
         <div class="h-64">
@@ -92,7 +92,7 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div class="min-w-0 flex-1">
                                     <span class="font-medium text-gray-800">{{ $review->user->name ?? '—' }}</span>
-                                    <span class="text-amber-600 text-sm ml-1">★ {{ $review->rating }}/5</span>
+                                    <span class="text-primary text-sm ml-1">★ {{ $review->rating }}/5</span>
                                     <span class="text-sm text-gray-500 block truncate">{{ $review->course->title ?? '—' }}</span>
                                     @if($review->body)
                                         <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ Str::limit($review->body, 80) }}</p>

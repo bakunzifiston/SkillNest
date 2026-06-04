@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('admin.quiz-results.index') }}" class="text-amber-600 hover:underline">← Back to results</a>
+        <a href="{{ route('admin.quiz-results.index') }}" class="text-primary hover:underline">← Back to results</a>
     </div>
     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -25,7 +25,7 @@
                 <dt class="text-sm text-gray-500">Result</dt>
                 <dd>
                     @if($quizAttempt->passed)
-                        <span class="text-green-600 font-medium">Passed</span>
+                        <span class="text-success-dark font-medium">Passed</span>
                     @else
                         <span class="text-red-600">Failed</span>
                     @endif
@@ -48,7 +48,7 @@
                         @if($answer)
                             Selected: {{ $answer->questionOption->option_text ?? '—' }}
                             @if($answer->is_correct)
-                                <span class="text-green-600">✓ Correct</span>
+                                <span class="text-success-dark">✓ Correct</span>
                             @else
                                 <span class="text-red-600">✗ Incorrect</span>
                             @endif

@@ -20,28 +20,28 @@
                         @csrf
                         <div>
                             <label for="name" class="block text-sm font-medium text-slate-700 mb-1">Name</label>
-                            <input type="text" name="name" id="name" value="{{ old('name') }}" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="Your name">
+                            <input type="text" name="name" id="name" value="{{ old('name') }}" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-accent focus:border-accent" placeholder="Your name">
                             @error('name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
                             <label for="email" class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                            <input type="email" name="email" id="email" value="{{ old('email') }}" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="you@example.com">
+                            <input type="email" name="email" id="email" value="{{ old('email') }}" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-accent focus:border-accent" placeholder="you@example.com">
                             @error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
                             <label for="subject" class="block text-sm font-medium text-slate-700 mb-1">Subject</label>
-                            <input type="text" name="subject" id="subject" value="{{ old('subject') }}" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="What is this about?">
+                            <input type="text" name="subject" id="subject" value="{{ old('subject') }}" class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-accent focus:border-accent" placeholder="What is this about?">
                             @error('subject')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                         </div>
                         <div>
                             <label for="message" class="block text-sm font-medium text-slate-700 mb-1">Message</label>
-                            <textarea name="message" id="message" rows="4" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500 focus:border-amber-500" placeholder="Your message">{{ old('message') }}</textarea>
+                            <textarea name="message" id="message" rows="4" required class="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-accent focus:border-accent" placeholder="Your message">{{ old('message') }}</textarea>
                             @error('message')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                         </div>
-                        <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-amber-500 text-white font-semibold hover:bg-amber-600 transition">Send message</button>
+                        <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-lg bg-accent text-white font-semibold hover:bg-accent-dark transition">Send message</button>
                     </form>
                     @if(session('success'))
-                        <p class="mt-4 text-green-600 font-medium">{{ session('success') }}</p>
+                        <p class="mt-4 text-success-dark font-medium">{{ session('success') }}</p>
                     @endif
                 </div>
                 <div>

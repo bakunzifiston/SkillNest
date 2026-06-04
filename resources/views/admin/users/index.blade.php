@@ -31,7 +31,7 @@
                     <td class="px-6 py-4 text-gray-500">{{ $u->enrollments_count }}</td>
                     <td class="px-6 py-4 text-gray-500">{{ $u->last_login_at ? $u->last_login_at->format('M j, Y g:i A') : '—' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.users.show', $u) }}" class="text-amber-600 hover:underline">Progress</a>
+                        <a href="{{ route('admin.users.show', $u) }}" class="text-primary hover:underline">Progress</a>
                     </td>
                 </tr>
                 @empty
