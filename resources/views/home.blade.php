@@ -4,17 +4,76 @@
 
 @section('content')
     {{-- Hero Banner --}}
-    <section class="relative bg-gradient-to-br from-primary-darker via-primary-dark to-primary text-white overflow-hidden">
-        <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.03\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-80"></div>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 relative">
+    @php
+        $bannerSlides = [
+            ['src' => asset('images/banner/agents-field.jpg'), 'alt' => 'KoraLink agents collaborating in the field'],
+            ['src' => asset('images/banner/agents-workshop.jpg'), 'alt' => 'KoraLink agents in a training workshop'],
+            ['src' => asset('images/banner/agents-training.jpg'), 'alt' => 'KoraLink agents at a training session'],
+        ];
+    @endphp
+    <section
+        class="relative text-white overflow-hidden min-h-[28rem] sm:min-h-[32rem] lg:min-h-[36rem]"
+        x-data="{
+            current: 0,
+            total: {{ count($bannerSlides) }},
+            timer: null,
+            next() { this.current = (this.current + 1) % this.total },
+            prev() { this.current = (this.current - 1 + this.total) % this.total },
+            go(i) { this.current = i },
+            start() { this.stop(); this.timer = setInterval(() => this.next(), 5500) },
+            stop() { if (this.timer) { clearInterval(this.timer); this.timer = null } },
+        }"
+        x-init="start()"
+        @mouseenter="stop()"
+        @mouseleave="start()"
+        @focusin="stop()"
+        @focusout="start()"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="KoraLink Agents banner"
+    >
+        <div class="absolute inset-0">
+            @foreach($bannerSlides as $index => $slide)
+                <img
+                    src="{{ $slide['src'] }}"
+                    alt="{{ $slide['alt'] }}"
+                    class="absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ease-out"
+                    :class="current === {{ $index }} ? 'opacity-100' : 'opacity-0'"
+                    @if($index === 0) fetchpriority="high" @else loading="lazy" @endif
+                >
+            @endforeach
+            <div class="absolute inset-0 bg-gradient-to-r from-navy/85 via-navy/60 to-navy/35"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 relative flex items-center min-h-[28rem] sm:min-h-[32rem] lg:min-h-[36rem]">
             <div class="max-w-2xl">
-                <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white">Learn skills that matter. <span class="text-accent">Build your future.</span></h1>
-                <p class="mt-6 text-lg text-slate-300">Join thousands of learners on SkillNest. Expert-led courses in development, design, business, and more. Start free today.</p>
+                <h1 class="font-display font-bold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white">KoraLink <span class="text-accent">Agents</span></h1>
+                <p class="mt-6 text-lg text-slate-200">On this platform, you will find courses that help you learn how to use the Marketplace effectively, provide excellent service to your customers, and grow your business.</p>
                 <div class="mt-10 flex flex-wrap gap-4">
-                    <a href="{{ route('courses.index') }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition shadow-lg shadow-accent/25">Explore Courses</a>
-                    <a href="{{ route('about') }}" class="inline-flex items-center px-6 py-3 rounded-xl border border-slate-500 text-slate-200 hover:bg-white/5 font-medium transition">About Us</a>
+                    <a href="{{ route('courses.index') }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition shadow-brand-accent">Explore Courses</a>
+                    <a href="{{ route('about') }}" class="inline-flex items-center px-6 py-3 rounded-xl border border-white/30 text-white hover:bg-white/10 font-medium transition">About Us</a>
                 </div>
             </div>
+        </div>
+
+        <button type="button" class="absolute left-3 sm:left-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm" @click="prev(); start()" aria-label="Previous slide">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button type="button" class="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 z-10 w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 border border-white/30 text-white flex items-center justify-center backdrop-blur-sm" @click="next(); start()" aria-label="Next slide">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+
+        <div class="absolute bottom-5 left-0 right-0 z-10 flex justify-center gap-2" role="tablist" aria-label="Banner slides">
+            @foreach($bannerSlides as $index => $slide)
+                <button
+                    type="button"
+                    class="w-2.5 h-2.5 rounded-full transition"
+                    :class="current === {{ $index }} ? 'bg-accent scale-110' : 'bg-white/50 hover:bg-white/80'"
+                    @click="go({{ $index }}); start()"
+                    :aria-selected="current === {{ $index }}"
+                    aria-label="Show slide {{ $index + 1 }}"
+                ></button>
+            @endforeach
         </div>
     </section>
 
@@ -37,8 +96,29 @@
         </div>
     </section>
 
-    {{-- Latest Courses --}}
+    {{-- Agents Academy --}}
     <section class="py-16 lg:py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div class="relative overflow-hidden rounded-2xl shadow-brand aspect-[4/3] lg:aspect-auto lg:min-h-[22rem]">
+                    <img
+                        src="{{ asset('images/banner/agents-workshop.jpg') }}"
+                        alt="KoraLink Agents Academy training session"
+                        class="absolute inset-0 w-full h-full object-cover object-center"
+                        loading="lazy"
+                    >
+                </div>
+                <div>
+                    <h2 class="font-display font-bold text-3xl lg:text-4xl text-navy">KoraLink <span class="text-accent">Agents Academy</span></h2>
+                    <p class="mt-6 text-lg text-slate-600 leading-relaxed">The KoraLink Agents e-learning platform is your gateway to becoming a true Digital Community Champion under the Digital Jobs for Youth in Health program. Here, you’ll gain practical digital skills, connect with other changemakers, and take the next step toward improving community health through innovation and technology.</p>
+                    <a href="{{ route('courses.index') }}" class="mt-8 inline-flex items-center px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">Explore Courses</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- Latest Courses --}}
+    <section class="py-16 lg:py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
                 <div>
@@ -81,14 +161,33 @@
         </div>
     </section>
 
+    {{-- Agents Academy — program --}}
+    <section class="py-16 lg:py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+                <div class="order-2 lg:order-1">
+                    <h2 class="font-display font-bold text-3xl lg:text-4xl text-navy">KoraLink <span class="text-accent">Agents Academy</span></h2>
+                    <p class="mt-6 text-lg text-slate-600 leading-relaxed">The official e-learning platform of the Digital Jobs for Youth in Health (KoraLink Agents) program, dedicated to the success of our Digital Community Champions.</p>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl shadow-brand aspect-[4/3] lg:aspect-auto lg:min-h-[22rem] order-1 lg:order-2">
+                    <img
+                        src="{{ asset('images/banner/agents-field.jpg') }}"
+                        alt="KoraLink agents working together in the community"
+                        class="absolute inset-0 w-full h-full object-cover object-center"
+                        loading="lazy"
+                    >
+                </div>
+            </div>
+        </div>
+    </section>
+
     {{-- Partner Logos --}}
     <section class="py-16 lg:py-20 bg-white border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
                 <h2 class="font-display font-bold text-2xl lg:text-3xl text-slate-900">Trusted by teams everywhere</h2>
-                <p class="mt-2 text-slate-500">Companies and organizations that use SkillNest for learning</p>
             </div>
-            <div class="flex flex-wrap items-center justify-center gap-12 lg:gap-16 opacity-70 grayscale hover:grayscale-0 hover:opacity-100 transition">
+            <div class="flex flex-wrap items-center justify-center gap-12 lg:gap-16">
                 @foreach($partners as $partner)
                 <div class="flex items-center justify-center" style="height: 56px;">
                     @if($partner->logo_url ?? null)

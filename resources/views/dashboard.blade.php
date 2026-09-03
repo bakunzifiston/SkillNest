@@ -1,14 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <div class="flex items-center gap-3">
+            <x-brand-logo size="sm" :show-name="false" />
+            <h2 class="font-display font-semibold text-xl text-navy leading-tight">
+                {{ __('Dashboard') }}
+            </h2>
+        </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-200 border-t-4 border-t-accent">
+                <div class="p-6 text-slate-900">
                     <p class="mb-4">{{ __("You're logged in!") }}</p>
                     @unless(auth()->user()->is_admin ?? false)
                         <div class="flex flex-wrap gap-3">

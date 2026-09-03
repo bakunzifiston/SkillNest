@@ -8,17 +8,18 @@ use Illuminate\Support\Facades\Hash;
 
 class EnsureAdminUser extends Command
 {
-    protected $signature = 'admin:ensure {--email=admin@example.com : Admin email} {--password=password : Admin password}';
+    protected $signature = 'admin:ensure {--email= : Admin email} {--password= : Admin password} {--name= : Admin name}';
 
     protected $description = 'Create or update the super admin user so login works.';
 
     public function handle(): int
     {
-        $email = $this->option('email');
-        $password = $this->option('password');
+        $email = $this->option('email') ?: config('admin.email');
+        $password = $this->option('password') ?: config('admin.password');
+        $name = $this->option('name') ?: config('admin.name');
 
         $user = User::firstOrNew(['email' => $email]);
-        $user->name = $user->name ?: 'Super Admin';
+        $user->name = $name;
         $user->password = Hash::make($password);
         $user->is_admin = true;
         $user->email_verified_at = $user->email_verified_at ?? now();

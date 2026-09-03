@@ -5,7 +5,7 @@
     $lessonNumber = 0;
 @endphp
 
-<aside class="lg:w-72 lg:min-w-[18rem] flex-shrink-0 bg-primary border-b lg:border-b-0 lg:border-r border-primary-dark {{ $sidebarClass }}">
+<aside class="lg:w-72 lg:min-w-[18rem] flex-shrink-0 bg-navy border-b lg:border-b-0 lg:border-r border-white/10 {{ $sidebarClass }}">
     <div class="px-3 py-3 border-b border-white/20">
         <a href="{{ route('courses.show', $course) }}" class="inline-flex items-center gap-1.5 text-sm text-white/90 hover:text-white transition">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -51,7 +51,7 @@
                 </ul>
             @else
                 <details class="group border-b border-white/15 last:border-b-0" @if($isActiveChapter) open @endif>
-                    <summary class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 text-sm font-medium text-white hover:bg-primary-dark/80 [&::-webkit-details-marker]:hidden">
+                    <summary class="flex cursor-pointer list-none items-center gap-2 px-3 py-2.5 text-sm font-medium text-white hover:bg-white/10 [&::-webkit-details-marker]:hidden">
                         <svg class="w-4 h-4 shrink-0 text-white/70 transition group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>

@@ -5,7 +5,9 @@ namespace App\Providers;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,11 +29,25 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        $siteLogoUrl = null;
-        if (Schema::hasTable('settings')) {
+        View::share('siteLogoUrl', $this->siteLogoUrl());
+    }
+
+    /**
+     * Resolve the site logo without requiring a database during artisan boot
+     * (composer install, package:discover, fresh clones).
+     */
+    private function siteLogoUrl(): ?string
+    {
+        try {
+            if (! Schema::hasTable('settings')) {
+                return null;
+            }
+
             $logoPath = Setting::get(Setting::KEY_SITE_LOGO);
-            $siteLogoUrl = $logoPath ? url('course-image/' . ltrim($logoPath, '/')) : null;
+
+            return $logoPath ? url('course-image/' . ltrim($logoPath, '/')) : null;
+        } catch (Throwable) {
+            return null;
         }
-        \Illuminate\Support\Facades\View::share('siteLogoUrl', $siteLogoUrl);
     }
 }

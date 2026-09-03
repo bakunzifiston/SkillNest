@@ -4,8 +4,35 @@
 
 @layer base {
     :root {
-        --color-primary: #185FA5;
+        --color-primary: #19499B;
+        --color-primary-dark: #153F86;
+        --color-navy: #0B1B33;
         --color-success: #1D9E75;
-        --color-accent: #EF9F27;
+        --color-accent: #F16029;
+    }
+
+    html {
+        @apply antialiased;
+    }
+
+    ::selection {
+        background: #F16029;
+        color: #fff;
+    }
+}
+
+@layer components {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    @media (max-width: 1023px) {
+        .admin-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .admin-sidebar.admin-sidebar-open {
+            transform: translateX(0);
+        }
     }
 }
