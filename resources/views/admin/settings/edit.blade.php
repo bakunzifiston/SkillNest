@@ -25,7 +25,7 @@
                 <p class="mt-1 text-xs text-gray-500">JPEG, PNG, GIF, WebP or SVG. Max 2MB.</p>
                 @error('logo')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
-            <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Save settings</button>
+            <button type="submit" class="admin-btn-accent">Save settings</button>
         </form>
     </div>
 @endsection

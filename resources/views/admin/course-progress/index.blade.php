@@ -4,33 +4,37 @@
 @section('header', 'Student progress by course')
 
 @section('content')
-    <p class="mb-6 text-gray-600">Click a course to see enrolled students and their completion, viewed %, started at, and completed at.</p>
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Students enrolled</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">View progress</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @forelse($courses as $course)
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 font-medium text-gray-900">{{ $course->title }}</td>
-                    <td class="px-6 py-4 text-gray-500">{{ $course->category->name ?? '—' }}</td>
-                    <td class="px-6 py-4 text-gray-500">{{ $course->enrollments_count }}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right">
-                        <a href="{{ route('admin.course-progress.show', $course) }}" class="text-primary hover:underline font-medium">View students</a>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="4" class="px-6 py-8 text-center text-gray-500">No courses yet.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <p class="mb-5 text-sm text-slate-500">Open a course to see enrolled students and their completion.</p>
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-sm">
+                <thead class="bg-slate-50 text-slate-500">
+                    <tr>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Category</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Students enrolled</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @forelse($courses as $course)
+                        <tr class="hover:bg-slate-50/70">
+                            <td class="px-4 py-3 font-medium text-navy">{{ $course->title }}</td>
+                            <td class="px-4 py-3 text-slate-500">{{ $course->category->name ?? '—' }}</td>
+                            <td class="px-4 py-3 tabular-nums text-slate-600">{{ $course->enrollments_count }}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex justify-end">
+                                    <a href="{{ route('admin.course-progress.show', $course) }}" class="admin-btn-secondary">View students</a>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-4 py-10 text-center text-sm text-slate-500">No courses yet.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection

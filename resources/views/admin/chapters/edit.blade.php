@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-4">
-        <a href="{{ route('admin.courses.edit', $chapter->course) }}?tab=curriculum" class="text-primary hover:underline">← Back to curriculum</a>
+        <a href="{{ route('admin.courses.edit', $chapter->course) }}?tab=curriculum" class="admin-btn-secondary">Back to curriculum</a>
     </div>
     <div class="max-w-xl">
         <form action="{{ route('admin.chapters.update', $chapter) }}" method="post" class="space-y-5">
@@ -17,8 +17,8 @@
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Update section</button>
-                <a href="{{ route('admin.courses.edit', $chapter->course) }}?tab=curriculum" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="admin-btn-accent">Update section</button>
+                <a href="{{ route('admin.courses.edit', $chapter->course) }}?tab=curriculum" class="admin-btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

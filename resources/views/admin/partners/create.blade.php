@@ -19,8 +19,8 @@
                 @error('logo')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Add partner</button>
-                <a href="{{ route('admin.partners.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="admin-btn-accent">Add partner</button>
+                <a href="{{ route('admin.partners.index') }}" class="admin-btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

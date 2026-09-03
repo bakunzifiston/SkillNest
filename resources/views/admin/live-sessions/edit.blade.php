@@ -61,8 +61,8 @@
                 <input type="hidden" name="invited_user_ids" id="invited_user_ids_input" value="{{ $invitedIdsValue }}">
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Save</button>
-                <a href="{{ route('admin.live-sessions.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="admin-btn-accent">Save</button>
+                <a href="{{ route('admin.live-sessions.index') }}" class="admin-btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

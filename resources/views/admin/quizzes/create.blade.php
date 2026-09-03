@@ -44,8 +44,8 @@
                 </label>
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Create quiz</button>
-                <a href="{{ route('admin.quizzes.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="admin-btn-accent">Create quiz</button>
+                <a href="{{ route('admin.quizzes.index') }}" class="admin-btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

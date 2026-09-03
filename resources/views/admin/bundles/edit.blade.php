@@ -48,8 +48,8 @@
                 </select>
             </div>
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Save bundle</button>
-                <a href="{{ route('admin.bundles.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Back to bundles</a>
+                <button type="submit" class="admin-btn-accent">Save bundle</button>
+                <a href="{{ route('admin.bundles.index') }}" class="admin-btn-secondary">Back to bundles</a>
             </div>
         </form>
     </div>
@@ -76,7 +76,7 @@
                             <form action="{{ route('admin.bundles.courses.remove', [$bundle, $course]) }}" method="post" class="inline" onsubmit="return confirm('Remove this course from the bundle?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:underline text-sm">Remove</button>
+                                <button type="submit" class="admin-btn-danger">Remove</button>
                             </form>
                         </td>
                     </tr>
@@ -103,7 +103,7 @@
                     <option value="{{ $c->id }}">{{ $c->title }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-dark">Add</button>
+            <button type="submit" class="admin-btn-accent">Add</button>
         </form>
         @if($coursesNotInBundle->isEmpty())
             <p class="mt-2 text-sm text-gray-500">All courses are already in this bundle.</p>

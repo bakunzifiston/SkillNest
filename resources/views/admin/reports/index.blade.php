@@ -14,7 +14,7 @@
                 <label for="to" class="block text-xs font-medium text-gray-500">To</label>
                 <input type="date" name="to" id="to" value="{{ $dateTo->format('Y-m-d') }}" class="mt-1 rounded-lg border-gray-300 text-sm">
             </div>
-            <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:bg-accent-dark">Apply</button>
+            <button type="submit" class="admin-btn-accent">Apply</button>
         </form>
         <p class="text-xs text-gray-500 mt-2">Date range applies to enrollment-over-time and period totals where relevant.</p>
     </div>

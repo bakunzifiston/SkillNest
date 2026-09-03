@@ -24,7 +24,7 @@
             </div>
         </dl>
         <div class="mt-4">
-            <a href="{{ route('admin.users.index') }}" class="text-sm text-primary hover:underline">← Back to users</a>
+            <a href="{{ route('admin.users.index') }}" class="admin-btn-secondary">Back to users</a>
         </div>
     </div>
 

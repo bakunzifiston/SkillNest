@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-4">
-        <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="text-primary hover:underline">← Back to curriculum</a>
+        <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="admin-btn-secondary">Back to curriculum</a>
     </div>
     <div class="max-w-2xl">
         <form action="{{ route('admin.lessons.update', $lesson) }}" method="post" enctype="multipart/form-data" class="space-y-5" id="lesson-form">
@@ -56,8 +56,8 @@
             </div>
 
             <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Update lesson</button>
-                <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="admin-btn-accent">Update lesson</button>
+                <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="admin-btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

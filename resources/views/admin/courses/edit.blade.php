@@ -96,8 +96,8 @@
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <button type="submit" class="px-4 py-2 bg-accent text-white rounded-lg font-medium hover:bg-accent-dark">Save course</button>
-                    <a href="{{ route('admin.courses.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">Back to courses</a>
+                    <button type="submit" class="admin-btn-accent">Save course</button>
+                    <a href="{{ route('admin.courses.index') }}" class="admin-btn-secondary">Back to courses</a>
                 </div>
             </form>
         </div>
@@ -119,13 +119,13 @@
                             <span class="text-sm text-gray-500">({{ $chapter->lessons->count() }} lesson{{ $chapter->lessons->count() !== 1 ? 's' : '' }})</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('admin.chapters.edit', $chapter) }}" class="text-sm text-gray-600 hover:text-primary">Edit</a>
+                            <a href="{{ route('admin.chapters.edit', $chapter) }}" class="admin-btn-secondary">Edit</a>
                             <form action="{{ route('admin.chapters.destroy', $chapter) }}" method="post" class="inline" onsubmit="return confirm('Delete this section and all its lessons?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-sm text-red-600 hover:underline">Delete</button>
+                                <button type="submit" class="admin-btn-danger">Delete</button>
                             </form>
-                            <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="ml-2 text-sm px-3 py-1.5 bg-accent text-white rounded-lg hover:bg-accent-dark">Add lesson</a>
+                            <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="admin-btn-accent">Add lesson</a>
                         </div>
                     </div>
                     {{-- Lessons list --}}
@@ -145,17 +145,18 @@
                                 <span class="font-medium text-gray-900">{{ $lesson->title }}</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.lessons.edit', $lesson) }}" class="text-sm text-primary hover:underline">Edit</a>
+                                <a href="{{ route('admin.lessons.edit', $lesson) }}" class="admin-btn-secondary">Edit</a>
                                 <form action="{{ route('admin.lessons.destroy', $lesson) }}" method="post" class="inline" onsubmit="return confirm('Delete this lesson?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-sm text-red-600 hover:underline">Delete</button>
+                                    <button type="submit" class="admin-btn-danger">Delete</button>
                                 </form>
                             </div>
                         </li>
                         @empty
                         <li class="px-5 py-6 text-center text-gray-500 text-sm">
-                            No lessons in this section. <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="text-primary hover:underline">Add lesson</a>
+                            No lessons in this section.
+                            <a href="{{ route('admin.chapters.lessons.create', $chapter) }}" class="admin-btn-secondary ml-2">Add lesson</a>
                         </li>
                         @endforelse
                     </ul>

@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('admin.quiz-results.index') }}" class="text-primary hover:underline">← Back to results</a>
+        <a href="{{ route('admin.quiz-results.index') }}" class="admin-btn-secondary">Back to results</a>
     </div>
     <div class="bg-white rounded-xl border border-gray-200 p-6 mb-6">
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">

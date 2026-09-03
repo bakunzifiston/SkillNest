@@ -26,6 +26,22 @@
         display: none !important;
     }
 
+    .admin-btn {
+        @apply inline-flex items-center px-2.5 py-1.5 rounded-lg border text-xs font-medium transition;
+    }
+
+    .admin-btn-secondary {
+        @apply admin-btn border-slate-200 bg-white text-navy hover:bg-primary-light hover:border-primary-muted hover:text-primary;
+    }
+
+    .admin-btn-danger {
+        @apply admin-btn border-red-200 bg-white text-red-600 hover:bg-red-50;
+    }
+
+    .admin-btn-accent {
+        @apply inline-flex items-center px-3.5 py-2 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-dark transition;
+    }
+
     @media (max-width: 1023px) {
         .admin-sidebar {
             transform: translateX(-100%);

@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="mb-6">
-        <a href="{{ route('admin.course-progress.index') }}" class="text-primary hover:underline">← All courses</a>
+        <a href="{{ route('admin.course-progress.index') }}" class="admin-btn-secondary">All courses</a>
     </div>
     <p class="mb-4 text-gray-600">{{ $course->title }} — {{ $rows->count() }} student(s) enrolled. Total lessons: {{ $totalLessons }}.</p>
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
