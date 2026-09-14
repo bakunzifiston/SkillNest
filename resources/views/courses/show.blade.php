@@ -15,7 +15,7 @@
         @endif
         <div class="flex-1 min-w-0">
     <section class="bg-white border-b border-slate-200 py-8 lg:py-12">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             @if(session('success'))
                 <div class="mb-6 p-4 rounded-xl bg-success-light text-success-darker border border-success-muted">{{ session('success') }}</div>
             @endif
@@ -26,60 +26,66 @@
                 <div class="mb-6 p-4 rounded-xl bg-red-50 text-red-800 border border-red-200">{{ session('error') }}</div>
             @endif
 
-            @if($course->category ?? null)
-                <span class="text-sm font-medium text-primary uppercase tracking-wide">{{ $course->category->name }}</span>
-            @endif
-            <h1 class="mt-2 font-display font-bold text-3xl lg:text-4xl text-slate-900">{{ $course->title }}</h1>
-            @if($course->instructor ?? null)
-                <p class="mt-2 text-slate-600">By {{ $course->instructor->name }}</p>
-            @endif
-            <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
-                <span>{{ $course->duration ?? 'Self-paced' }}</span>
-                <span>{{ $totalLessons }} {{ Str::plural('lesson', $totalLessons) }}</span>
-                @if(($course->price ?? 0) > 0)
-                    <span class="font-semibold text-primary">${{ number_format($course->price, 0) }}</span>
-                @else
-                    <span class="font-semibold text-primary">Free</span>
-                @endif
-            </div>
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-100 shadow-brand aspect-video lg:aspect-[4/3] order-first">
+                    @if($course->banner_url)
+                        <img src="{{ $course->banner_url }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
+                    @else
+                        <div class="w-full h-full flex items-center justify-center text-5xl text-slate-300">📖</div>
+                    @endif
+                </div>
 
-            <div class="mt-8 flex flex-wrap gap-4">
-                @if($enrolled)
-                    <div class="flex items-center gap-4 flex-wrap">
-                        <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 text-slate-700">
-                            <span class="font-medium">Progress:</span>
-                            <span>{{ $completedCount }} / {{ $totalLessons }} lessons</span>
-                        </div>
-                        @if($resumeLesson)
-                            <a href="{{ route('courses.lessons.show', [$course, $resumeLesson]) }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
-                                {{ $completedCount > 0 ? 'Resume course' : 'Start course' }}
-                            </a>
+                <div>
+                    @if($course->category ?? null)
+                        <span class="text-sm font-medium text-primary uppercase tracking-wide">{{ $course->category->name }}</span>
+                    @endif
+                    <h1 class="mt-2 font-display font-bold text-3xl lg:text-4xl text-slate-900">{{ $course->title }}</h1>
+                    @if($course->description)
+                        <p class="mt-3 text-sm text-slate-500 leading-relaxed max-w-xl">{{ Str::limit(trim(preg_replace('/\s+/', ' ', $course->description)), 180) }}</p>
+                    @endif
+                    <div class="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
+                        <span>{{ $course->duration ?? 'Self-paced' }}</span>
+                        <span>{{ $totalLessons }} {{ Str::plural('lesson', $totalLessons) }}</span>
+                        @if(($course->price ?? 0) > 0)
+                            <span class="font-semibold text-primary">${{ number_format($course->price, 0) }}</span>
                         @else
-                            <span class="inline-flex items-center px-4 py-2 rounded-xl bg-success-muted text-success-darker font-medium">Course completed</span>
+                            <span class="font-semibold text-primary">Free</span>
                         @endif
-                        <a href="{{ route('courses.my-courses') }}" class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">My courses</a>
                     </div>
-                @else
-                    <form action="{{ route('courses.enroll', $course) }}" method="POST" class="inline">
-                        @csrf
-                        <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
-                            Enroll in this course
-                        </button>
-                    </form>
-                    <p class="text-sm text-slate-500 self-center">Sign in or create an account to enroll and track your progress.</p>
-                @endif
+
+                    <div class="mt-8 flex flex-wrap gap-4">
+                        @if($enrolled)
+                            <div class="flex items-center gap-4 flex-wrap">
+                                <div class="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 text-slate-700">
+                                    <span class="font-medium">Progress:</span>
+                                    <span>{{ $completedCount }} / {{ $totalLessons }} lessons</span>
+                                </div>
+                                @if($resumeLesson)
+                                    <a href="{{ route('courses.lessons.show', [$course, $resumeLesson]) }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
+                                        {{ $completedCount > 0 ? 'Resume course' : 'Start course' }}
+                                    </a>
+                                @else
+                                    <span class="inline-flex items-center px-4 py-2 rounded-xl bg-success-muted text-success-darker font-medium">Course completed</span>
+                                @endif
+                                <a href="{{ route('courses.my-courses') }}" class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">My courses</a>
+                            </div>
+                        @else
+                            <form action="{{ route('courses.enroll', $course) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
+                                    Enroll in this course
+                                </button>
+                            </form>
+                            <p class="text-sm text-slate-500 self-center">Sign in or create an account to enroll and track your progress.</p>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
     <section class="py-12 lg:py-16">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            @if($course->banner_url)
-                <div class="rounded-2xl overflow-hidden border border-slate-200 mb-10">
-                    <img src="{{ $course->banner_url }}" alt="" class="w-full aspect-video object-cover">
-                </div>
-            @endif
-
             <div class="prose prose-slate max-w-none">
                 <h2 class="font-display font-bold text-xl text-slate-900 mb-4">About this course</h2>
                 <div class="text-slate-600 whitespace-pre-wrap">{{ $course->description ?? 'No description.' }}</div>

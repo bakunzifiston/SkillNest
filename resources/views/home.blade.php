@@ -6,7 +6,6 @@
     {{-- Hero Banner --}}
     @php
         $bannerSlides = [
-            ['src' => asset('images/banner/agents-field.jpg'), 'alt' => 'KoraLink agents collaborating in the field'],
             ['src' => asset('images/banner/agents-workshop.jpg'), 'alt' => 'KoraLink agents in a training workshop'],
             ['src' => asset('images/banner/agents-training.jpg'), 'alt' => 'KoraLink agents at a training session'],
         ];
@@ -78,18 +77,20 @@
     </section>
 
     {{-- Course Categories --}}
-    <section class="py-16 lg:py-20 bg-white">
+    <section class="py-14 lg:py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-2xl mx-auto mb-12">
-                <h2 class="font-display font-bold text-3xl lg:text-4xl text-slate-900">Browse by category</h2>
-                <p class="mt-3 text-slate-600">Find the path that fits your goals</p>
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <h2 class="font-display font-bold text-2xl lg:text-3xl text-slate-900">Browse by category</h2>
+                <p class="mt-2 text-slate-600">Find the path that fits your goals</p>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 @foreach($categories as $category)
-                <a href="{{ route('courses.index', ['category' => $category->slug]) }}" class="group block p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-accent-muted hover:bg-accent-light/50 transition">
-                    <div class="w-12 h-12 rounded-xl bg-accent-muted text-primary flex items-center justify-center text-2xl group-hover:bg-accent-muted transition">{{ $category->icon ?? '📚' }}</div>
-                    <h3 class="mt-4 font-display font-semibold text-slate-900 group-hover:text-accent-dark">{{ $category->name }}</h3>
-                    <p class="mt-1 text-sm text-slate-500">{{ $category->courses_count }} courses</p>
+                <a href="{{ route('courses.index', ['category' => $category->slug]) }}" class="group flex items-center gap-3.5 px-4 py-4 rounded-xl border border-slate-200/80 hover:border-accent-muted hover:bg-accent-light/40 transition">
+                    <span class="shrink-0 w-10 h-10 rounded-lg bg-slate-100 text-lg flex items-center justify-center group-hover:bg-accent-muted/60 transition">{{ $category->icon ?? '📚' }}</span>
+                    <span class="min-w-0">
+                        <span class="block font-display font-medium text-slate-900 truncate group-hover:text-accent-dark">{{ $category->name }}</span>
+                        <span class="block text-sm text-slate-500">{{ $category->courses_count }} courses</span>
+                    </span>
                 </a>
                 @endforeach
             </div>
@@ -97,7 +98,7 @@
     </section>
 
     {{-- Agents Academy --}}
-    <section class="py-16 lg:py-20 bg-slate-50">
+    <section class="py-16 lg:py-20 bg-primary-light">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div class="relative overflow-hidden rounded-2xl shadow-brand aspect-[4/3] lg:aspect-auto lg:min-h-[22rem]">
@@ -162,7 +163,7 @@
     </section>
 
     {{-- Agents Academy — program --}}
-    <section class="py-16 lg:py-20 bg-slate-50">
+    <section class="py-16 lg:py-20 bg-primary-light">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 <div class="order-2 lg:order-1">

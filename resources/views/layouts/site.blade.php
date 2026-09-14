@@ -18,27 +18,20 @@
                 </a>
                 <nav class="hidden md:flex items-center gap-6 lg:gap-8">
                     <a href="{{ route('home') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('home') ? 'text-primary' : '' }}">Home</a>
-                    <a href="{{ route('courses.index') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('courses.*') ? 'text-primary' : '' }}">Courses</a>
-                    <a href="{{ route('bundles.index') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('bundles.*') ? 'text-primary' : '' }}">Bundles</a>
+                    <a href="{{ route('courses.index') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('courses.index', 'courses.show') ? 'text-primary' : '' }}">Courses</a>
+                    <a href="{{ route('bundles.index') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('bundles.index', 'bundles.show') ? 'text-primary' : '' }}">Bundles</a>
                     <a href="{{ route('about') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('about') ? 'text-primary' : '' }}">About</a>
                     <a href="{{ route('contact') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('contact') ? 'text-primary' : '' }}">Contact</a>
-                    @auth
-                        @if(!(auth()->user()->is_admin ?? false))
-                            <a href="{{ route('courses.my-courses') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('courses.my-courses') ? 'text-primary' : '' }}">My courses</a>
-                            <a href="{{ route('bundles.my-bundles') }}" class="text-slate-600 hover:text-primary font-medium {{ request()->routeIs('bundles.my-bundles') ? 'text-primary' : '' }}">My bundles</a>
-                        @endif
-                        @if(auth()->user()->is_admin ?? false)
-                            <a href="{{ route('admin.dashboard') }}" class="text-primary hover:text-accent font-medium">Admin</a>
-                        @endif
-                    @endauth
                 </nav>
                 <div class="flex items-center gap-2 sm:gap-3 shrink-0">
                     @auth
-                        @if(!(auth()->user()->is_admin ?? false))
-                        <a href="{{ route('courses.my-courses') }}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-primary-light hover:border-primary-muted font-medium text-sm">My courses</a>
-                        <a href="{{ route('bundles.my-bundles') }}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-primary-light hover:border-primary-muted font-medium text-sm">My bundles</a>
-                        @endif
-                        <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="hidden sm:inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-primary-light hover:border-primary-muted font-medium text-sm">Dashboard</a>
+                        <div class="hidden md:flex items-center gap-4 mr-1">
+                            @if(!(auth()->user()->is_admin ?? false))
+                                <a href="{{ route('courses.my-courses') }}" class="text-sm font-medium text-slate-600 hover:text-primary {{ request()->routeIs('courses.my-courses') ? 'text-primary' : '' }}">My courses</a>
+                                <a href="{{ route('bundles.my-bundles') }}" class="text-sm font-medium text-slate-600 hover:text-primary {{ request()->routeIs('bundles.my-bundles') ? 'text-primary' : '' }}">My bundles</a>
+                            @endif
+                            <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="text-sm font-medium text-slate-600 hover:text-primary {{ request()->routeIs('dashboard', 'admin.dashboard') ? 'text-primary' : '' }}">{{ auth()->user()->is_admin ? 'Admin' : 'Dashboard' }}</a>
+                        </div>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="inline-flex items-center px-4 py-2 rounded-xl bg-primary text-white hover:bg-primary-dark font-medium text-sm">Log out</button>
@@ -59,11 +52,9 @@
                 @auth
                     @if(!(auth()->user()->is_admin ?? false))
                         <a href="{{ route('courses.my-courses') }}" class="text-sm text-slate-600 hover:text-primary">My courses</a>
-                    <a href="{{ route('bundles.my-bundles') }}" class="text-sm text-slate-600 hover:text-primary">My bundles</a>
+                        <a href="{{ route('bundles.my-bundles') }}" class="text-sm text-slate-600 hover:text-primary">My bundles</a>
                     @endif
-                    @if(auth()->user()->is_admin ?? false)
-                        <a href="{{ route('admin.dashboard') }}" class="text-sm text-primary font-medium">Admin</a>
-                    @endif
+                    <a href="{{ auth()->user()->is_admin ? route('admin.dashboard') : route('dashboard') }}" class="text-sm font-medium text-primary">{{ auth()->user()->is_admin ? 'Admin' : 'Dashboard' }}</a>
                 @endauth
             </div>
         </div>
