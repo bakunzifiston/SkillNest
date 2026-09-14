@@ -5,8 +5,8 @@
 
 @section('content')
     @php
-        $filterParams = request()->only(['range', 'from', 'to', 'chart_period']);
-        $dashUrl = fn (array $extra = []) => route('admin.dashboard', array_filter(array_merge($filterParams, $extra)));
+        $filterParams = request()->only(['range', 'from', 'to', 'chart_period', 'course_id']);
+        $dashUrl = fn (array $extra = []) => route('admin.dashboard', array_filter(array_merge($filterParams, $extra), fn ($v) => $v !== null && $v !== ''));
         $rangePresets = [
             'today' => 'Today',
             '7d' => 'Last 7 days',
@@ -21,14 +21,34 @@
         @if($chartGranularity)
             <input type="hidden" name="chart_period" value="{{ $chartGranularity }}">
         @endif
-        <div class="flex flex-wrap items-center gap-2">
-            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 mr-1">Period</span>
-            @foreach($rangePresets as $key => $label)
-                <a
-                    href="{{ $dashUrl(['range' => $key, 'chart_period' => $chartGranularity]) }}"
-                    class="px-2.5 py-1 rounded-lg text-xs font-medium {{ $range['preset'] === $key ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}"
-                >{{ $label }}</a>
-            @endforeach
+        <div class="flex flex-wrap items-end gap-3">
+            <div class="min-w-[14rem] flex-1 sm:flex-none">
+                <label for="course_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Course</label>
+                <select
+                    name="course_id"
+                    id="course_id"
+                    class="w-full rounded-lg border-slate-300 text-sm"
+                    onchange="this.form.submit()"
+                >
+                    <option value="">All courses</option>
+                    @foreach($courseOptions as $courseOption)
+                        <option value="{{ $courseOption->id }}" @selected((int) ($selectedCourseId ?? 0) === (int) $courseOption->id)>
+                            {{ $courseOption->title }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="flex-1">
+                <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Period</span>
+                <div class="flex flex-wrap items-center gap-2">
+                    @foreach($rangePresets as $key => $label)
+                        <a
+                            href="{{ $dashUrl(['range' => $key, 'chart_period' => $chartGranularity]) }}"
+                            class="px-2.5 py-1 rounded-lg text-xs font-medium {{ $range['preset'] === $key ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}"
+                        >{{ $label }}</a>
+                    @endforeach
+                </div>
+            </div>
         </div>
         @if($range['preset'] === 'custom')
             <div class="mt-3 flex flex-wrap items-end gap-3">
@@ -44,7 +64,15 @@
                 <button type="submit" class="px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark">Apply</button>
             </div>
         @endif
-        <p class="mt-2 text-xs text-slate-400">Showing {{ $range['label'] }}. Comparisons use the equal-length period before this range. Trends are omitted when the previous period is zero.</p>
+        <p class="mt-2 text-xs text-slate-400">
+            Showing {{ $range['label'] }}
+            @if(!empty($selectedCourse))
+                · Course: <span class="font-medium text-slate-600">{{ $selectedCourse->title }}</span>
+            @else
+                · All courses
+            @endif
+            . Comparisons use the equal-length period before this range. Trends are omitted when the previous period is zero.
+        </p>
     </form>
 
     <section class="mb-5" aria-labelledby="kpi-heading">

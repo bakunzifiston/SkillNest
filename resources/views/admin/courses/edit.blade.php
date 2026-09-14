@@ -6,7 +6,7 @@
 @section('content')
     @php $activeTab = request('tab', session('tab', 'overview')); @endphp
 
-    {{-- Clear tabs (Thinkific-style) - very visible --}}
+    {{-- Clear tabs (clear) - very visible --}}
     <div class="bg-white rounded-xl border border-gray-200 p-2 mb-8 inline-flex gap-1 shadow-sm">
         <a href="{{ route('admin.courses.edit', $course) }}?tab=overview" class="px-6 py-3 rounded-lg font-medium text-sm {{ $activeTab === 'overview' ? 'bg-accent text-white' : 'text-gray-600 hover:bg-gray-100' }}">
             Overview
@@ -103,7 +103,7 @@
         </div>
     </div>
 
-    {{-- Tab: Curriculum (Thinkific-style sections + lessons) --}}
+    {{-- Tab: Curriculum (clear sections + lessons) --}}
     <div id="tab-curriculum" class="{{ $activeTab === 'curriculum' ? '' : 'hidden' }}">
         <div class="max-w-4xl">
             <p class="text-gray-600 mb-6">Build your course with sections and lessons. Add sections to group lessons, then add lessons (text, video, PDF, or YouTube).</p>

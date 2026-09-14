@@ -33,29 +33,57 @@ class DashboardController extends Controller
     {
         $range = $this->resolveRange($request);
         $chartGranularity = $this->resolveGranularity($request, $range['preset']);
+        $selectedCourseId = $request->filled('course_id') ? (int) $request->get('course_id') : null;
+
+        $courseOptions = Course::query()->orderBy('title')->get(['id', 'title', 'slug']);
+        if ($selectedCourseId && ! $courseOptions->contains('id', $selectedCourseId)) {
+            $selectedCourseId = null;
+        }
+
+        $coursesQuery = Course::query()
+            ->with(['instructor', 'chapters.lessons', 'quizzes'])
+            ->withCount('enrollments')
+            ->orderBy('title');
+        if ($selectedCourseId) {
+            $coursesQuery->where('id', $selectedCourseId);
+        }
+        $courses = $coursesQuery->get();
+        $lessonIds = $courses->flatMap(fn (Course $c) => $c->chapters->flatMap->lessons->pluck('id'))->unique()->values();
+        $quizIds = $courses->flatMap(fn (Course $c) => $c->quizzes->pluck('id'))->unique()->values();
+
+        $enrollmentsBase = Enrollment::query();
+        if ($selectedCourseId) {
+            $enrollmentsBase->where('course_id', $selectedCourseId);
+        }
 
         $studentsQuery = User::query()->where('is_admin', false);
+        if ($selectedCourseId) {
+            $studentsQuery->whereHas('enrollments', fn ($q) => $q->where('course_id', $selectedCourseId));
+        }
 
         $studentsTotal = (clone $studentsQuery)->where('created_at', '<=', $range['to'])->count();
         $studentsThisPeriod = (clone $studentsQuery)->whereBetween('created_at', [$range['from'], $range['to']])->count();
         $studentsPrevEnd = (clone $studentsQuery)->where('created_at', '<=', $range['prevTo'])->count();
 
-        $activeStudents = $this->activeStudentIds($range['from'], $range['to'])->count();
-        $activeStudentsPrev = $this->activeStudentIds($range['prevFrom'], $range['prevTo'])->count();
+        $activeStudents = $this->activeStudentIds($range['from'], $range['to'], $selectedCourseId, $lessonIds, $quizIds)->count();
+        $activeStudentsPrev = $this->activeStudentIds($range['prevFrom'], $range['prevTo'], $selectedCourseId, $lessonIds, $quizIds)->count();
 
-        $enrollmentsThis = Enrollment::whereBetween('created_at', [$range['from'], $range['to']])->count();
-        $enrollmentsPrev = Enrollment::whereBetween('created_at', [$range['prevFrom'], $range['prevTo']])->count();
+        $enrollmentsThis = (clone $enrollmentsBase)->whereBetween('created_at', [$range['from'], $range['to']])->count();
+        $enrollmentsPrev = (clone $enrollmentsBase)->whereBetween('created_at', [$range['prevFrom'], $range['prevTo']])->count();
 
-        $courses = Course::query()
-            ->with(['instructor', 'chapters.lessons', 'quizzes'])
-            ->withCount('enrollments')
-            ->get();
+        $allEnrollments = (clone $enrollmentsBase)->get(['id', 'user_id', 'course_id', 'created_at']);
 
-        $allEnrollments = Enrollment::query()->get(['id', 'user_id', 'course_id', 'created_at']);
-        $completions = LessonCompletion::query()->get(['user_id', 'lesson_id', 'completed_at']);
-        $submittedAttempts = QuizAttempt::query()
-            ->whereNotNull('submitted_at')
-            ->get(['id', 'user_id', 'quiz_id', 'percentage', 'passed', 'submitted_at', 'created_at']);
+        $completionsQuery = LessonCompletion::query();
+        if ($selectedCourseId) {
+            $completionsQuery->whereIn('lesson_id', $lessonIds->isEmpty() ? [-1] : $lessonIds);
+        }
+        $completions = $completionsQuery->get(['user_id', 'lesson_id', 'completed_at']);
+
+        $attemptsQuery = QuizAttempt::query()->whereNotNull('submitted_at');
+        if ($selectedCourseId) {
+            $attemptsQuery->whereIn('quiz_id', $quizIds->isEmpty() ? [-1] : $quizIds);
+        }
+        $submittedAttempts = $attemptsQuery->get(['id', 'user_id', 'quiz_id', 'percentage', 'passed', 'submitted_at', 'created_at']);
 
         $progressByEnrollment = $this->progressByEnrollment($courses, $allEnrollments, $completions);
 
@@ -83,20 +111,25 @@ class DashboardController extends Controller
             : null;
 
         $now = now();
-        $upcomingSessions = LiveSession::query()
-            ->with(['course.instructor'])
+        $sessionsQuery = LiveSession::query()->with(['course.instructor']);
+        if ($selectedCourseId) {
+            $sessionsQuery->where('course_id', $selectedCourseId);
+        }
+        $upcomingSessions = (clone $sessionsQuery)
             ->where('scheduled_at', '>=', $now)
             ->orderBy('scheduled_at')
             ->take(6)
             ->get();
-        $pastSessionsInPeriod = LiveSession::query()
+        $pastSessionsInPeriod = (clone $sessionsQuery)
             ->where('scheduled_at', '<', $now)
             ->whereBetween('scheduled_at', [$range['from'], $range['to']])
             ->count();
-        $upcomingCount = LiveSession::query()->where('scheduled_at', '>=', $now)->count();
+        $upcomingCount = (clone $sessionsQuery)->where('scheduled_at', '>=', $now)->count();
 
-        $instructorsTotal = Instructor::count();
-        $courseIdsWithEnrollmentsThisPeriod = Enrollment::query()
+        $instructorsTotal = $selectedCourseId
+            ? Instructor::query()->whereHas('courses', fn ($q) => $q->where('courses.id', $selectedCourseId))->count()
+            : Instructor::count();
+        $courseIdsWithEnrollmentsThisPeriod = (clone $enrollmentsBase)
             ->whereBetween('created_at', [$range['from'], $range['to']])
             ->pluck('course_id')
             ->unique();
@@ -104,12 +137,19 @@ class DashboardController extends Controller
             ->whereHas('courses', fn ($q) => $q->whereIn('id', $courseIdsWithEnrollmentsThisPeriod))
             ->count();
 
+        $selectedCourse = $selectedCourseId
+            ? $courseOptions->firstWhere('id', $selectedCourseId)
+            : null;
+        $courseScopeHint = $selectedCourse
+            ? 'Filtered: '.$selectedCourse->title
+            : 'All courses';
+
         $kpis = [
             [
                 'key' => 'students',
-                'label' => 'Total Students',
+                'label' => $selectedCourseId ? 'Students enrolled' : 'Total Students',
                 'value' => $studentsTotal,
-                'hint' => $studentsThisPeriod.' registered in period',
+                'hint' => $studentsThisPeriod.' registered in period · '.$courseScopeHint,
                 'change' => $this->percentChange($studentsTotal, $studentsPrevEnd),
                 'href' => route('admin.users.index'),
                 'icon' => 'users',
@@ -118,27 +158,31 @@ class DashboardController extends Controller
                 'key' => 'active',
                 'label' => 'Active Students',
                 'value' => $activeStudents,
-                'hint' => 'Logged in or completed a lesson in period',
+                'hint' => 'Activity in period · '.$courseScopeHint,
                 'change' => $this->percentChange($activeStudents, $activeStudentsPrev),
                 'href' => route('admin.users.index'),
                 'icon' => 'pulse',
             ],
             [
                 'key' => 'courses',
-                'label' => 'Total Courses',
+                'label' => $selectedCourseId ? 'Selected course' : 'Total Courses',
                 'value' => $courses->count(),
-                'hint' => 'Courses are live once created (no draft status)',
+                'hint' => $selectedCourseId ? $selectedCourse->title : 'Courses are live once created (no draft status)',
                 'change' => null,
-                'href' => route('admin.courses.index'),
+                'href' => $selectedCourseId
+                    ? route('admin.courses.edit', $selectedCourse)
+                    : route('admin.courses.index'),
                 'icon' => 'book',
             ],
             [
                 'key' => 'enrollments',
                 'label' => 'Total Enrollments',
                 'value' => $enrollmentsThis,
-                'hint' => 'In selected period',
+                'hint' => 'In selected period · '.$courseScopeHint,
                 'change' => $this->percentChange($enrollmentsThis, $enrollmentsPrev),
-                'href' => route('admin.course-progress.index'),
+                'href' => $selectedCourseId
+                    ? route('admin.course-progress.show', $selectedCourse)
+                    : route('admin.course-progress.index'),
                 'icon' => 'enroll',
             ],
             [
@@ -150,7 +194,9 @@ class DashboardController extends Controller
                     ? $completedInPeriod.' of '.$enrollmentsForRate.' period enrollments finished all lessons'
                     : 'Needs enrollments with lessons to calculate',
                 'change' => null,
-                'href' => route('admin.course-progress.index'),
+                'href' => $selectedCourseId
+                    ? route('admin.course-progress.show', $selectedCourse)
+                    : route('admin.course-progress.index'),
                 'icon' => 'check',
             ],
             [
@@ -185,20 +231,26 @@ class DashboardController extends Controller
             ],
         ];
 
+        $enrollmentDates = (clone $enrollmentsBase)
+            ->whereBetween('created_at', [$range['from'], $range['to']])
+            ->pluck('created_at');
+
         $enrollmentTrend = $this->timeSeries(
-            Enrollment::whereBetween('created_at', [$range['from'], $range['to']])->pluck('created_at'),
+            $enrollmentDates,
             $range['from'],
             $range['to'],
             $chartGranularity
         );
         $engagementStarts = $this->timeSeries(
-            Enrollment::whereBetween('created_at', [$range['from'], $range['to']])->pluck('created_at'),
+            $enrollmentDates,
             $range['from'],
             $range['to'],
             $chartGranularity
         );
         $engagementCompletions = $this->timeSeries(
-            LessonCompletion::whereBetween('completed_at', [$range['from'], $range['to']])->pluck('completed_at'),
+            $completions->filter(
+                fn ($c) => $c->completed_at && $c->completed_at->between($range['from'], $range['to'])
+            )->pluck('completed_at'),
             $range['from'],
             $range['to'],
             $chartGranularity
@@ -230,8 +282,11 @@ class DashboardController extends Controller
         $attention = $this->coursesNeedingAttention($courseRows, $coursesWithActivity);
         $topCourses = $courseRows->sortByDesc('enrollments')->take(8)->values();
 
-        $recentEnrollments = Enrollment::with(['user', 'course'])
-            ->latest()
+        $recentEnrollmentsQuery = Enrollment::with(['user', 'course'])->latest();
+        if ($selectedCourseId) {
+            $recentEnrollmentsQuery->where('course_id', $selectedCourseId);
+        }
+        $recentEnrollments = $recentEnrollmentsQuery
             ->take(8)
             ->get()
             ->map(function (Enrollment $enrollment) use ($progressByEnrollment) {
@@ -242,8 +297,7 @@ class DashboardController extends Controller
                 return $enrollment;
             });
 
-        $recentPastSessions = LiveSession::query()
-            ->with(['course.instructor'])
+        $recentPastSessions = (clone $sessionsQuery)
             ->where('scheduled_at', '<', $now)
             ->orderByDesc('scheduled_at')
             ->take(4)
@@ -252,6 +306,9 @@ class DashboardController extends Controller
         return view('admin.dashboard', [
             'range' => $range,
             'chartGranularity' => $chartGranularity,
+            'courseOptions' => $courseOptions,
+            'selectedCourseId' => $selectedCourseId,
+            'selectedCourse' => $selectedCourse,
             'kpis' => $kpis,
             'enrollmentTrend' => $enrollmentTrend,
             'engagement' => [
@@ -263,7 +320,7 @@ class DashboardController extends Controller
             'progressDistribution' => $progressDistribution,
             'topCourses' => $topCourses,
             'quizOverview' => [
-                'total' => Quiz::count(),
+                'total' => $selectedCourseId ? $quizIds->count() : Quiz::count(),
                 'attempts' => $submittedAttempts->count(),
                 'avg' => $submittedAttempts->isNotEmpty() ? round((float) $submittedAttempts->avg('percentage'), 1) : null,
                 'passRate' => $submittedAttempts->isNotEmpty()
@@ -276,7 +333,7 @@ class DashboardController extends Controller
             'upcomingSessions' => $upcomingSessions,
             'recentPastSessions' => $recentPastSessions,
             'recentEnrollments' => $recentEnrollments,
-            'recentActivity' => $this->recentActivity($progressByEnrollment, $completions, $courses),
+            'recentActivity' => $this->recentActivity($progressByEnrollment, $completions, $courses, $selectedCourseId),
             'attentionCourses' => $attention,
             'thresholds' => [
                 'low_completion_rate' => self::LOW_COMPLETION_RATE,
@@ -372,21 +429,59 @@ class DashboardController extends Controller
         return round((($current - $previous) / $previous) * 100, 1);
     }
 
-    private function activeStudentIds(Carbon $from, Carbon $to): Collection
-    {
+    private function activeStudentIds(
+        Carbon $from,
+        Carbon $to,
+        ?int $courseId = null,
+        ?Collection $lessonIds = null,
+        ?Collection $quizIds = null
+    ): Collection {
         $ids = collect();
-        $ids = $ids->merge(
-            User::query()->where('is_admin', false)->whereBetween('last_login_at', [$from, $to])->pluck('id')
-        );
-        $ids = $ids->merge(
-            LessonCompletion::query()->whereBetween('completed_at', [$from, $to])->pluck('user_id')
-        );
-        $ids = $ids->merge(
-            QuizAttempt::query()->whereBetween('submitted_at', [$from, $to])->pluck('user_id')
-        );
-        $ids = $ids->merge(
-            Enrollment::query()->whereBetween('created_at', [$from, $to])->pluck('user_id')
-        );
+
+        if ($courseId) {
+            $enrolledUserIds = Enrollment::query()
+                ->where('course_id', $courseId)
+                ->pluck('user_id');
+
+            $ids = $ids->merge(
+                User::query()
+                    ->where('is_admin', false)
+                    ->whereIn('id', $enrolledUserIds)
+                    ->whereBetween('last_login_at', [$from, $to])
+                    ->pluck('id')
+            );
+
+            $completionQuery = LessonCompletion::query()->whereBetween('completed_at', [$from, $to]);
+            if ($lessonIds !== null) {
+                $completionQuery->whereIn('lesson_id', $lessonIds->isEmpty() ? [-1] : $lessonIds);
+            }
+            $ids = $ids->merge($completionQuery->pluck('user_id'));
+
+            $attemptQuery = QuizAttempt::query()->whereBetween('submitted_at', [$from, $to]);
+            if ($quizIds !== null) {
+                $attemptQuery->whereIn('quiz_id', $quizIds->isEmpty() ? [-1] : $quizIds);
+            }
+            $ids = $ids->merge($attemptQuery->pluck('user_id'));
+            $ids = $ids->merge(
+                Enrollment::query()
+                    ->where('course_id', $courseId)
+                    ->whereBetween('created_at', [$from, $to])
+                    ->pluck('user_id')
+            );
+        } else {
+            $ids = $ids->merge(
+                User::query()->where('is_admin', false)->whereBetween('last_login_at', [$from, $to])->pluck('id')
+            );
+            $ids = $ids->merge(
+                LessonCompletion::query()->whereBetween('completed_at', [$from, $to])->pluck('user_id')
+            );
+            $ids = $ids->merge(
+                QuizAttempt::query()->whereBetween('submitted_at', [$from, $to])->pluck('user_id')
+            );
+            $ids = $ids->merge(
+                Enrollment::query()->whereBetween('created_at', [$from, $to])->pluck('user_id')
+            );
+        }
 
         return $ids->unique()->filter();
     }
@@ -638,18 +733,31 @@ class DashboardController extends Controller
         return $ids->unique()->values();
     }
 
-    private function recentActivity(array $progressByEnrollment, Collection $completions, Collection $courses): Collection
-    {
+    private function recentActivity(
+        array $progressByEnrollment,
+        Collection $completions,
+        Collection $courses,
+        ?int $courseId = null
+    ): Collection {
         $items = collect();
 
-        foreach (User::query()->where('is_admin', false)->latest()->take(8)->get() as $user) {
+        $usersQuery = User::query()->where('is_admin', false)->latest()->take(8);
+        if ($courseId) {
+            $usersQuery->whereHas('enrollments', fn ($q) => $q->where('course_id', $courseId));
+        }
+        foreach ($usersQuery->get() as $user) {
             $items->push([
                 'at' => $user->created_at,
                 'icon' => 'user',
                 'text' => $user->name.' registered',
             ]);
         }
-        foreach (Enrollment::with(['user', 'course'])->latest()->take(8)->get() as $enrollment) {
+
+        $enrollmentsQuery = Enrollment::with(['user', 'course'])->latest()->take(8);
+        if ($courseId) {
+            $enrollmentsQuery->where('course_id', $courseId);
+        }
+        foreach ($enrollmentsQuery->get() as $enrollment) {
             $items->push([
                 'at' => $enrollment->created_at,
                 'icon' => 'enroll',
@@ -671,9 +779,11 @@ class DashboardController extends Controller
                 $latestCompletion[$key] = $row->completed_at;
             }
         }
-        $completedEnrollments = Enrollment::with(['user', 'course'])
-            ->latest()
-            ->take(40)
+        $completedEnrollmentsQuery = Enrollment::with(['user', 'course'])->latest()->take(40);
+        if ($courseId) {
+            $completedEnrollmentsQuery->where('course_id', $courseId);
+        }
+        $completedEnrollments = $completedEnrollmentsQuery
             ->get()
             ->filter(fn (Enrollment $enrollment) => ($progressByEnrollment[$enrollment->id]['status'] ?? null) === 'completed')
             ->take(8);
@@ -692,33 +802,50 @@ class DashboardController extends Controller
             ]);
         }
 
-        foreach (QuizAttempt::with(['user', 'quiz'])->whereNotNull('submitted_at')->latest('submitted_at')->take(8)->get() as $attempt) {
+        $attemptsQuery = QuizAttempt::with(['user', 'quiz'])->whereNotNull('submitted_at')->latest('submitted_at')->take(8);
+        if ($courseId) {
+            $quizIds = $courses->flatMap(fn (Course $c) => $c->quizzes->pluck('id'));
+            $attemptsQuery->whereIn('quiz_id', $quizIds->isEmpty() ? [-1] : $quizIds);
+        }
+        foreach ($attemptsQuery->get() as $attempt) {
             $items->push([
                 'at' => $attempt->submitted_at,
                 'icon' => 'quiz',
                 'text' => ($attempt->user->name ?? 'A student').' submitted '.($attempt->quiz->title ?? 'a quiz'),
             ]);
         }
-        foreach (Course::latest()->take(5)->get() as $course) {
+
+        $coursesFeed = $courseId
+            ? $courses
+            : Course::latest()->take(5)->get();
+        foreach ($coursesFeed->take(5) as $course) {
             $items->push([
                 'at' => $course->created_at,
                 'icon' => 'book',
                 'text' => 'Course created: '.$course->title,
             ]);
         }
-        foreach (LiveSession::with('course')->latest()->take(5)->get() as $session) {
+
+        $sessionsQuery = LiveSession::with('course')->latest()->take(5);
+        if ($courseId) {
+            $sessionsQuery->where('course_id', $courseId);
+        }
+        foreach ($sessionsQuery->get() as $session) {
             $items->push([
                 'at' => $session->created_at,
                 'icon' => 'live',
                 'text' => 'Live session created: '.$session->title,
             ]);
         }
-        foreach (Instructor::latest()->take(5)->get() as $instructor) {
-            $items->push([
-                'at' => $instructor->created_at,
-                'icon' => 'instructor',
-                'text' => 'Instructor added: '.$instructor->name,
-            ]);
+
+        if (! $courseId) {
+            foreach (Instructor::latest()->take(5)->get() as $instructor) {
+                $items->push([
+                    'at' => $instructor->created_at,
+                    'icon' => 'instructor',
+                    'text' => 'Instructor added: '.$instructor->name,
+                ]);
+            }
         }
 
         return $items->filter(fn ($i) => $i['at'])->sortByDesc('at')->take(12)->values();

@@ -55,6 +55,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('contact-messages/destroy-all', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroyAll'])->name('contact-messages.destroy-all');
     Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::get('imports/students', [\App\Http\Controllers\Admin\StudentImportController::class, 'create'])->name('imports.students.create');
+    Route::post('imports/students/preview', [\App\Http\Controllers\Admin\StudentImportController::class, 'preview'])->name('imports.students.preview');
+    Route::post('imports/students', [\App\Http\Controllers\Admin\StudentImportController::class, 'store'])->name('imports.students.store');
     Route::get('course-progress', [\App\Http\Controllers\Admin\CourseProgressController::class, 'index'])->name('course-progress.index');
     Route::get('course-progress/{course}', [\App\Http\Controllers\Admin\CourseProgressController::class, 'show'])->name('course-progress.show');
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'edit'])->name('settings.edit');

@@ -43,6 +43,7 @@
                 <div>
                     <p class="px-3 py-1.5 text-xs font-semibold text-white/40 uppercase tracking-wider">Learners</p>
                     <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded-xl {{ request()->routeIs('admin.users.*') ? 'bg-primary text-white font-medium' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">Users</a>
+                    <a href="{{ route('admin.imports.students.create') }}" class="block px-3 py-2 rounded-xl {{ request()->routeIs('admin.imports.students.*') ? 'bg-primary text-white font-medium' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">Import students</a>
                     <a href="{{ route('admin.course-progress.index') }}" class="block px-3 py-2 rounded-xl {{ request()->routeIs('admin.course-progress.*') ? 'bg-primary text-white font-medium' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">Student progress</a>
                 </div>
                 <div>

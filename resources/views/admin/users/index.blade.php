@@ -16,7 +16,8 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Full name</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">First name</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Last name</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Email</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Account created</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Enrollments</th>
@@ -27,7 +28,8 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($users as $u)
                         <tr class="hover:bg-slate-50/70">
-                            <td class="px-4 py-3 font-medium text-navy">{{ $u->name }}</td>
+                            <td class="px-4 py-3 font-medium text-navy">{{ $u->displayFirstName() ?: '—' }}</td>
+                            <td class="px-4 py-3 font-medium text-navy">{{ $u->displayLastName() ?: '—' }}</td>
                             <td class="px-4 py-3 text-slate-600">{{ $u->email }}</td>
                             <td class="px-4 py-3 text-slate-500 whitespace-nowrap">{{ $u->created_at->format('M j, Y') }}</td>
                             <td class="px-4 py-3 tabular-nums text-slate-600">{{ $u->enrollments_count }}</td>
@@ -40,7 +42,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-500">No users found.</td>
+                            <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-500">No users found.</td>
                         </tr>
                     @endforelse
                 </tbody>

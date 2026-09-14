@@ -5,10 +5,14 @@
 
 @section('content')
     <div class="mb-8 p-6 bg-white rounded-xl border border-gray-200">
-        <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-                <dt class="text-xs font-medium text-gray-500 uppercase">Full name</dt>
-                <dd class="mt-1 font-medium text-gray-900">{{ $user->name }}</dd>
+                <dt class="text-xs font-medium text-gray-500 uppercase">First name</dt>
+                <dd class="mt-1 font-medium text-gray-900">{{ $user->displayFirstName() ?: '—' }}</dd>
+            </div>
+            <div>
+                <dt class="text-xs font-medium text-gray-500 uppercase">Last name</dt>
+                <dd class="mt-1 font-medium text-gray-900">{{ $user->displayLastName() ?: '—' }}</dd>
             </div>
             <div>
                 <dt class="text-xs font-medium text-gray-500 uppercase">Email</dt>
