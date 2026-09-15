@@ -105,7 +105,7 @@ class ReportsController extends Controller
         })->sortByDesc('estimated_earnings')->values();
 
         // --- Student engagement
-        $totalStudents = User::whereNull('is_admin')->orWhere('is_admin', false)->count();
+        $totalStudents = User::query()->where('is_admin', false)->count();
         $studentsWithCompletions = User::whereHas('lessonCompletions')->count();
         $studentsWithQuizAttempts = User::whereHas('quizAttempts')->count();
         $recentEnrollmentsCount = Enrollment::where('created_at', '>=', now()->subDays(7))->count();
@@ -119,22 +119,95 @@ class ReportsController extends Controller
             ->take(15)
             ->get();
 
+        $totalEnrollmentsAllTime = $enrollmentsByCourse->sum('enrollments_count');
+
+        $kpis = [
+            [
+                'label' => 'Students',
+                'value' => $totalStudents,
+                'icon' => 'users',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Est. revenue',
+                'value' => $totalRevenue,
+                'prefix' => '$',
+                'decimals' => 0,
+                'icon' => 'chart',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Enrollments',
+                'value' => $totalEnrollmentsInPeriod,
+                'icon' => 'enroll',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Active learners',
+                'value' => $studentsWithCompletions,
+                'icon' => 'pulse',
+                'tone' => 'slate',
+            ],
+        ];
+
+        $engagementKpis = [
+            [
+                'label' => 'Lesson activity',
+                'value' => $studentsWithCompletions,
+                'hint' => 'Students with completions',
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Quiz takers',
+                'value' => $studentsWithQuizAttempts,
+                'hint' => 'Students with attempts',
+                'icon' => 'quiz',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'New enrollments',
+                'value' => $recentEnrollmentsCount,
+                'hint' => 'Last 7 days',
+                'icon' => 'enroll',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Completions',
+                'value' => $recentCompletionsCount,
+                'hint' => 'Last 7 days',
+                'icon' => 'book',
+                'tone' => 'slate',
+            ],
+            [
+                'label' => 'Quiz submits',
+                'value' => $recentQuizAttemptsCount,
+                'hint' => 'Last 7 days',
+                'icon' => 'quiz',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'All-time enrollments',
+                'value' => $totalEnrollmentsAllTime,
+                'hint' => 'Across all courses',
+                'icon' => 'users',
+                'tone' => 'primary',
+            ],
+        ];
+
         return view('admin.reports.index', [
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
+            'kpis' => $kpis,
+            'engagementKpis' => $engagementKpis,
             'totalRevenue' => $totalRevenue,
             'revenueByCourse' => $revenueByCourse,
             'enrollmentsOverTime' => $enrollmentsOverTime,
             'totalEnrollmentsInPeriod' => $totalEnrollmentsInPeriod,
+            'totalEnrollmentsAllTime' => $totalEnrollmentsAllTime,
             'enrollmentsByCourse' => $enrollmentsByCourse,
             'coursePerformance' => $coursePerformance,
             'instructorEarnings' => $instructorEarnings,
-            'totalStudents' => $totalStudents,
-            'studentsWithCompletions' => $studentsWithCompletions,
-            'studentsWithQuizAttempts' => $studentsWithQuizAttempts,
-            'recentEnrollmentsCount' => $recentEnrollmentsCount,
-            'recentCompletionsCount' => $recentCompletionsCount,
-            'recentQuizAttemptsCount' => $recentQuizAttemptsCount,
             'mostPopularCourses' => $mostPopularCourses,
         ]);
     }

@@ -15,13 +15,64 @@ class LiveSessionController extends Controller
 {
     public function index(Request $request): View
     {
+        $search = trim((string) $request->get('search', ''));
+        $courseId = $request->filled('course_id') ? (int) $request->get('course_id') : null;
+
         $query = LiveSession::with('course')->withCount('invitedAttendees');
-        if ($request->filled('course_id')) {
-            $query->where('course_id', $request->course_id);
+        if ($courseId) {
+            $query->where('course_id', $courseId);
         }
-        $liveSessions = $query->orderBy('scheduled_at')->paginate(15);
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('course', fn ($cq) => $cq->where('title', 'like', "%{$search}%"));
+            });
+        }
+
+        $liveSessions = $query->orderBy('scheduled_at')->paginate(15)->withQueryString();
         $courses = Course::orderBy('title')->get();
-        return view('admin.live-sessions.index', compact('liveSessions', 'courses'));
+
+        $now = now();
+        $all = LiveSession::withCount('invitedAttendees')->get();
+        $totalSessions = $all->count();
+        $upcoming = $all->filter(fn ($s) => $s->scheduled_at->gte($now))->count();
+        $past = $totalSessions - $upcoming;
+        $totalInvitees = (int) $all->sum('invited_attendees_count');
+
+        $kpis = [
+            [
+                'label' => 'Sessions',
+                'value' => $totalSessions,
+                'icon' => 'live',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Upcoming',
+                'value' => $upcoming,
+                'icon' => 'pulse',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Past',
+                'value' => $past,
+                'icon' => 'check',
+                'tone' => 'slate',
+            ],
+            [
+                'label' => 'Invitees',
+                'value' => $totalInvitees,
+                'icon' => 'users',
+                'tone' => 'accent',
+            ],
+        ];
+
+        return view('admin.live-sessions.index', compact(
+            'liveSessions',
+            'courses',
+            'kpis',
+            'search',
+            'courseId'
+        ));
     }
 
     public function create(Request $request): View

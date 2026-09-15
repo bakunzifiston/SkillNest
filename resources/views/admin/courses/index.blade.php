@@ -4,26 +4,91 @@
 @section('header', 'Courses')
 
 @section('content')
-    <div class="mb-5 flex flex-wrap gap-3 justify-between items-center">
-        <form action="{{ route('admin.courses.index') }}" method="get">
-            <select name="category_id" onchange="this.form.submit()" class="rounded-xl border-slate-300 text-sm">
+    <section class="mb-5" aria-labelledby="courses-kpi-heading">
+        <h2 id="courses-kpi-heading" class="sr-only">Courses overview</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            @foreach($kpis as $kpi)
+                @php
+                    $styles = match ($kpi['tone'] ?? 'primary') {
+                        'accent' => [
+                            'card' => 'bg-gradient-to-br from-accent-light to-white border-accent-muted/70',
+                            'icon' => 'bg-accent text-white',
+                            'value' => 'text-accent-darker',
+                            'label' => 'text-accent-dark',
+                        ],
+                        'success' => [
+                            'card' => 'bg-gradient-to-br from-success-light to-white border-success-muted/70',
+                            'icon' => 'bg-success text-white',
+                            'value' => 'text-success-darker',
+                            'label' => 'text-success-dark',
+                        ],
+                        'slate' => [
+                            'card' => 'bg-gradient-to-br from-slate-100 to-white border-slate-200',
+                            'icon' => 'bg-navy text-white',
+                            'value' => 'text-navy',
+                            'label' => 'text-slate-600',
+                        ],
+                        default => [
+                            'card' => 'bg-gradient-to-br from-primary-light to-white border-primary-muted/70',
+                            'icon' => 'bg-primary text-white',
+                            'value' => 'text-primary-darker',
+                            'label' => 'text-primary',
+                        ],
+                    };
+                @endphp
+                <div class="rounded-2xl border px-4 py-4 {{ $styles['card'] }}">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ $styles['icon'] }}">
+                            @include('admin.partials.dashboard-icon', ['icon' => $kpi['icon'], 'class' => 'h-5 w-5'])
+                        </span>
+                        <div class="min-w-0">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider {{ $styles['label'] }}">{{ $kpi['label'] }}</p>
+                            <p class="mt-1 font-display font-bold text-2xl tabular-nums leading-none {{ $styles['value'] }}">
+                                {{ number_format($kpi['value']) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    <div class="mb-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <form action="{{ route('admin.courses.index') }}" method="get" class="flex flex-wrap gap-2 w-full lg:max-w-2xl">
+            <input
+                type="text"
+                name="search"
+                value="{{ $search ?? '' }}"
+                placeholder="Search by title or instructor..."
+                class="flex-1 rounded-xl border-slate-300 text-sm min-w-[12rem]"
+            >
+            <select name="category_id" class="rounded-xl border-slate-300 text-sm min-w-[10rem]">
                 <option value="">All categories</option>
                 @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                    <option value="{{ $cat->id }}" @selected((int) ($categoryId ?? 0) === (int) $cat->id)>{{ $cat->name }}</option>
                 @endforeach
             </select>
+            <button type="submit" class="admin-btn-secondary">Filter</button>
+            @if(!empty($search) || !empty($categoryId))
+                <a href="{{ route('admin.courses.index') }}" class="admin-btn-secondary">Clear</a>
+            @endif
         </form>
-        <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent">Add course</a>
+        <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent shrink-0">Add course</a>
     </div>
+
+    @if(session('success'))
+        <div class="mb-4 p-3 rounded-xl bg-success-light text-success-darker border border-success-muted text-sm">{{ session('success') }}</div>
+    @endif
 
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Title</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Category</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Price</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Students</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Duration</th>
                         <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Actions</th>
                     </tr>
@@ -31,10 +96,30 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($courses as $course)
                         <tr class="hover:bg-slate-50/70">
-                            <td class="px-4 py-3 font-medium text-navy">{{ Str::limit($course->title, 40) }}</td>
-                            <td class="px-4 py-3 text-slate-500">{{ $course->category->name ?? '—' }}</td>
-                            <td class="px-4 py-3 text-slate-600">{{ $course->price > 0 ? '$' . number_format($course->price, 0) : 'Free' }}</td>
-                            <td class="px-4 py-3 text-slate-500">{{ $course->duration ?? '—' }}</td>
+                            <td class="px-4 py-3">
+                                <div class="min-w-0">
+                                    <p class="font-medium text-navy truncate max-w-[18rem]" title="{{ $course->title }}">{{ $course->title }}</p>
+                                    @if($course->instructor)
+                                        <p class="text-xs text-slate-400 mt-0.5 truncate">{{ $course->instructor->name }}</p>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="px-4 py-3">
+                                @if($course->category)
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-primary-light text-primary text-xs font-medium">{{ $course->category->name }}</span>
+                                @else
+                                    <span class="text-slate-300">—</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                @if(($course->price ?? 0) > 0)
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-accent-light text-accent-darker text-xs font-medium tabular-nums">${{ number_format($course->price, 0) }}</span>
+                                @else
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Free</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 tabular-nums text-slate-600 whitespace-nowrap">{{ $course->enrollments_count }}</td>
+                            <td class="px-4 py-3 text-slate-500 whitespace-nowrap">{{ $course->duration ?: '—' }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
                                     <a href="{{ route('admin.courses.edit', $course) }}" class="admin-btn-secondary">Edit</a>
@@ -49,9 +134,17 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-10 text-center">
-                                <p class="text-sm text-slate-500 mb-3">No courses yet.</p>
-                                <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent">Add course</a>
+                            <td colspan="6" class="px-4 py-10 text-center">
+                                <p class="text-sm text-slate-500 mb-3">
+                                    @if(!empty($search) || !empty($categoryId))
+                                        No courses match your filters.
+                                    @else
+                                        No courses yet.
+                                    @endif
+                                </p>
+                                @if(empty($search) && empty($categoryId))
+                                    <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent">Add course</a>
+                                @endif
                             </td>
                         </tr>
                     @endforelse
@@ -59,7 +152,7 @@
             </table>
         </div>
         @if($courses->hasPages())
-            <div class="px-4 py-3 border-t border-slate-100">{{ $courses->withQueryString()->links() }}</div>
+            <div class="px-4 py-3 border-t border-slate-100">{{ $courses->links() }}</div>
         @endif
     </div>
 @endsection

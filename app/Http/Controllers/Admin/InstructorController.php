@@ -10,10 +10,54 @@ use Illuminate\View\View;
 
 class InstructorController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $instructors = Instructor::withCount('courses')->orderBy('name')->paginate(15);
-        return view('admin.instructors.index', compact('instructors'));
+        $search = trim((string) $request->get('search', ''));
+
+        $instructorsQuery = Instructor::withCount('courses')->orderBy('name');
+        if ($search !== '') {
+            $instructorsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $instructors = $instructorsQuery->paginate(15)->withQueryString();
+
+        $all = Instructor::withCount('courses')->get();
+        $totalInstructors = $all->count();
+        $withCourses = $all->filter(fn ($i) => $i->courses_count > 0)->count();
+        $totalCourses = (int) $all->sum('courses_count');
+        $avgCourses = $totalInstructors > 0 ? round($totalCourses / $totalInstructors, 1) : 0;
+
+        $kpis = [
+            [
+                'label' => 'Instructors',
+                'value' => $totalInstructors,
+                'icon' => 'instructor',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'With courses',
+                'value' => $withCourses,
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Courses assigned',
+                'value' => $totalCourses,
+                'icon' => 'book',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Avg. per instructor',
+                'value' => $avgCourses,
+                'icon' => 'chart',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.instructors.index', compact('instructors', 'kpis', 'search'));
     }
 
     public function create(): View

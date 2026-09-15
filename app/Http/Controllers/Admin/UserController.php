@@ -15,22 +15,58 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
+        $search = trim((string) $request->get('search', ''));
+
         $users = User::query()
             ->withCount('enrollments')
-            ->when($request->filled('search'), function ($q) use ($request) {
-                $term = $request->search;
-                $q->where(function ($q) use ($term) {
-                    $q->where('name', 'like', "%{$term}%")
-                        ->orWhere('first_name', 'like', "%{$term}%")
-                        ->orWhere('last_name', 'like', "%{$term}%")
-                        ->orWhere('email', 'like', "%{$term}%");
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
             })
             ->orderByDesc('created_at')
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.users.index', compact('users'));
+        $totalUsers = User::count();
+        $students = User::query()->where('is_admin', false)->count();
+        $activeRecently = User::query()
+            ->whereNotNull('last_login_at')
+            ->where('last_login_at', '>=', now()->subDays(30))
+            ->count();
+        $withEnrollments = User::query()->whereHas('enrollments')->count();
+
+        $kpis = [
+            [
+                'label' => 'Users',
+                'value' => $totalUsers,
+                'icon' => 'users',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Students',
+                'value' => $students,
+                'icon' => 'user',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Active (30d)',
+                'value' => $activeRecently,
+                'icon' => 'pulse',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Enrolled',
+                'value' => $withEnrollments,
+                'icon' => 'enroll',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.users.index', compact('users', 'kpis', 'search'));
     }
 
     /**

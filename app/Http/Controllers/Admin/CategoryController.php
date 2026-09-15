@@ -10,10 +10,58 @@ use Illuminate\View\View;
 
 class CategoryController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $categories = Category::withCount('courses')->orderBy('name')->paginate(15);
-        return view('admin.categories.index', compact('categories'));
+        $search = trim((string) $request->get('search', ''));
+
+        $categoriesQuery = Category::withCount('courses')->orderBy('name');
+        if ($search !== '') {
+            $categoriesQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        $categories = $categoriesQuery->paginate(15)->withQueryString();
+
+        $all = Category::withCount('courses')->get();
+        $totalCategories = $all->count();
+        $withCourses = $all->filter(fn ($c) => $c->courses_count > 0)->count();
+        $totalCourses = (int) $all->sum('courses_count');
+        $avgCourses = $totalCategories > 0 ? round($totalCourses / $totalCategories, 1) : 0;
+
+        $kpis = [
+            [
+                'label' => 'Categories',
+                'value' => $totalCategories,
+                'hint' => $withCourses.' with courses',
+                'icon' => 'folder',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'With courses',
+                'value' => $withCourses,
+                'hint' => ($totalCategories - $withCourses).' empty',
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Courses linked',
+                'value' => $totalCourses,
+                'hint' => 'Across all categories',
+                'icon' => 'book',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Avg. per category',
+                'value' => $avgCourses,
+                'hint' => 'Courses per category',
+                'icon' => 'chart',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.categories.index', compact('categories', 'kpis', 'search', 'totalCategories'));
     }
 
     public function create(): View

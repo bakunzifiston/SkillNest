@@ -12,10 +12,58 @@ use Illuminate\View\View;
 
 class BundleController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $bundles = Bundle::withCount('courses')->latest()->paginate(15);
-        return view('admin.bundles.index', compact('bundles'));
+        $search = trim((string) $request->get('search', ''));
+        $status = $request->get('status');
+
+        $query = Bundle::withCount('courses')->latest();
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+        if (in_array($status, ['draft', 'published', 'archived'], true)) {
+            $query->where('status', $status);
+        }
+
+        $bundles = $query->paginate(15)->withQueryString();
+
+        $all = Bundle::withCount('courses')->get();
+        $totalBundles = $all->count();
+        $published = $all->where('status', 'published')->count();
+        $draft = $all->where('status', 'draft')->count();
+        $coursesInBundles = (int) $all->sum('courses_count');
+
+        $kpis = [
+            [
+                'label' => 'Bundles',
+                'value' => $totalBundles,
+                'icon' => 'folder',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Published',
+                'value' => $published,
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Draft',
+                'value' => $draft,
+                'icon' => 'quiz',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Courses in bundles',
+                'value' => $coursesInBundles,
+                'icon' => 'book',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.bundles.index', compact('bundles', 'kpis', 'search', 'status'));
     }
 
     public function create(): View

@@ -1,23 +1,84 @@
 @extends('layouts.admin')
 
 @section('title', 'Live Sessions')
-@section('header', 'Live Sessions')
+@section('header', 'Live sessions')
 
 @section('content')
-    <div class="mb-5 flex flex-wrap justify-between items-center gap-3">
-        <p class="text-sm text-slate-500">Schedule live sessions and add the join link. Students see upcoming sessions on the course page.</p>
-        <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent">Add live session</a>
-    </div>
-    <div class="mb-4">
-        <form method="get">
-            <select name="course_id" onchange="this.form.submit()" class="rounded-xl border-slate-300 text-sm">
+    <section class="mb-5" aria-labelledby="live-sessions-kpi-heading">
+        <h2 id="live-sessions-kpi-heading" class="sr-only">Live sessions overview</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            @foreach($kpis as $kpi)
+                @php
+                    $styles = match ($kpi['tone'] ?? 'primary') {
+                        'accent' => [
+                            'card' => 'bg-gradient-to-br from-accent-light to-white border-accent-muted/70',
+                            'icon' => 'bg-accent text-white',
+                            'value' => 'text-accent-darker',
+                            'label' => 'text-accent-dark',
+                        ],
+                        'success' => [
+                            'card' => 'bg-gradient-to-br from-success-light to-white border-success-muted/70',
+                            'icon' => 'bg-success text-white',
+                            'value' => 'text-success-darker',
+                            'label' => 'text-success-dark',
+                        ],
+                        'slate' => [
+                            'card' => 'bg-gradient-to-br from-slate-100 to-white border-slate-200',
+                            'icon' => 'bg-navy text-white',
+                            'value' => 'text-navy',
+                            'label' => 'text-slate-600',
+                        ],
+                        default => [
+                            'card' => 'bg-gradient-to-br from-primary-light to-white border-primary-muted/70',
+                            'icon' => 'bg-primary text-white',
+                            'value' => 'text-primary-darker',
+                            'label' => 'text-primary',
+                        ],
+                    };
+                @endphp
+                <div class="rounded-2xl border px-4 py-4 {{ $styles['card'] }}">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ $styles['icon'] }}">
+                            @include('admin.partials.dashboard-icon', ['icon' => $kpi['icon'], 'class' => 'h-5 w-5'])
+                        </span>
+                        <div class="min-w-0">
+                            <p class="text-[11px] font-semibold uppercase tracking-wider {{ $styles['label'] }}">{{ $kpi['label'] }}</p>
+                            <p class="mt-1 font-display font-bold text-2xl tabular-nums leading-none {{ $styles['value'] }}">
+                                {{ number_format($kpi['value']) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </section>
+
+    <div class="mb-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <form action="{{ route('admin.live-sessions.index') }}" method="get" class="flex flex-wrap gap-2 w-full lg:max-w-2xl">
+            <input
+                type="text"
+                name="search"
+                value="{{ $search ?? '' }}"
+                placeholder="Search sessions or courses..."
+                class="flex-1 rounded-xl border-slate-300 text-sm min-w-[12rem]"
+            >
+            <select name="course_id" class="rounded-xl border-slate-300 text-sm min-w-[12rem]">
                 <option value="">All courses</option>
                 @foreach($courses as $c)
-                    <option value="{{ $c->id }}" {{ request('course_id') == $c->id ? 'selected' : '' }}>{{ $c->title }}</option>
+                    <option value="{{ $c->id }}" @selected((int) ($courseId ?? 0) === (int) $c->id)>{{ $c->title }}</option>
                 @endforeach
             </select>
+            <button type="submit" class="admin-btn-secondary">Filter</button>
+            @if(!empty($search) || !empty($courseId))
+                <a href="{{ route('admin.live-sessions.index') }}" class="admin-btn-secondary">Clear</a>
+            @endif
         </form>
+        <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent shrink-0">Add live session</a>
     </div>
+
+    @if(session('success'))
+        <div class="mb-4 p-3 rounded-xl bg-success-light text-success-darker border border-success-muted text-sm">{{ session('success') }}</div>
+    @endif
 
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
@@ -28,18 +89,39 @@
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Scheduled</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Duration</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Invitees</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Invitees</th>
                         <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($liveSessions as $session)
+                        @php $isUpcoming = $session->scheduled_at->isFuture(); @endphp
                         <tr class="hover:bg-slate-50/70">
-                            <td class="px-4 py-3 font-medium text-navy">{{ $session->title }}</td>
-                            <td class="px-4 py-3 text-slate-500">{{ $session->course->title ?? '—' }}</td>
-                            <td class="px-4 py-3 text-slate-600 whitespace-nowrap">{{ $session->scheduled_at->format('M j, Y H:i') }}</td>
-                            <td class="px-4 py-3 text-slate-500">{{ $session->duration_minutes }} min</td>
-                            <td class="px-4 py-3 tabular-nums text-slate-600">{{ $session->invited_attendees_count ?? 0 }}</td>
+                            <td class="px-4 py-3">
+                                <p class="font-medium text-navy truncate max-w-[16rem]" title="{{ $session->title }}">{{ $session->title }}</p>
+                            </td>
+                            <td class="px-4 py-3">
+                                @if($session->course)
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-primary-light text-primary text-xs font-medium">{{ $session->course->title }}</span>
+                                @else
+                                    <span class="text-slate-300">—</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-slate-600 whitespace-nowrap">{{ $session->scheduled_at->format('M j, Y · g:i A') }}</td>
+                            <td class="px-4 py-3 text-slate-500 whitespace-nowrap">{{ $session->duration_minutes }} min</td>
+                            <td class="px-4 py-3">
+                                @if($isUpcoming)
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Upcoming</span>
+                                @else
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Past</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-0.5 rounded-md bg-accent-light text-accent-darker text-xs font-medium tabular-nums">
+                                    {{ $session->invited_attendees_count ?? 0 }}
+                                </span>
+                            </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
                                     <a href="{{ route('admin.live-sessions.edit', $session) }}" class="admin-btn-secondary">Edit</a>
@@ -53,9 +135,17 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-10 text-center">
-                                <p class="text-sm text-slate-500 mb-3">No live sessions yet.</p>
-                                <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent">Add live session</a>
+                            <td colspan="7" class="px-4 py-10 text-center">
+                                <p class="text-sm text-slate-500 mb-3">
+                                    @if(!empty($search) || !empty($courseId))
+                                        No live sessions match your filters.
+                                    @else
+                                        No live sessions yet.
+                                    @endif
+                                </p>
+                                @if(empty($search) && empty($courseId))
+                                    <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent">Add live session</a>
+                                @endif
                             </td>
                         </tr>
                     @endforelse

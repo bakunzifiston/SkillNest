@@ -13,25 +13,82 @@ class QuizResultsController extends Controller
 {
     public function index(Request $request)
     {
+        $search = trim((string) $request->get('search', ''));
+        $quizId = $request->filled('quiz_id') ? (int) $request->get('quiz_id') : null;
+        $passed = $request->get('passed');
+        $passedFilter = in_array($passed, ['0', '1'], true) ? $passed : null;
+
         $query = QuizAttempt::with(['user', 'quiz.course'])
             ->whereNotNull('submitted_at')
             ->latest('submitted_at');
 
-        if ($request->filled('quiz_id')) {
-            $query->where('quiz_id', $request->quiz_id);
+        if ($quizId) {
+            $query->where('quiz_id', $quizId);
         }
-        if ($request->filled('passed')) {
-            if ($request->passed === '1') {
-                $query->where('passed', true);
-            } else {
-                $query->where('passed', false);
-            }
+        if ($passedFilter === '1') {
+            $query->where('passed', true);
+        } elseif ($passedFilter === '0') {
+            $query->where('passed', false);
+        }
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                })->orWhereHas('quiz', function ($qq) use ($search) {
+                    $qq->where('title', 'like', "%{$search}%")
+                        ->orWhereHas('course', fn ($cq) => $cq->where('title', 'like', "%{$search}%"));
+                });
+            });
         }
 
-        $attempts = $query->paginate(20);
+        $attempts = $query->paginate(20)->withQueryString();
         $quizzes = Quiz::with('course')->orderBy('title')->get();
 
-        return view('admin.quiz-results.index', compact('attempts', 'quizzes'));
+        $base = QuizAttempt::query()->whereNotNull('submitted_at');
+        $totalAttempts = (clone $base)->count();
+        $passedCount = (clone $base)->where('passed', true)->count();
+        $failedCount = (clone $base)->where('passed', false)->count();
+        $avgPercent = (clone $base)->avg('percentage');
+
+        $kpis = [
+            [
+                'label' => 'Attempts',
+                'value' => $totalAttempts,
+                'icon' => 'quiz',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Passed',
+                'value' => $passedCount,
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Failed',
+                'value' => $failedCount,
+                'icon' => 'pulse',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Avg score',
+                'value' => $avgPercent !== null ? (int) round($avgPercent) : 0,
+                'suffix' => '%',
+                'icon' => 'chart',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.quiz-results.index', compact(
+            'attempts',
+            'quizzes',
+            'kpis',
+            'search',
+            'quizId',
+            'passedFilter'
+        ));
     }
 
     public function show(QuizAttempt $quizAttempt)
@@ -48,6 +105,25 @@ class QuizResultsController extends Controller
 
         if ($request->filled('quiz_id')) {
             $query->where('quiz_id', $request->quiz_id);
+        }
+        if ($request->get('passed') === '1') {
+            $query->where('passed', true);
+        } elseif ($request->get('passed') === '0') {
+            $query->where('passed', false);
+        }
+        $search = trim((string) $request->get('search', ''));
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->whereHas('user', function ($uq) use ($search) {
+                    $uq->where('name', 'like', "%{$search}%")
+                        ->orWhere('first_name', 'like', "%{$search}%")
+                        ->orWhere('last_name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                })->orWhereHas('quiz', function ($qq) use ($search) {
+                    $qq->where('title', 'like', "%{$search}%")
+                        ->orWhereHas('course', fn ($cq) => $cq->where('title', 'like', "%{$search}%"));
+                });
+            });
         }
 
         $filename = 'quiz-results-' . now()->format('Y-m-d-His') . '.csv';

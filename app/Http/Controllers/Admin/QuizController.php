@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\Question;
 use App\Models\Quiz;
+use App\Models\QuizAttempt;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,13 +15,62 @@ class QuizController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Quiz::with('course');
-        if ($request->filled('course_id')) {
-            $query->where('course_id', $request->course_id);
+        $search = trim((string) $request->get('search', ''));
+        $courseId = $request->filled('course_id') ? (int) $request->get('course_id') : null;
+
+        $query = Quiz::with('course')->withCount('questions');
+        if ($courseId) {
+            $query->where('course_id', $courseId);
         }
-        $quizzes = $query->latest()->paginate(15);
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('course', fn ($cq) => $cq->where('title', 'like', "%{$search}%"));
+            });
+        }
+
+        $quizzes = $query->latest()->paginate(15)->withQueryString();
         $courses = Course::orderBy('title')->get();
-        return view('admin.quizzes.index', compact('quizzes', 'courses'));
+
+        $totalQuizzes = Quiz::count();
+        $published = Quiz::query()->where('is_published', true)->count();
+        $totalQuestions = Question::count();
+        $totalAttempts = QuizAttempt::query()->whereNotNull('submitted_at')->count();
+
+        $kpis = [
+            [
+                'label' => 'Quizzes',
+                'value' => $totalQuizzes,
+                'icon' => 'quiz',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Published',
+                'value' => $published,
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Questions',
+                'value' => $totalQuestions,
+                'icon' => 'book',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Attempts',
+                'value' => $totalAttempts,
+                'icon' => 'users',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.quizzes.index', compact(
+            'quizzes',
+            'courses',
+            'kpis',
+            'search',
+            'courseId'
+        ));
     }
 
     public function create(Request $request): View

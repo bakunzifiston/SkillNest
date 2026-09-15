@@ -15,13 +15,64 @@ class CourseController extends Controller
 {
     public function index(Request $request): View
     {
-        $query = Course::with(['category', 'instructor']);
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
+        $search = trim((string) $request->get('search', ''));
+        $categoryId = $request->filled('category_id') ? (int) $request->get('category_id') : null;
+
+        $query = Course::with(['category', 'instructor'])->withCount('enrollments');
+        if ($categoryId) {
+            $query->where('category_id', $categoryId);
         }
-        $courses = $query->latest()->paginate(15);
+        if ($search !== '') {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('slug', 'like', "%{$search}%")
+                    ->orWhereHas('instructor', fn ($iq) => $iq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $courses = $query->latest()->paginate(15)->withQueryString();
         $categories = Category::orderBy('name')->get();
-        return view('admin.courses.index', compact('courses', 'categories'));
+
+        $all = Course::query()->get(['id', 'price', 'instructor_id', 'category_id']);
+        $totalCourses = $all->count();
+        $freeCourses = $all->where('price', '<=', 0)->count();
+        $paidCourses = $totalCourses - $freeCourses;
+        $totalEnrollments = \App\Models\Enrollment::count();
+
+        $kpis = [
+            [
+                'label' => 'Courses',
+                'value' => $totalCourses,
+                'icon' => 'book',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Free',
+                'value' => $freeCourses,
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Paid',
+                'value' => $paidCourses,
+                'icon' => 'enroll',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Enrollments',
+                'value' => $totalEnrollments,
+                'icon' => 'users',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.courses.index', compact(
+            'courses',
+            'categories',
+            'kpis',
+            'search',
+            'categoryId'
+        ));
     }
 
     public function create(): View

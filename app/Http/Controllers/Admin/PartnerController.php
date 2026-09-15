@@ -11,10 +11,49 @@ use Illuminate\View\View;
 
 class PartnerController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $partners = Partner::orderBy('sort_order')->orderBy('id')->get();
-        return view('admin.partners.index', compact('partners'));
+        $search = trim((string) $request->get('search', ''));
+
+        $partners = Partner::query()
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            })
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
+
+        $total = Partner::count();
+        $named = Partner::query()->whereNotNull('name')->where('name', '!=', '')->count();
+
+        $kpis = [
+            [
+                'label' => 'Partners',
+                'value' => $total,
+                'icon' => 'users',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Named',
+                'value' => $named,
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'Unnamed',
+                'value' => max(0, $total - $named),
+                'icon' => 'folder',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'On homepage',
+                'value' => $total,
+                'icon' => 'live',
+                'tone' => 'slate',
+            ],
+        ];
+
+        return view('admin.partners.index', compact('partners', 'kpis', 'search'));
     }
 
     public function create(): View

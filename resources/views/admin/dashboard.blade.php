@@ -9,25 +9,26 @@
         $dashUrl = fn (array $extra = []) => route('admin.dashboard', array_filter(array_merge($filterParams, $extra), fn ($v) => $v !== null && $v !== ''));
         $rangePresets = [
             'today' => 'Today',
-            '7d' => 'Last 7 days',
-            '30d' => 'Last 30 days',
-            '90d' => 'Last 90 days',
+            '7d' => '7 days',
+            '30d' => '30 days',
+            '90d' => '90 days',
             'year' => 'This year',
-            'custom' => 'Custom range',
+            'custom' => 'Custom',
         ];
     @endphp
 
-    <form method="get" action="{{ route('admin.dashboard') }}" class="mb-6 bg-white rounded-xl border border-slate-200 p-3 sm:p-4">
+    <form method="get" action="{{ route('admin.dashboard') }}" class="mb-5 rounded-2xl border border-slate-200 bg-white px-4 py-3">
         @if($chartGranularity)
             <input type="hidden" name="chart_period" value="{{ $chartGranularity }}">
         @endif
-        <div class="flex flex-wrap items-end gap-3">
-            <div class="min-w-[14rem] flex-1 sm:flex-none">
-                <label for="course_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Course</label>
+
+        <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
+            <div class="flex items-center gap-2 min-w-0 lg:w-64">
+                <label for="course_id" class="sr-only">Course</label>
                 <select
                     name="course_id"
                     id="course_id"
-                    class="w-full rounded-lg border-slate-300 text-sm"
+                    class="w-full rounded-xl border-slate-200 text-sm text-navy focus:border-primary focus:ring-primary"
                     onchange="this.form.submit()"
                 >
                     <option value="">All courses</option>
@@ -38,63 +39,86 @@
                     @endforeach
                 </select>
             </div>
-            <div class="flex-1">
-                <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Period</span>
-                <div class="flex flex-wrap items-center gap-2">
-                    @foreach($rangePresets as $key => $label)
-                        <a
-                            href="{{ $dashUrl(['range' => $key, 'chart_period' => $chartGranularity]) }}"
-                            class="px-2.5 py-1 rounded-lg text-xs font-medium {{ $range['preset'] === $key ? 'bg-navy text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}"
-                        >{{ $label }}</a>
-                    @endforeach
-                </div>
+
+            <div class="hidden lg:block h-8 w-px bg-slate-200 shrink-0" aria-hidden="true"></div>
+
+            <div class="flex flex-wrap items-center gap-1.5 flex-1">
+                @foreach($rangePresets as $key => $label)
+                    <a
+                        href="{{ $dashUrl(['range' => $key, 'chart_period' => $chartGranularity]) }}"
+                        class="px-3 py-1.5 rounded-full text-xs font-medium transition {{ $range['preset'] === $key ? 'bg-navy text-white' : 'text-slate-600 hover:bg-slate-100' }}"
+                    >{{ $label }}</a>
+                @endforeach
             </div>
         </div>
+
         @if($range['preset'] === 'custom')
-            <div class="mt-3 flex flex-wrap items-end gap-3">
+            <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-end gap-3">
                 <div>
                     <label for="from" class="block text-xs text-slate-500 mb-1">From</label>
-                    <input type="date" name="from" id="from" value="{{ $range['from']->toDateString() }}" class="rounded-lg border-slate-300 text-sm">
+                    <input type="date" name="from" id="from" value="{{ $range['from']->toDateString() }}" class="rounded-xl border-slate-200 text-sm">
                 </div>
                 <div>
                     <label for="to" class="block text-xs text-slate-500 mb-1">To</label>
-                    <input type="date" name="to" id="to" value="{{ $range['to']->toDateString() }}" class="rounded-lg border-slate-300 text-sm">
+                    <input type="date" name="to" id="to" value="{{ $range['to']->toDateString() }}" class="rounded-xl border-slate-200 text-sm">
                 </div>
                 <input type="hidden" name="range" value="custom">
-                <button type="submit" class="px-3 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark">Apply</button>
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark">Apply</button>
             </div>
         @endif
-        <p class="mt-2 text-xs text-slate-400">
-            Showing {{ $range['label'] }}
-            @if(!empty($selectedCourse))
-                · Course: <span class="font-medium text-slate-600">{{ $selectedCourse->title }}</span>
-            @else
-                · All courses
-            @endif
-            . Comparisons use the equal-length period before this range. Trends are omitted when the previous period is zero.
-        </p>
     </form>
 
     <section class="mb-5" aria-labelledby="kpi-heading">
         <h2 id="kpi-heading" class="sr-only">Key metrics</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2">
+        <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
             @foreach($kpis as $kpi)
-                <a href="{{ $kpi['href'] }}" class="group bg-white rounded-lg border border-slate-200 px-2.5 py-2 hover:border-primary-muted hover:shadow-brand focus:outline-none focus:ring-2 focus:ring-primary transition">
-                    <div class="flex items-center justify-between gap-1">
-                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-md bg-primary-light text-primary" aria-hidden="true">
-                            @include('admin.partials.dashboard-icon', ['icon' => $kpi['icon'], 'class' => 'h-3.5 w-3.5'])
+                @php
+                    $styles = match ($kpi['tone'] ?? 'primary') {
+                        'accent' => [
+                            'card' => 'bg-gradient-to-br from-accent-light to-white border-accent-muted/70 hover:border-accent',
+                            'icon' => 'bg-accent text-white',
+                            'value' => 'text-accent-darker',
+                            'label' => 'text-accent-dark',
+                            'hint' => 'text-accent-dark/70',
+                        ],
+                        'success' => [
+                            'card' => 'bg-gradient-to-br from-success-light to-white border-success-muted/70 hover:border-success',
+                            'icon' => 'bg-success text-white',
+                            'value' => 'text-success-darker',
+                            'label' => 'text-success-dark',
+                            'hint' => 'text-success-dark/70',
+                        ],
+                        'slate' => [
+                            'card' => 'bg-gradient-to-br from-slate-100 to-white border-slate-200 hover:border-navy/30',
+                            'icon' => 'bg-navy text-white',
+                            'value' => 'text-navy',
+                            'label' => 'text-slate-600',
+                            'hint' => 'text-slate-500',
+                        ],
+                        default => [
+                            'card' => 'bg-gradient-to-br from-primary-light to-white border-primary-muted/70 hover:border-primary',
+                            'icon' => 'bg-primary text-white',
+                            'value' => 'text-primary-darker',
+                            'label' => 'text-primary',
+                            'hint' => 'text-primary-dark/70',
+                        ],
+                    };
+                @endphp
+                <a href="{{ $kpi['href'] }}" class="rounded-2xl border px-3 py-3 focus:outline-none focus:ring-2 focus:ring-primary transition {{ $styles['card'] }}">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {{ $styles['icon'] }}" aria-hidden="true">
+                            @include('admin.partials.dashboard-icon', ['icon' => $kpi['icon'], 'class' => 'h-4 w-4'])
                         </span>
                         @if($kpi['change'] !== null)
-                            <span class="text-[10px] font-semibold tabular-nums {{ $kpi['change'] >= 0 ? 'text-success' : 'text-red-600' }}">
+                            <span class="text-[10px] font-semibold tabular-nums {{ $kpi['change'] >= 0 ? 'text-success-dark' : 'text-red-600' }}">
                                 {{ $kpi['change'] >= 0 ? '+' : '' }}{{ $kpi['change'] }}%
                             </span>
                         @endif
                     </div>
-                    <p class="mt-1.5 font-display font-bold text-lg tabular-nums text-navy leading-none">
+                    <p class="mt-2.5 font-display font-bold text-xl tabular-nums leading-none {{ $styles['value'] }}">
                         {{ $kpi['value'] === null ? '—' : number_format($kpi['value'], is_float($kpi['value']) ? 1 : 0) }}{{ $kpi['suffix'] ?? '' }}
                     </p>
-                    <p class="mt-0.5 text-[11px] font-medium text-slate-600 truncate">{{ $kpi['label'] }}</p>
-                    <p class="text-[10px] text-slate-400 leading-snug line-clamp-2">{{ $kpi['hint'] }}</p>
+                    <p class="mt-1.5 text-[11px] font-semibold truncate {{ $styles['label'] }}">{{ $kpi['label'] }}</p>
                 </a>
             @endforeach
         </div>

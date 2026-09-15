@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Partner;
 use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,25 @@ class SettingsController extends Controller
     {
         $logoPath = Setting::get(Setting::KEY_SITE_LOGO);
         $logoUrl = $logoPath ? url('course-image/' . ltrim($logoPath, '/')) : null;
-        return view('admin.settings.edit', compact('logoUrl'));
+        $partnersCount = Partner::count();
+
+        $kpis = [
+            [
+                'label' => 'Platform logo',
+                'value' => $logoUrl ? 1 : 0,
+                'display' => $logoUrl ? 'Set' : 'Missing',
+                'icon' => $logoUrl ? 'check' : 'pulse',
+                'tone' => $logoUrl ? 'success' : 'accent',
+            ],
+            [
+                'label' => 'Partner logos',
+                'value' => $partnersCount,
+                'icon' => 'users',
+                'tone' => 'primary',
+            ],
+        ];
+
+        return view('admin.settings.edit', compact('logoUrl', 'kpis'));
     }
 
     public function update(Request $request): RedirectResponse

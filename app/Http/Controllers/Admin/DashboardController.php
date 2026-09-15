@@ -153,6 +153,7 @@ class DashboardController extends Controller
                 'change' => $this->percentChange($studentsTotal, $studentsPrevEnd),
                 'href' => route('admin.users.index'),
                 'icon' => 'users',
+                'tone' => 'success',
             ],
             [
                 'key' => 'active',
@@ -162,6 +163,7 @@ class DashboardController extends Controller
                 'change' => $this->percentChange($activeStudents, $activeStudentsPrev),
                 'href' => route('admin.users.index'),
                 'icon' => 'pulse',
+                'tone' => 'accent',
             ],
             [
                 'key' => 'courses',
@@ -173,6 +175,7 @@ class DashboardController extends Controller
                     ? route('admin.courses.edit', $selectedCourse)
                     : route('admin.courses.index'),
                 'icon' => 'book',
+                'tone' => 'primary',
             ],
             [
                 'key' => 'enrollments',
@@ -184,6 +187,7 @@ class DashboardController extends Controller
                     ? route('admin.course-progress.show', $selectedCourse)
                     : route('admin.course-progress.index'),
                 'icon' => 'enroll',
+                'tone' => 'accent',
             ],
             [
                 'key' => 'completion',
@@ -198,6 +202,7 @@ class DashboardController extends Controller
                     ? route('admin.course-progress.show', $selectedCourse)
                     : route('admin.course-progress.index'),
                 'icon' => 'check',
+                'tone' => 'success',
             ],
             [
                 'key' => 'quiz',
@@ -210,6 +215,7 @@ class DashboardController extends Controller
                 'change' => null,
                 'href' => route('admin.quiz-results.index'),
                 'icon' => 'quiz',
+                'tone' => 'primary',
             ],
             [
                 'key' => 'live',
@@ -219,6 +225,7 @@ class DashboardController extends Controller
                 'change' => null,
                 'href' => route('admin.live-sessions.index'),
                 'icon' => 'live',
+                'tone' => 'accent',
             ],
             [
                 'key' => 'instructors',
@@ -228,6 +235,7 @@ class DashboardController extends Controller
                 'change' => null,
                 'href' => route('admin.instructors.index'),
                 'icon' => 'instructor',
+                'tone' => 'slate',
             ],
         ];
 
