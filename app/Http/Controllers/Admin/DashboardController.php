@@ -62,8 +62,14 @@ class DashboardController extends Controller
         }
 
         $studentsTotal = (clone $studentsQuery)->where('created_at', '<=', $range['to'])->count();
-        $studentsThisPeriod = (clone $studentsQuery)->whereBetween('created_at', [$range['from'], $range['to']])->count();
         $studentsPrevEnd = (clone $studentsQuery)->where('created_at', '<=', $range['prevTo'])->count();
+
+        $usersQuery = User::query();
+        if ($selectedCourseId) {
+            $usersQuery->whereHas('enrollments', fn ($q) => $q->where('course_id', $selectedCourseId));
+        }
+        $usersTotal = (clone $usersQuery)->where('created_at', '<=', $range['to'])->count();
+        $usersPrevEnd = (clone $usersQuery)->where('created_at', '<=', $range['prevTo'])->count();
 
         $activeStudents = $this->activeStudentIds($range['from'], $range['to'], $selectedCourseId, $lessonIds, $quizIds)->count();
         $activeStudentsPrev = $this->activeStudentIds($range['prevFrom'], $range['prevTo'], $selectedCourseId, $lessonIds, $quizIds)->count();
@@ -120,46 +126,38 @@ class DashboardController extends Controller
             ->orderBy('scheduled_at')
             ->take(6)
             ->get();
-        $pastSessionsInPeriod = (clone $sessionsQuery)
-            ->where('scheduled_at', '<', $now)
-            ->whereBetween('scheduled_at', [$range['from'], $range['to']])
-            ->count();
-        $upcomingCount = (clone $sessionsQuery)->where('scheduled_at', '>=', $now)->count();
 
         $instructorsTotal = $selectedCourseId
             ? Instructor::query()->whereHas('courses', fn ($q) => $q->where('courses.id', $selectedCourseId))->count()
             : Instructor::count();
-        $courseIdsWithEnrollmentsThisPeriod = (clone $enrollmentsBase)
-            ->whereBetween('created_at', [$range['from'], $range['to']])
-            ->pluck('course_id')
-            ->unique();
-        $activeInstructors = Instructor::query()
-            ->whereHas('courses', fn ($q) => $q->whereIn('id', $courseIdsWithEnrollmentsThisPeriod))
-            ->count();
 
         $selectedCourse = $selectedCourseId
             ? $courseOptions->firstWhere('id', $selectedCourseId)
             : null;
-        $courseScopeHint = $selectedCourse
-            ? 'Filtered: '.$selectedCourse->title
-            : 'All courses';
 
         $kpis = [
+            [
+                'key' => 'users',
+                'label' => $selectedCourseId ? 'Unique users' : 'Total Users',
+                'value' => $usersTotal,
+                'change' => $this->percentChange($usersTotal, $usersPrevEnd),
+                'href' => route('admin.users.index'),
+                'icon' => 'users',
+                'tone' => 'slate',
+            ],
             [
                 'key' => 'students',
                 'label' => $selectedCourseId ? 'Students enrolled' : 'Total Students',
                 'value' => $studentsTotal,
-                'hint' => $studentsThisPeriod.' registered in period · '.$courseScopeHint,
                 'change' => $this->percentChange($studentsTotal, $studentsPrevEnd),
                 'href' => route('admin.users.index'),
-                'icon' => 'users',
+                'icon' => 'user',
                 'tone' => 'success',
             ],
             [
                 'key' => 'active',
                 'label' => 'Active Students',
                 'value' => $activeStudents,
-                'hint' => 'Activity in period · '.$courseScopeHint,
                 'change' => $this->percentChange($activeStudents, $activeStudentsPrev),
                 'href' => route('admin.users.index'),
                 'icon' => 'pulse',
@@ -169,7 +167,6 @@ class DashboardController extends Controller
                 'key' => 'courses',
                 'label' => $selectedCourseId ? 'Selected course' : 'Total Courses',
                 'value' => $courses->count(),
-                'hint' => $selectedCourseId ? $selectedCourse->title : 'Courses are live once created (no draft status)',
                 'change' => null,
                 'href' => $selectedCourseId
                     ? route('admin.courses.edit', $selectedCourse)
@@ -181,7 +178,6 @@ class DashboardController extends Controller
                 'key' => 'enrollments',
                 'label' => 'Total Enrollments',
                 'value' => $enrollmentsThis,
-                'hint' => 'In selected period · '.$courseScopeHint,
                 'change' => $this->percentChange($enrollmentsThis, $enrollmentsPrev),
                 'href' => $selectedCourseId
                     ? route('admin.course-progress.show', $selectedCourse)
@@ -194,9 +190,6 @@ class DashboardController extends Controller
                 'label' => 'Completion Rate',
                 'value' => $completionRate,
                 'suffix' => $completionRate !== null ? '%' : null,
-                'hint' => $completionRate !== null
-                    ? $completedInPeriod.' of '.$enrollmentsForRate.' period enrollments finished all lessons'
-                    : 'Needs enrollments with lessons to calculate',
                 'change' => null,
                 'href' => $selectedCourseId
                     ? route('admin.course-progress.show', $selectedCourse)
@@ -209,29 +202,15 @@ class DashboardController extends Controller
                 'label' => 'Average Quiz Score',
                 'value' => $avgQuizScore,
                 'suffix' => $avgQuizScore !== null ? '%' : null,
-                'hint' => $avgQuizScore !== null
-                    ? $attemptsThisPeriod->count().' submitted attempts in period'
-                    : 'No submitted attempts in this period',
                 'change' => null,
                 'href' => route('admin.quiz-results.index'),
                 'icon' => 'quiz',
                 'tone' => 'primary',
             ],
             [
-                'key' => 'live',
-                'label' => 'Live Sessions',
-                'value' => $upcomingCount,
-                'hint' => $upcomingCount.' upcoming · '.$pastSessionsInPeriod.' held in period',
-                'change' => null,
-                'href' => route('admin.live-sessions.index'),
-                'icon' => 'live',
-                'tone' => 'accent',
-            ],
-            [
                 'key' => 'instructors',
                 'label' => 'Instructors',
                 'value' => $instructorsTotal,
-                'hint' => $activeInstructors.' with enrollments in period',
                 'change' => null,
                 'href' => route('admin.instructors.index'),
                 'icon' => 'instructor',
@@ -381,6 +360,14 @@ class DashboardController extends Controller
                 $to = $now;
                 $label = 'This year';
                 break;
+            case 'all':
+                $earliest = User::query()->min('created_at')
+                    ?? Enrollment::query()->min('created_at')
+                    ?? now()->subYears(10)->toDateTimeString();
+                $from = Carbon::parse($earliest)->startOfDay();
+                $to = $now;
+                $label = 'All time';
+                break;
             case 'custom':
                 try {
                     $from = $request->filled('from') ? Carbon::parse($request->get('from'))->startOfDay() : now()->subDays(29)->startOfDay();
@@ -423,7 +410,7 @@ class DashboardController extends Controller
 
         return match ($preset) {
             'today', '7d' => 'weekly',
-            'year' => 'monthly',
+            'year', 'all' => 'monthly',
             default => 'monthly',
         };
     }

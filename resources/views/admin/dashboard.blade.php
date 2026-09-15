@@ -13,6 +13,7 @@
             '30d' => '30 days',
             '90d' => '90 days',
             'year' => 'This year',
+            'all' => 'All time',
             'custom' => 'Custom',
         ];
     @endphp
@@ -70,7 +71,7 @@
 
     <section class="mb-5" aria-labelledby="kpi-heading">
         <h2 id="kpi-heading" class="sr-only">Key metrics</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             @foreach($kpis as $kpi)
                 @php
                     $styles = match ($kpi['tone'] ?? 'primary') {
@@ -79,46 +80,46 @@
                             'icon' => 'bg-accent text-white',
                             'value' => 'text-accent-darker',
                             'label' => 'text-accent-dark',
-                            'hint' => 'text-accent-dark/70',
                         ],
                         'success' => [
                             'card' => 'bg-gradient-to-br from-success-light to-white border-success-muted/70 hover:border-success',
                             'icon' => 'bg-success text-white',
                             'value' => 'text-success-darker',
                             'label' => 'text-success-dark',
-                            'hint' => 'text-success-dark/70',
                         ],
                         'slate' => [
                             'card' => 'bg-gradient-to-br from-slate-100 to-white border-slate-200 hover:border-navy/30',
                             'icon' => 'bg-navy text-white',
                             'value' => 'text-navy',
                             'label' => 'text-slate-600',
-                            'hint' => 'text-slate-500',
                         ],
                         default => [
                             'card' => 'bg-gradient-to-br from-primary-light to-white border-primary-muted/70 hover:border-primary',
                             'icon' => 'bg-primary text-white',
                             'value' => 'text-primary-darker',
                             'label' => 'text-primary',
-                            'hint' => 'text-primary-dark/70',
                         ],
                     };
                 @endphp
-                <a href="{{ $kpi['href'] }}" class="rounded-2xl border px-3 py-3 focus:outline-none focus:ring-2 focus:ring-primary transition {{ $styles['card'] }}">
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {{ $styles['icon'] }}" aria-hidden="true">
-                            @include('admin.partials.dashboard-icon', ['icon' => $kpi['icon'], 'class' => 'h-4 w-4'])
+                <a href="{{ $kpi['href'] }}" class="rounded-2xl border px-4 py-4 focus:outline-none focus:ring-2 focus:ring-primary transition {{ $styles['card'] }}">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl {{ $styles['icon'] }}" aria-hidden="true">
+                            @include('admin.partials.dashboard-icon', ['icon' => $kpi['icon'], 'class' => 'h-5 w-5'])
                         </span>
-                        @if($kpi['change'] !== null)
-                            <span class="text-[10px] font-semibold tabular-nums {{ $kpi['change'] >= 0 ? 'text-success-dark' : 'text-red-600' }}">
-                                {{ $kpi['change'] >= 0 ? '+' : '' }}{{ $kpi['change'] }}%
-                            </span>
-                        @endif
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="font-display font-bold text-2xl tabular-nums leading-none {{ $styles['value'] }}">
+                                    {{ $kpi['value'] === null ? '—' : number_format($kpi['value'], is_float($kpi['value']) ? 1 : 0) }}{{ $kpi['suffix'] ?? '' }}
+                                </p>
+                                @if($kpi['change'] !== null)
+                                    <span class="text-[10px] font-semibold tabular-nums shrink-0 {{ $kpi['change'] >= 0 ? 'text-success-dark' : 'text-red-600' }}">
+                                        {{ $kpi['change'] >= 0 ? '+' : '' }}{{ $kpi['change'] }}%
+                                    </span>
+                                @endif
+                            </div>
+                            <p class="mt-1.5 text-[11px] font-semibold truncate {{ $styles['label'] }}">{{ $kpi['label'] }}</p>
+                        </div>
                     </div>
-                    <p class="mt-2.5 font-display font-bold text-xl tabular-nums leading-none {{ $styles['value'] }}">
-                        {{ $kpi['value'] === null ? '—' : number_format($kpi['value'], is_float($kpi['value']) ? 1 : 0) }}{{ $kpi['suffix'] ?? '' }}
-                    </p>
-                    <p class="mt-1.5 text-[11px] font-semibold truncate {{ $styles['label'] }}">{{ $kpi['label'] }}</p>
                 </a>
             @endforeach
         </div>

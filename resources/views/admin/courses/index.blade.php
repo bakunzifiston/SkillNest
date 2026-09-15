@@ -97,11 +97,16 @@
                     @forelse($courses as $course)
                         <tr class="hover:bg-slate-50/70">
                             <td class="px-4 py-3">
-                                <div class="min-w-0">
-                                    <p class="font-medium text-navy truncate max-w-[18rem]" title="{{ $course->title }}">{{ $course->title }}</p>
-                                    @if($course->instructor)
-                                        <p class="text-xs text-slate-400 mt-0.5 truncate">{{ $course->instructor->name }}</p>
-                                    @endif
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary text-sm font-semibold uppercase">
+                                        {{ \Illuminate\Support\Str::substr($course->title, 0, 1) }}
+                                    </span>
+                                    <div class="min-w-0">
+                                        <p class="font-medium text-navy truncate max-w-[16rem]" title="{{ $course->title }}">{{ $course->title }}</p>
+                                        @if($course->instructor)
+                                            <p class="text-xs text-slate-400 mt-0.5 truncate">{{ $course->instructor->name }}</p>
+                                        @endif
+                                    </div>
                                 </div>
                             </td>
                             <td class="px-4 py-3">

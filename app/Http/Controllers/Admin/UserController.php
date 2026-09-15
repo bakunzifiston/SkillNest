@@ -72,8 +72,11 @@ class UserController extends Controller
     /**
      * Show a user's progress: all courses on the platform and their progress per course.
      */
-    public function show(User $user): View
+    public function show(Request $request, User $user): View
     {
+        $search = trim((string) $request->get('search', ''));
+        $filter = $request->get('filter', 'all'); // all | enrolled
+
         $courses = Course::with(['chapters.lessons', 'category'])
             ->orderBy('title')
             ->get();
@@ -81,19 +84,72 @@ class UserController extends Controller
         $enrollmentCourseIds = $user->enrollments()->pluck('course_id');
         $completedByLesson = $user->lessonCompletions()->pluck('lesson_id');
 
-        $courseProgress = $courses->map(function (Course $course) use ($user, $enrollmentCourseIds, $completedByLesson) {
+        $courseProgress = $courses->map(function (Course $course) use ($enrollmentCourseIds, $completedByLesson) {
             $totalLessons = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
             $lessonIds = $course->chapters->flatMap->lessons->pluck('id');
             $completed = $completedByLesson->intersect($lessonIds)->count();
+            $percent = $totalLessons > 0 ? (int) round(($completed / $totalLessons) * 100) : 0;
+            $enrolled = $enrollmentCourseIds->contains($course->id);
+
             return (object) [
                 'course' => $course,
-                'enrolled' => $enrollmentCourseIds->contains($course->id),
+                'enrolled' => $enrolled,
                 'total_lessons' => $totalLessons,
                 'completed' => $completed,
-                'percent' => $totalLessons > 0 ? (int) round(($completed / $totalLessons) * 100) : 0,
+                'percent' => $percent,
+                'status' => ! $enrolled
+                    ? 'not_enrolled'
+                    : ($percent >= 100 ? 'completed' : ($percent > 0 ? 'in_progress' : 'not_started')),
             ];
         });
 
-        return view('admin.users.show', compact('user', 'courseProgress'));
+        $enrolledRows = $courseProgress->where('enrolled', true);
+        $completedCourses = $enrolledRows->where('status', 'completed')->count();
+        $inProgressCourses = $enrolledRows->where('status', 'in_progress')->count();
+        $avgProgress = $enrolledRows->count() > 0
+            ? round((float) $enrolledRows->avg('percent'), 1)
+            : 0;
+
+        $kpis = [
+            [
+                'label' => 'Enrolled',
+                'value' => $enrolledRows->count(),
+                'icon' => 'book',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Completed',
+                'value' => $completedCourses,
+                'icon' => 'check',
+                'tone' => 'success',
+            ],
+            [
+                'label' => 'In progress',
+                'value' => $inProgressCourses,
+                'icon' => 'pulse',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Avg. progress',
+                'value' => $avgProgress,
+                'suffix' => '%',
+                'icon' => 'chart',
+                'tone' => 'slate',
+            ],
+        ];
+
+        $rows = $courseProgress;
+        if ($filter === 'enrolled') {
+            $rows = $rows->where('enrolled', true)->values();
+        }
+        if ($search !== '') {
+            $rows = $rows->filter(function ($row) use ($search) {
+                $haystack = strtolower(($row->course->title ?? '').' '.($row->course->category->name ?? ''));
+
+                return str_contains($haystack, strtolower($search));
+            })->values();
+        }
+
+        return view('admin.users.show', compact('user', 'rows', 'kpis', 'search', 'filter'));
     }
 }
