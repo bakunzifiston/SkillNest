@@ -134,7 +134,7 @@ class LiveSessionController extends Controller
         $liveSession->load(['course.instructor', 'invitedAttendees']);
 
         $isUpcoming = $liveSession->scheduled_at->isFuture();
-        $endsAt = $liveSession->scheduled_at->copy()->addMinutes($liveSession->duration_minutes);
+        $endsAt = $liveSession->scheduled_at->copy()->addMinutes((int) $liveSession->duration_minutes);
         $isLive = ! $isUpcoming && $endsAt->isFuture();
 
         $kpis = [

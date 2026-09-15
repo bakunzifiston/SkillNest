@@ -21,7 +21,7 @@ class CourseController extends Controller
             ->with('invitedAttendees')
             ->orderBy('scheduled_at')
             ->get()
-            ->filter(fn ($s) => $s->scheduled_at->copy()->addMinutes($s->duration_minutes)->isFuture());
+            ->filter(fn ($s) => $s->scheduled_at->copy()->addMinutes((int) $s->duration_minutes)->isFuture());
         $enrolled = auth()->check() && auth()->user()->hasEnrolled($course);
         $completedCount = $enrolled ? auth()->user()->completedLessonsCountForCourse($course) : 0;
         $totalLessons = $course->chapters->sum(fn ($ch) => $ch->lessons->count());

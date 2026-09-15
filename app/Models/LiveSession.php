@@ -13,6 +13,7 @@ class LiveSession extends Model
 
     protected $casts = [
         'scheduled_at' => 'datetime',
+        'duration_minutes' => 'integer',
     ];
 
     public function course()
@@ -32,6 +33,6 @@ class LiveSession extends Model
 
     public function isPast(): bool
     {
-        return $this->scheduled_at->addMinutes($this->duration_minutes)->isPast();
+        return $this->scheduled_at->copy()->addMinutes((int) $this->duration_minutes)->isPast();
     }
 }
