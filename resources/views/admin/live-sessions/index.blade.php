@@ -124,6 +124,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
+                                    <a href="{{ route('admin.live-sessions.show', $session) }}" class="admin-btn-secondary">View</a>
                                     <a href="{{ route('admin.live-sessions.edit', $session) }}" class="admin-btn-secondary">Edit</a>
                                     <form action="{{ route('admin.live-sessions.destroy', $session) }}" method="post" onsubmit="return confirm('Delete this live session?');">
                                         @csrf

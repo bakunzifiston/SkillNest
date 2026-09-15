@@ -75,7 +75,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('quiz-results/export', [\App\Http\Controllers\Admin\QuizResultsController::class, 'export'])->name('quiz-results.export');
     Route::get('quiz-results/{quizAttempt}', [\App\Http\Controllers\Admin\QuizResultsController::class, 'show'])->name('quiz-results.show');
     Route::get('courses/{id}/enrolled-users', [\App\Http\Controllers\Admin\EnrolledUsersController::class, '__invoke'])->name('courses.enrolled-users');
-    Route::resource('live-sessions', \App\Http\Controllers\Admin\LiveSessionController::class)->except(['show']);
+    Route::resource('live-sessions', \App\Http\Controllers\Admin\LiveSessionController::class);
     Route::resource('quizzes', \App\Http\Controllers\Admin\QuizController::class)->except(['show']);
     Route::get('quizzes/{quiz}/questions', [\App\Http\Controllers\Admin\QuestionController::class, 'index'])->name('quizzes.questions.index');
     Route::get('quizzes/{quiz}/questions/create', [\App\Http\Controllers\Admin\QuestionController::class, 'create'])->name('quizzes.questions.create');

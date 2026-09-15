@@ -5,12 +5,22 @@
 
 @section('content')
     <div class="max-w-xl">
-        <p class="text-sm text-gray-500 mb-4">Create the meeting in Zoom, Google Meet, or another tool, then paste the join link here.</p>
+        @if($errors->any())
+            <div class="mb-4 p-3 rounded-xl bg-red-50 text-red-700 border border-red-100 text-sm">
+                <p class="font-medium">Please fix the following:</p>
+                <ul class="mt-1 list-disc list-inside space-y-0.5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        <p class="text-sm text-slate-500 mb-4">Create the meeting in Zoom, Google Meet, or another tool, then paste the join link here.</p>
         <form action="{{ route('admin.live-sessions.store') }}" method="post" class="space-y-5">
             @csrf
             <div>
-                <label for="course_id" class="block text-sm font-medium text-gray-700">Course</label>
-                <select name="course_id" id="course_id" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                <label for="course_id" class="block text-sm font-medium text-navy">Course</label>
+                <select name="course_id" id="course_id" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                     <option value="">Select course</option>
                     @foreach($courses as $c)
                         <option value="{{ $c->id }}" {{ old('course_id', $selectedCourseId ?? '') == $c->id ? 'selected' : '' }}>{{ $c->title }}</option>
@@ -19,49 +29,58 @@
                 @error('course_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
-                <input type="text" name="title" id="title" value="{{ old('title') }}" required placeholder="e.g. Week 1 Q&A" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                <label for="title" class="block text-sm font-medium text-navy">Title</label>
+                <input type="text" name="title" id="title" value="{{ old('title') }}" required placeholder="e.g. Week 1 Q&A" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700">Description (optional)</label>
-                <textarea name="description" id="description" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('description') }}</textarea>
+                <label for="description" class="block text-sm font-medium text-navy">Description (optional)</label>
+                <textarea name="description" id="description" rows="2" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">{{ old('description') }}</textarea>
                 @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="scheduled_at" class="block text-sm font-medium text-gray-700">Date & time</label>
-                    <input type="datetime-local" name="scheduled_at" id="scheduled_at" value="{{ old('scheduled_at') }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                    <label for="scheduled_at" class="block text-sm font-medium text-navy">Date & time</label>
+                    <input type="datetime-local" name="scheduled_at" id="scheduled_at" value="{{ old('scheduled_at') }}" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                     @error('scheduled_at')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="duration_minutes" class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
-                    <input type="number" name="duration_minutes" id="duration_minutes" value="{{ old('duration_minutes', 60) }}" min="5" max="480" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                    <label for="duration_minutes" class="block text-sm font-medium text-navy">Duration (minutes)</label>
+                    <input type="number" name="duration_minutes" id="duration_minutes" value="{{ old('duration_minutes', 60) }}" min="5" max="480" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                     @error('duration_minutes')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div>
-                <label for="meeting_url" class="block text-sm font-medium text-gray-700">Meeting URL</label>
-                <input type="url" name="meeting_url" id="meeting_url" value="{{ old('meeting_url') }}" required placeholder="https://zoom.us/j/..." class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                <label for="meeting_url" class="block text-sm font-medium text-navy">Meeting URL</label>
+                <input type="url" name="meeting_url" id="meeting_url" value="{{ old('meeting_url') }}" required placeholder="https://zoom.us/j/..." class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
+                <p class="mt-1 text-xs text-slate-400">Must include https://</p>
                 @error('meeting_url')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="meeting_password" class="block text-sm font-medium text-gray-700">Meeting password (optional)</label>
-                <input type="text" name="meeting_password" id="meeting_password" value="{{ old('meeting_password') }}" placeholder="e.g. 123456" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                <label for="meeting_password" class="block text-sm font-medium text-navy">Meeting password (optional)</label>
+                <input type="text" name="meeting_password" id="meeting_password" value="{{ old('meeting_password') }}" placeholder="e.g. 123456" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                 @error('meeting_password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div id="invitees-wrap">
-                <p class="text-sm font-medium text-gray-700 mb-2">Invite students (they will receive an email notification)</p>
+                <p class="text-sm font-medium text-navy mb-2">Invite students (optional)</p>
                 <div class="flex flex-wrap gap-2 mb-2" id="invited-tags"></div>
                 <div class="relative" id="invitee-wrap">
-                    <input type="text" id="invitee-search" placeholder="Search or click to see list…" autocomplete="off" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent" disabled data-url="{{ url('admin/courses') }}">
-                    <div id="invitee-dropdown" class="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto hidden"></div>
+                    <input type="text" id="invitee-search" placeholder="Search or click to see list…" autocomplete="off" class="block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary" disabled data-url="{{ url('admin/courses') }}">
+                    <div id="invitee-dropdown" class="absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-56 overflow-y-auto hidden"></div>
                 </div>
-                <p class="mt-1.5 text-sm text-gray-500">
-                    <button type="button" id="invitee-show-list" class="text-primary hover:text-accent-dark font-medium hidden">Show dropdown list</button>
-                    <span id="invitee-hint" class="text-gray-500">Select a course first.</span>
+                <p class="mt-1.5 text-sm text-slate-500">
+                    <button type="button" id="invitee-show-list" class="text-primary hover:text-accent font-medium hidden">Show dropdown list</button>
+                    <span id="invitee-hint" class="text-slate-500">Select a course first.</span>
                 </p>
-                <input type="hidden" name="invited_user_ids" id="invited_user_ids_input" value="">
+                @error('invited_user_ids')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @error('invited_user_ids.*')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @php
+                    $oldInvitees = old('invited_user_ids', '');
+                    if (is_array($oldInvitees)) {
+                        $oldInvitees = implode(',', $oldInvitees);
+                    }
+                @endphp
+                <input type="hidden" name="invited_user_ids" id="invited_user_ids_input" value="{{ $oldInvitees }}">
             </div>
             <div class="flex gap-3">
                 <button type="submit" class="admin-btn-accent">Create live session</button>

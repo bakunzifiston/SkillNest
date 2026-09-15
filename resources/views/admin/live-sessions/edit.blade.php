@@ -5,6 +5,16 @@
 
 @section('content')
     <div class="max-w-xl">
+        @if($errors->any())
+            <div class="mb-4 p-3 rounded-xl bg-red-50 text-red-700 border border-red-100 text-sm">
+                <p class="font-medium">Please fix the following:</p>
+                <ul class="mt-1 list-disc list-inside space-y-0.5">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('admin.live-sessions.update', $liveSession) }}" method="post" class="space-y-5">
             @csrf
             @method('PUT')

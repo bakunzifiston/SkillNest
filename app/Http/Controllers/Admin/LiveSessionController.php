@@ -84,6 +84,10 @@ class LiveSessionController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'invited_user_ids' => $this->normalizeInvitedUserIds($request),
+        ]);
+
         $validated = $request->validate([
             'course_id' => 'required|exists:courses,id',
             'title' => 'required|string|max:255',
@@ -93,25 +97,70 @@ class LiveSessionController extends Controller
             'meeting_url' => 'required|url|max:500',
             'meeting_password' => 'nullable|string|max:100',
             'invited_user_ids' => 'nullable|array',
-            'invited_user_ids.*' => 'exists:users,id',
+            'invited_user_ids.*' => 'integer|exists:users,id',
         ]);
-        $invitedUserIds = $request->input('invited_user_ids', []);
-        if (is_string($invitedUserIds)) {
-            $invitedUserIds = array_filter(array_map('intval', explode(',', $invitedUserIds)));
-        }
+
         $course = Course::findOrFail($validated['course_id']);
-        $enrolledUserIds = $course->enrollments()->pluck('user_id')->toArray();
-        $invitedUserIds = array_values(array_intersect($invitedUserIds, $enrolledUserIds));
+        $enrolledUserIds = $course->enrollments()->pluck('user_id')->map(fn ($id) => (int) $id)->all();
+        $invitedUserIds = array_values(array_intersect($validated['invited_user_ids'] ?? [], $enrolledUserIds));
 
         unset($validated['invited_user_ids']);
         $liveSession = LiveSession::create($validated);
         $liveSession->invitedAttendees()->sync($invitedUserIds);
 
+        $sent = 0;
         foreach ($liveSession->invitedAttendees as $user) {
-            Mail::to($user->email)->send(new LiveSessionInvitation($liveSession, $user));
+            try {
+                Mail::to($user->email)->send(new LiveSessionInvitation($liveSession, $user));
+                $sent++;
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
-        return redirect()->route('admin.live-sessions.index')->with('success', 'Live session created. Invitation emails sent to ' . count($invitedUserIds) . ' attendee(s).');
+        $message = $sent > 0
+            ? "Live session created. Invitation emails sent to {$sent} attendee(s)."
+            : (
+                count($invitedUserIds) > 0
+                    ? 'Live session created, but invitation emails could not be sent. Check mail settings.'
+                    : 'Live session created.'
+            );
+
+        return redirect()->route('admin.live-sessions.index')->with('success', $message);
+    }
+
+    public function show(LiveSession $liveSession): View
+    {
+        $liveSession->load(['course.instructor', 'invitedAttendees']);
+
+        $isUpcoming = $liveSession->scheduled_at->isFuture();
+        $endsAt = $liveSession->scheduled_at->copy()->addMinutes($liveSession->duration_minutes);
+        $isLive = ! $isUpcoming && $endsAt->isFuture();
+
+        $kpis = [
+            [
+                'label' => 'Invitees',
+                'value' => $liveSession->invitedAttendees->count(),
+                'icon' => 'users',
+                'tone' => 'primary',
+            ],
+            [
+                'label' => 'Duration',
+                'value' => $liveSession->duration_minutes,
+                'suffix' => ' min',
+                'icon' => 'live',
+                'tone' => 'accent',
+            ],
+            [
+                'label' => 'Status',
+                'display' => $isLive ? 'Live now' : ($isUpcoming ? 'Upcoming' : 'Past'),
+                'value' => 0,
+                'icon' => $isLive ? 'pulse' : ($isUpcoming ? 'check' : 'folder'),
+                'tone' => $isLive ? 'accent' : ($isUpcoming ? 'success' : 'slate'),
+            ],
+        ];
+
+        return view('admin.live-sessions.show', compact('liveSession', 'kpis', 'isUpcoming', 'isLive', 'endsAt'));
     }
 
     public function edit(LiveSession $liveSession): View
@@ -123,6 +172,10 @@ class LiveSessionController extends Controller
 
     public function update(Request $request, LiveSession $liveSession): RedirectResponse
     {
+        $request->merge([
+            'invited_user_ids' => $this->normalizeInvitedUserIds($request),
+        ]);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:5000',
@@ -131,28 +184,32 @@ class LiveSessionController extends Controller
             'meeting_url' => 'required|url|max:500',
             'meeting_password' => 'nullable|string|max:100',
             'invited_user_ids' => 'nullable|array',
-            'invited_user_ids.*' => 'exists:users,id',
+            'invited_user_ids.*' => 'integer|exists:users,id',
         ]);
-        $invitedUserIds = $request->input('invited_user_ids', []);
-        if (is_string($invitedUserIds)) {
-            $invitedUserIds = array_filter(array_map('intval', explode(',', $invitedUserIds)));
-        }
-        $enrolledUserIds = $liveSession->course->enrollments()->pluck('user_id')->toArray();
-        $invitedUserIds = array_values(array_intersect($invitedUserIds, $enrolledUserIds));
+
+        $enrolledUserIds = $liveSession->course->enrollments()->pluck('user_id')->map(fn ($id) => (int) $id)->all();
+        $invitedUserIds = array_values(array_intersect($validated['invited_user_ids'] ?? [], $enrolledUserIds));
 
         unset($validated['invited_user_ids']);
         $liveSession->update($validated);
-        $previousIds = $liveSession->invitedAttendees->pluck('id')->toArray();
+        $previousIds = $liveSession->invitedAttendees->pluck('id')->map(fn ($id) => (int) $id)->all();
         $liveSession->invitedAttendees()->sync($invitedUserIds);
 
         $newlyAdded = array_diff($invitedUserIds, $previousIds);
+        $sent = 0;
         foreach ($liveSession->invitedAttendees()->whereIn('users.id', $newlyAdded)->get() as $user) {
-            Mail::to($user->email)->send(new LiveSessionInvitation($liveSession, $user));
+            try {
+                Mail::to($user->email)->send(new LiveSessionInvitation($liveSession, $user));
+                $sent++;
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
-        $message = count($newlyAdded) > 0
-            ? 'Live session updated. Invitation emails sent to ' . count($newlyAdded) . ' new attendee(s).'
+        $message = $sent > 0
+            ? "Live session updated. Invitation emails sent to {$sent} new attendee(s)."
             : 'Live session updated.';
+
         return redirect()->route('admin.live-sessions.index')->with('success', $message);
     }
 
@@ -160,5 +217,27 @@ class LiveSessionController extends Controller
     {
         $liveSession->delete();
         return redirect()->route('admin.live-sessions.index')->with('success', 'Live session deleted.');
+    }
+
+    /**
+     * Form sends invitee IDs as a comma-separated string in a hidden field.
+     *
+     * @return list<int>
+     */
+    private function normalizeInvitedUserIds(Request $request): array
+    {
+        $raw = $request->input('invited_user_ids', []);
+
+        if (is_string($raw)) {
+            $raw = trim($raw) === ''
+                ? []
+                : (preg_split('/\s*,\s*/', $raw) ?: []);
+        }
+
+        if (! is_array($raw)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_filter(array_map('intval', $raw))));
     }
 }
