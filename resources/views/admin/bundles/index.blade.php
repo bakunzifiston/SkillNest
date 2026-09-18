@@ -73,7 +73,9 @@
                 <a href="{{ route('admin.bundles.index') }}" class="admin-btn-secondary">Clear</a>
             @endif
         </form>
-        <a href="{{ route('admin.bundles.create') }}" class="admin-btn-accent shrink-0">Add bundle</a>
+        @adminCan('bundles', 'create')
+            <a href="{{ route('admin.bundles.create') }}" class="admin-btn-accent shrink-0">Add bundle</a>
+        @endadminCan
     </div>
 
     @if(session('success'))
@@ -120,12 +122,16 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
-                                    <a href="{{ route('admin.bundles.edit', $bundle) }}" class="admin-btn-secondary">Edit</a>
-                                    <form action="{{ route('admin.bundles.destroy', $bundle) }}" method="post" onsubmit="return confirm('Delete this bundle?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="admin-btn-danger">Delete</button>
-                                    </form>
+                                    @adminCan('bundles', 'edit')
+                                        <a href="{{ route('admin.bundles.edit', $bundle) }}" class="admin-btn-secondary">Edit</a>
+                                    @endadminCan
+                                    @adminCan('bundles', 'delete')
+                                        <form action="{{ route('admin.bundles.destroy', $bundle) }}" method="post" onsubmit="return confirm('Delete this bundle?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="admin-btn-danger">Delete</button>
+                                        </form>
+                                    @endadminCan
                                 </div>
                             </td>
                         </tr>
@@ -140,7 +146,9 @@
                                     @endif
                                 </p>
                                 @if(empty($search) && empty($status))
-                                    <a href="{{ route('admin.bundles.create') }}" class="admin-btn-accent">Add bundle</a>
+                                    @adminCan('bundles', 'create')
+                                        <a href="{{ route('admin.bundles.create') }}" class="admin-btn-accent">Add bundle</a>
+                                    @endadminCan
                                 @endif
                             </td>
                         </tr>

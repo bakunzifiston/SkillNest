@@ -73,7 +73,9 @@
                 <a href="{{ route('admin.courses.index') }}" class="admin-btn-secondary">Clear</a>
             @endif
         </form>
-        <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent shrink-0">Add course</a>
+        @adminCan('courses', 'create')
+            <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent shrink-0">Add course</a>
+        @endadminCan
     </div>
 
     @if(session('success'))
@@ -127,13 +129,17 @@
                             <td class="px-4 py-3 text-slate-500 whitespace-nowrap">{{ $course->duration ?: '—' }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
-                                    <a href="{{ route('admin.courses.edit', $course) }}" class="admin-btn-secondary">Edit</a>
-                                    <a href="{{ route('admin.courses.edit', $course) }}?tab=curriculum" class="admin-btn-secondary">Curriculum</a>
-                                    <form action="{{ route('admin.courses.destroy', $course) }}" method="post" onsubmit="return confirm('Delete this course?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="admin-btn-danger">Delete</button>
-                                    </form>
+                                    @adminCan('courses', 'edit')
+                                        <a href="{{ route('admin.courses.edit', $course) }}" class="admin-btn-secondary">Edit</a>
+                                        <a href="{{ route('admin.courses.edit', $course) }}?tab=curriculum" class="admin-btn-secondary">Curriculum</a>
+                                    @endadminCan
+                                    @adminCan('courses', 'delete')
+                                        <form action="{{ route('admin.courses.destroy', $course) }}" method="post" onsubmit="return confirm('Delete this course?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="admin-btn-danger">Delete</button>
+                                        </form>
+                                    @endadminCan
                                 </div>
                             </td>
                         </tr>
@@ -148,7 +154,9 @@
                                     @endif
                                 </p>
                                 @if(empty($search) && empty($categoryId))
-                                    <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent">Add course</a>
+                                    @adminCan('courses', 'create')
+                                        <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent">Add course</a>
+                                    @endadminCan
                                 @endif
                             </td>
                         </tr>

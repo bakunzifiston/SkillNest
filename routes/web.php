@@ -35,9 +35,10 @@ Route::middleware('auth')->group(function () {
 
 // User dashboard (Breeze)
 Route::get('/dashboard', function () {
-    if (auth()->user()->is_admin ?? false) {
+    if (auth()->user()->canAccessAdmin()) {
         return redirect()->route('admin.dashboard');
     }
+
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -49,12 +50,21 @@ Route::middleware('auth')->group(function () {
 
 // Super Admin panel
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () { return redirect()->route('admin.dashboard'); });
+    Route::get('/', function () {
+        return redirect()->route('admin.dashboard');
+    });
     Route::get('/dashboard', \App\Http\Controllers\Admin\DashboardController::class)->name('dashboard');
     Route::resource('contact-messages', \App\Http\Controllers\Admin\ContactMessageController::class)->only(['index', 'show', 'destroy']);
     Route::post('contact-messages/destroy-all', [\App\Http\Controllers\Admin\ContactMessageController::class, 'destroyAll'])->name('contact-messages.destroy-all');
     Route::get('users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('users/create', [\App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
+    Route::post('users', [\App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
     Route::get('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::get('users/{user}/edit', [\App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
+    Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+    Route::patch('users/{user}/status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.status');
+    Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);
     Route::get('imports/students', [\App\Http\Controllers\Admin\StudentImportController::class, 'create'])->name('imports.students.create');
     Route::post('imports/students/preview', [\App\Http\Controllers\Admin\StudentImportController::class, 'preview'])->name('imports.students.preview');
     Route::post('imports/students', [\App\Http\Controllers\Admin\StudentImportController::class, 'store'])->name('imports.students.store');

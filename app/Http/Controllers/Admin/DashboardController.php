@@ -56,7 +56,7 @@ class DashboardController extends Controller
             $enrollmentsBase->where('course_id', $selectedCourseId);
         }
 
-        $studentsQuery = User::query()->where('is_admin', false);
+        $studentsQuery = User::students();
         if ($selectedCourseId) {
             $studentsQuery->whereHas('enrollments', fn ($q) => $q->where('course_id', $selectedCourseId));
         }
@@ -439,8 +439,7 @@ class DashboardController extends Controller
                 ->pluck('user_id');
 
             $ids = $ids->merge(
-                User::query()
-                    ->where('is_admin', false)
+                User::students()
                     ->whereIn('id', $enrolledUserIds)
                     ->whereBetween('last_login_at', [$from, $to])
                     ->pluck('id')
@@ -465,7 +464,7 @@ class DashboardController extends Controller
             );
         } else {
             $ids = $ids->merge(
-                User::query()->where('is_admin', false)->whereBetween('last_login_at', [$from, $to])->pluck('id')
+                User::students()->whereBetween('last_login_at', [$from, $to])->pluck('id')
             );
             $ids = $ids->merge(
                 LessonCompletion::query()->whereBetween('completed_at', [$from, $to])->pluck('user_id')
@@ -736,7 +735,7 @@ class DashboardController extends Controller
     ): Collection {
         $items = collect();
 
-        $usersQuery = User::query()->where('is_admin', false)->latest()->take(8);
+        $usersQuery = User::students()->latest()->take(8);
         if ($courseId) {
             $usersQuery->whereHas('enrollments', fn ($q) => $q->where('course_id', $courseId));
         }

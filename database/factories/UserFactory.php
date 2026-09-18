@@ -31,7 +31,47 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'is_active' => true,
         ];
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn () => [
+            'is_admin' => true,
+            'is_active' => true,
+        ])->afterCreating(function (\App\Models\User $user) {
+            $user->assignRole(\App\Models\Role::ensureSystemRoles());
+            $user->save();
+        });
+    }
+
+    /**
+     * @param  array<string, list<string>>  $permissions
+     */
+    public function staff(array $permissions): static
+    {
+        return $this->state(fn () => [
+            'is_admin' => false,
+            'is_active' => true,
+        ])->afterCreating(function (\App\Models\User $user) use ($permissions) {
+            $role = \App\Models\Role::query()->create([
+                'name' => 'Staff '.$user->id,
+                'slug' => 'staff-'.$user->id,
+                'description' => 'Generated staff role',
+                'is_system' => false,
+            ]);
+            $role->syncPermissions($permissions);
+            $user->assignRole($role);
+            $user->save();
+        });
+    }
+
+    public function inactive(): static
+    {
+        return $this->state(fn () => [
+            'is_active' => false,
+        ]);
     }
 
     /**

@@ -67,7 +67,9 @@
                 <a href="{{ route('admin.categories.index') }}" class="admin-btn-secondary">Clear</a>
             @endif
         </form>
-        <a href="{{ route('admin.categories.create') }}" class="admin-btn-accent shrink-0">Add category</a>
+        @adminCan('categories', 'create')
+            <a href="{{ route('admin.categories.create') }}" class="admin-btn-accent shrink-0">Add category</a>
+        @endadminCan
     </div>
 
     @if(session('success'))
@@ -110,12 +112,16 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
-                                    <a href="{{ route('admin.categories.edit', $category) }}" class="admin-btn-secondary">Edit</a>
-                                    <form action="{{ route('admin.categories.destroy', $category) }}" method="post" onsubmit="return confirm('Delete this category? Courses in it will also be deleted.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="admin-btn-danger">Delete</button>
-                                    </form>
+                                    @adminCan('categories', 'edit')
+                                        <a href="{{ route('admin.categories.edit', $category) }}" class="admin-btn-secondary">Edit</a>
+                                    @endadminCan
+                                    @adminCan('categories', 'delete')
+                                        <form action="{{ route('admin.categories.destroy', $category) }}" method="post" onsubmit="return confirm('Delete this category? Courses in it will also be deleted.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="admin-btn-danger">Delete</button>
+                                        </form>
+                                    @endadminCan
                                 </div>
                             </td>
                         </tr>
@@ -130,7 +136,9 @@
                                     @endif
                                 </p>
                                 @if(empty($search))
-                                    <a href="{{ route('admin.categories.create') }}" class="admin-btn-accent">Add category</a>
+                                    @adminCan('categories', 'create')
+                                        <a href="{{ route('admin.categories.create') }}" class="admin-btn-accent">Add category</a>
+                                    @endadminCan
                                 @endif
                             </td>
                         </tr>

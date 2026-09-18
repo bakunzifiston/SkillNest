@@ -67,7 +67,9 @@
                 <a href="{{ route('admin.partners.index') }}" class="admin-btn-secondary">Clear</a>
             @endif
         </form>
-        <a href="{{ route('admin.partners.create') }}" class="admin-btn-accent shrink-0">Add partner logo</a>
+        @adminCan('partners', 'create')
+            <a href="{{ route('admin.partners.create') }}" class="admin-btn-accent shrink-0">Add partner logo</a>
+        @endadminCan
     </div>
 
     @if(session('success'))
@@ -107,12 +109,16 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
-                                    <a href="{{ route('admin.partners.edit', $partner) }}" class="admin-btn-secondary">Edit</a>
-                                    <form action="{{ route('admin.partners.destroy', $partner) }}" method="post" onsubmit="return confirm('Remove this partner?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="admin-btn-danger">Delete</button>
-                                    </form>
+                                    @adminCan('partners', 'edit')
+                                        <a href="{{ route('admin.partners.edit', $partner) }}" class="admin-btn-secondary">Edit</a>
+                                    @endadminCan
+                                    @adminCan('partners', 'delete')
+                                        <form action="{{ route('admin.partners.destroy', $partner) }}" method="post" onsubmit="return confirm('Remove this partner?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="admin-btn-danger">Delete</button>
+                                        </form>
+                                    @endadminCan
                                 </div>
                             </td>
                         </tr>
@@ -123,7 +129,9 @@
                                     <p class="text-sm text-slate-500">No partners match “{{ $search }}”.</p>
                                 @else
                                     <p class="text-sm text-slate-500 mb-3">No partners yet.</p>
-                                    <a href="{{ route('admin.partners.create') }}" class="admin-btn-accent">Add partner logo</a>
+                                    @adminCan('partners', 'create')
+                                        <a href="{{ route('admin.partners.create') }}" class="admin-btn-accent">Add partner logo</a>
+                                    @endadminCan
                                 @endif
                             </td>
                         </tr>

@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Models\Setting;
+use App\Support\AdminAccess;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
@@ -30,6 +32,20 @@ class AppServiceProvider extends ServiceProvider
         }
 
         View::share('siteLogoUrl', $this->siteLogoUrl());
+
+        Blade::if('adminCan', function (string $module, string $action = 'view'): bool {
+            return auth()->user()?->hasPermission($module, $action) ?? false;
+        });
+
+        View::composer('layouts.admin', function ($view): void {
+            $user = auth()->user();
+
+            if ($user) {
+                $user->loadMissing(['role.permissions', 'permissions']);
+            }
+
+            $view->with('adminNavGroups', AdminAccess::navGroups($user));
+        });
     }
 
     /**
@@ -45,7 +61,7 @@ class AppServiceProvider extends ServiceProvider
 
             $logoPath = Setting::get(Setting::KEY_SITE_LOGO);
 
-            return $logoPath ? url('course-image/' . ltrim($logoPath, '/')) : null;
+            return $logoPath ? url('course-image/'.ltrim($logoPath, '/')) : null;
         } catch (Throwable) {
             return null;
         }

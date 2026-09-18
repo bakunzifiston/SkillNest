@@ -98,8 +98,12 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-                <button type="submit" class="admin-btn-accent">Save settings</button>
-                <a href="{{ route('admin.partners.index') }}" class="admin-btn-secondary">Manage partner logos</a>
+                @adminCan('settings', 'edit')
+                    <button type="submit" class="admin-btn-accent">Save settings</button>
+                @endadminCan
+                @adminCan('partners', 'view')
+                    <a href="{{ route('admin.partners.index') }}" class="admin-btn-secondary">Manage partner logos</a>
+                @endadminCan
             </div>
         </form>
     </div>

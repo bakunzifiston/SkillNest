@@ -36,79 +36,19 @@
                             : 'text-white/80 hover:bg-white/10 hover:text-white');
                     };
                 @endphp
-                <div>
-                    <a href="{{ route('admin.dashboard') }}" class="{{ $navLink(request()->routeIs('admin.dashboard')) }}" @if(request()->routeIs('admin.dashboard')) aria-current="page" @endif @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'dashboard', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-                <div class="space-y-0.5">
-                    <p class="px-3 py-1.5 text-xs font-semibold text-white/40 uppercase tracking-wider">Catalog</p>
-                    <a href="{{ route('admin.categories.index') }}" class="{{ $navLink(request()->routeIs('admin.categories.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'folder', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Categories</span>
-                    </a>
-                    <a href="{{ route('admin.instructors.index') }}" class="{{ $navLink(request()->routeIs('admin.instructors.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'instructor', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Instructors</span>
-                    </a>
-                    <a href="{{ route('admin.courses.index') }}" class="{{ $navLink(request()->routeIs('admin.courses.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'book', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Courses</span>
-                    </a>
-                    <a href="{{ route('admin.bundles.index') }}" class="{{ $navLink(request()->routeIs('admin.bundles.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'bundle', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Bundles</span>
-                    </a>
-                    <a href="{{ route('admin.live-sessions.index') }}" class="{{ $navLink(request()->routeIs('admin.live-sessions.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'live', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Live sessions</span>
-                    </a>
-                </div>
-                <div class="space-y-0.5">
-                    <p class="px-3 py-1.5 text-xs font-semibold text-white/40 uppercase tracking-wider">Learners</p>
-                    <a href="{{ route('admin.users.index') }}" class="{{ $navLink(request()->routeIs('admin.users.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'users', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Users</span>
-                    </a>
-                    <a href="{{ route('admin.imports.students.create') }}" class="{{ $navLink(request()->routeIs('admin.imports.students.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'import', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Import students</span>
-                    </a>
-                    <a href="{{ route('admin.course-progress.index') }}" class="{{ $navLink(request()->routeIs('admin.course-progress.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'pulse', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Student progress</span>
-                    </a>
-                </div>
-                <div class="space-y-0.5">
-                    <p class="px-3 py-1.5 text-xs font-semibold text-white/40 uppercase tracking-wider">Assessments</p>
-                    <a href="{{ route('admin.quizzes.index') }}" class="{{ $navLink(request()->routeIs('admin.quizzes.*') || request()->routeIs('admin.questions.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'quiz', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Quizzes</span>
-                    </a>
-                    <a href="{{ route('admin.quiz-results.index') }}" class="{{ $navLink(request()->routeIs('admin.quiz-results.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'results', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Quiz results</span>
-                    </a>
-                </div>
-                <div class="space-y-0.5">
-                    <p class="px-3 py-1.5 text-xs font-semibold text-white/40 uppercase tracking-wider">Analytics</p>
-                    <a href="{{ route('admin.reports.index') }}" class="{{ $navLink(request()->routeIs('admin.reports.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'chart', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Reports & Analytics</span>
-                    </a>
-                </div>
-                <div class="space-y-0.5">
-                    <p class="px-3 py-1.5 text-xs font-semibold text-white/40 uppercase tracking-wider">Site</p>
-                    <a href="{{ route('admin.settings.edit') }}" class="{{ $navLink(request()->routeIs('admin.settings.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'settings', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Settings</span>
-                    </a>
-                    <a href="{{ route('admin.partners.index') }}" class="{{ $navLink(request()->routeIs('admin.partners.*')) }}" @click="sidebarOpen = false">
-                        @include('admin.partials.dashboard-icon', ['icon' => 'image', 'class' => 'h-4 w-4 shrink-0 opacity-90'])
-                        <span>Partner logos</span>
-                    </a>
-                </div>
+                @foreach(($adminNavGroups ?? []) as $group)
+                    <div class="space-y-0.5">
+                        @if(($group['label'] ?? '') !== '')
+                            <p class="px-3 py-1.5 text-xs font-semibold text-white/40 uppercase tracking-wider">{{ $group['label'] }}</p>
+                        @endif
+                        @foreach($group['items'] as $item)
+                            <a href="{{ route($item['route']) }}" class="{{ $navLink(request()->routeIs(...(array) $item['active'])) }}" @if(request()->routeIs(...(array) $item['active'])) aria-current="page" @endif @click="sidebarOpen = false">
+                                @include('admin.partials.dashboard-icon', ['icon' => $item['icon'], 'class' => 'h-4 w-4 shrink-0 opacity-90'])
+                                <span>{{ $item['label'] }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                @endforeach
             </nav>
             <div class="p-3 border-t border-white/10 space-y-0.5">
                 <a href="{{ route('home') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-white/70 hover:bg-white/10 hover:text-white">
@@ -150,6 +90,9 @@
             <div class="p-4 sm:p-6 lg:p-8">
                 @if(session('success'))
                     <div class="mb-4 px-4 py-2 bg-success-light text-success-darker rounded-xl">{{ session('success') }}</div>
+                @endif
+                @if(session('error'))
+                    <div class="mb-4 px-4 py-2 bg-red-50 text-red-700 rounded-xl">{{ session('error') }}</div>
                 @endif
                 @yield('content')
             </div>

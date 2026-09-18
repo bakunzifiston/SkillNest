@@ -30,7 +30,7 @@ class AuthenticatedSessionController extends Controller
 
         $request->user()->update(['last_login_at' => now()]);
 
-        if ($request->user()->is_admin) {
+        if ($request->user()->canAccessAdmin()) {
             return redirect()->intended(route('admin.dashboard', absolute: false));
         }
 

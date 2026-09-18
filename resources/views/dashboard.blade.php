@@ -13,7 +13,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-2xl border border-slate-200 border-t-4 border-t-accent">
                 <div class="p-6 text-slate-900">
                     <p class="mb-4">{{ __("You're logged in!") }}</p>
-                    @unless(auth()->user()->is_admin ?? false)
+                    @unless(auth()->user()->canAccessAdmin())
                         <div class="flex flex-wrap gap-3">
                             <a href="{{ route('courses.my-courses') }}" class="inline-flex items-center px-4 py-2 rounded-lg bg-accent text-white font-semibold hover:bg-accent-dark transition">My courses</a>
                             <a href="{{ route('bundles.my-bundles') }}" class="inline-flex items-center px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition">My bundles</a>
@@ -22,7 +22,7 @@
                 </div>
             </div>
 
-            @unless(auth()->user()->is_admin ?? false)
+            @unless(auth()->user()->canAccessAdmin())
                 @php
                     $bundleEnrollments = auth()->user()->bundleEnrollments()->with('bundle')->latest('enrolled_at')->take(5)->get();
                 @endphp

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\AdminAccess;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,10 +11,34 @@ class EnsureUserIsAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() || ! $request->user()->is_admin) {
-            abort(403, 'Access denied. Super admin only.');
+        $user = $request->user();
+
+        if (! $user || ! $user->canAccessAdmin()) {
+            abort(403, 'Access denied.');
         }
 
-        return $next($request);
+        $user->loadMissing(['role.permissions', 'permissions']);
+
+        $resolved = AdminAccess::resolve($request->route()?->getName(), $request->method());
+
+        if ($resolved === null) {
+            return $next($request);
+        }
+
+        [$module, $action] = $resolved;
+
+        if ($user->hasPermission($module, $action)) {
+            return $next($request);
+        }
+
+        if ($request->routeIs('admin.dashboard')) {
+            $fallback = AdminAccess::firstAccessibleRoute($user);
+
+            if ($fallback && $fallback !== 'admin.dashboard') {
+                return redirect()->route($fallback);
+            }
+        }
+
+        abort(403, 'You do not have permission to access this module.');
     }
 }

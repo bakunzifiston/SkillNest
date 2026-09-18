@@ -22,15 +22,17 @@ class EnsureAdminUser extends Command
         $user->name = $name;
         $user->password = Hash::make($password);
         $user->is_admin = true;
+        $user->is_active = true;
         $user->email_verified_at = $user->email_verified_at ?? now();
+        $user->assignRole(\App\Models\Role::ensureSystemRoles());
         $user->save();
 
         $this->info('Super admin user is ready.');
         $this->line('');
-        $this->line('  Email:    ' . $email);
-        $this->line('  Password: ' . $password);
+        $this->line('  Email:    '.$email);
+        $this->line('  Password: '.$password);
         $this->line('');
-        $this->line('Log in at: ' . url('/login'));
+        $this->line('Log in at: '.url('/login'));
 
         return self::SUCCESS;
     }

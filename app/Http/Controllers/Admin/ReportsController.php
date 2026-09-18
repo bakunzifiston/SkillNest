@@ -76,6 +76,7 @@ class ReportsController extends Controller
             }
             $avgPercent = $enrollments->count() > 0 ? round($sumPercent / $enrollments->count(), 1) : 0;
             $completionRate = $enrollments->count() > 0 ? round(($completedAll / $enrollments->count()) * 100, 1) : 0;
+
             return (object) [
                 'course' => $course,
                 'enrollments_count' => $enrollments->count(),
@@ -96,6 +97,7 @@ class ReportsController extends Controller
                 $totalEnrollments += $count;
                 $earnings += (float) $c->price * $count;
             }
+
             return (object) [
                 'instructor' => $instructor,
                 'courses_count' => $courses->count(),
@@ -105,7 +107,7 @@ class ReportsController extends Controller
         })->sortByDesc('estimated_earnings')->values();
 
         // --- Student engagement
-        $totalStudents = User::query()->where('is_admin', false)->count();
+        $totalStudents = User::students()->count();
         $studentsWithCompletions = User::whereHas('lessonCompletions')->count();
         $studentsWithQuizAttempts = User::whereHas('quizAttempts')->count();
         $recentEnrollmentsCount = Enrollment::where('created_at', '>=', now()->subDays(7))->count();

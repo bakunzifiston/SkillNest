@@ -60,13 +60,15 @@
                 </div>
 
                 <div class="flex flex-wrap gap-3">
-                    <button type="submit" formaction="{{ route('admin.imports.students.preview') }}" class="admin-btn-secondary">Preview import</button>
-                    <button
-                        type="submit"
-                        formaction="{{ route('admin.imports.students.store') }}"
-                        class="admin-btn-accent"
-                        @if(empty($preview)) onclick="return confirm('Import without preview? This will create users and enrollments immediately.')" @else onclick="return confirm('Import {{ count($preview) }} rows into the selected course?')" @endif
-                    >Import now</button>
+                    @adminCan('imports', 'create')
+                        <button type="submit" formaction="{{ route('admin.imports.students.preview') }}" class="admin-btn-secondary">Preview import</button>
+                        <button
+                            type="submit"
+                            formaction="{{ route('admin.imports.students.store') }}"
+                            class="admin-btn-accent"
+                            @if(empty($preview)) onclick="return confirm('Import without preview? This will create users and enrollments immediately.')" @else onclick="return confirm('Import {{ count($preview) }} rows into the selected course?')" @endif
+                        >Import now</button>
+                    @endadminCan
                 </div>
             </form>
         </div>

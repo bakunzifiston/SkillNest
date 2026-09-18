@@ -3,7 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\AdminAccess;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -11,6 +15,11 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+
+    /**
+     * @var array<string, list<string>>|null
+     */
+    protected ?array $permissionMapCache = null;
 
     /**
      * The attributes that are mass assignable.
@@ -24,6 +33,8 @@ class User extends Authenticatable
         'email',
         'password',
         'is_admin',
+        'role_id',
+        'is_active',
         'last_login_at',
     ];
 
@@ -49,7 +60,166 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_active' => 'boolean',
         ];
+    }
+
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function permissions(): HasMany
+    {
+        return $this->hasMany(UserPermission::class);
+    }
+
+    public function scopeStudents(Builder $query): Builder
+    {
+        return $query->where('is_admin', false)->whereNull('role_id');
+    }
+
+    public function scopeStaff(Builder $query): Builder
+    {
+        return $query->where(function (Builder $query) {
+            $query->where('is_admin', true)->orWhereNotNull('role_id');
+        });
+    }
+
+    public function isStaff(): bool
+    {
+        return (bool) $this->is_admin || $this->role_id !== null;
+    }
+
+    public function isStudent(): bool
+    {
+        return ! $this->isStaff();
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return (bool) $this->is_admin || $this->role?->isSuperAdmin();
+    }
+
+    public function canAccessAdmin(): bool
+    {
+        return (bool) $this->is_active && ($this->is_admin || $this->role_id !== null);
+    }
+
+    public function hasCustomPermissions(): bool
+    {
+        if ($this->relationLoaded('permissions')) {
+            return $this->permissions->isNotEmpty();
+        }
+
+        return $this->permissions()->exists();
+    }
+
+    public function hasPermission(string $module, string $action = 'view'): bool
+    {
+        if (! $this->canAccessAdmin() || ! AdminAccess::isValid($module, $action)) {
+            return false;
+        }
+
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return in_array($action, $this->permissionMap()[$module] ?? [], true);
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function permissionMap(): array
+    {
+        if ($this->permissionMapCache !== null) {
+            return $this->permissionMapCache;
+        }
+
+        if ($this->isSuperAdmin()) {
+            return $this->permissionMapCache = AdminAccess::allPermissions();
+        }
+
+        $this->loadMissing(['permissions', 'role.permissions']);
+
+        if ($this->permissions->isNotEmpty()) {
+            return $this->permissionMapCache = AdminAccess::mapPermissions($this->permissions);
+        }
+
+        if ($this->role) {
+            return $this->permissionMapCache = $this->role->permissionMap();
+        }
+
+        return $this->permissionMapCache = [];
+    }
+
+    /**
+     * @param  array<string, mixed>  $permissions
+     */
+    public function syncPermissions(array $permissions): void
+    {
+        $granted = AdminAccess::sanitize($permissions);
+
+        $this->permissions()->delete();
+        $this->permissionMapCache = null;
+
+        $rows = [];
+
+        foreach ($granted as $module => $actions) {
+            foreach ($actions as $action) {
+                $rows[] = [
+                    'module' => $module,
+                    'action' => $action,
+                ];
+            }
+        }
+
+        if ($rows !== []) {
+            $this->permissions()->createMany($rows);
+        }
+    }
+
+    public function clearCustomPermissions(): void
+    {
+        $this->permissions()->delete();
+        $this->permissionMapCache = null;
+    }
+
+    public function assignRole(?Role $role): void
+    {
+        $this->role()->associate($role);
+        $this->is_admin = $role?->isSuperAdmin() ?? false;
+        $this->permissionMapCache = null;
+    }
+
+    public function accessLevelLabel(): string
+    {
+        if (! $this->is_active) {
+            return $this->role?->name ? $this->role->name.' (inactive)' : 'Inactive';
+        }
+
+        if ($this->isSuperAdmin()) {
+            return 'Super Admin';
+        }
+
+        if ($this->role) {
+            return $this->role->name;
+        }
+
+        return 'Student';
+    }
+
+    public static function activeSuperAdminCount(?int $exceptId = null): int
+    {
+        return static::query()
+            ->where('is_active', true)
+            ->where(function (Builder $query) {
+                $query->where('is_admin', true)
+                    ->orWhereHas('role', fn (Builder $role) => $role->where('slug', Role::SUPER_ADMIN));
+            })
+            ->when($exceptId, fn (Builder $query) => $query->where('id', '!=', $exceptId))
+            ->count();
     }
 
     protected static function booted(): void
@@ -110,6 +280,7 @@ class User extends Authenticatable
     public function completedLessonsCountForCourse(Course $course): int
     {
         $lessonIds = $course->chapters->pluck('lessons')->flatten()->pluck('id');
+
         return $this->lessonCompletions()->whereIn('lesson_id', $lessonIds)->count();
     }
 

@@ -73,7 +73,9 @@
                 <a href="{{ route('admin.live-sessions.index') }}" class="admin-btn-secondary">Clear</a>
             @endif
         </form>
-        <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent shrink-0">Add live session</a>
+        @adminCan('live_sessions', 'create')
+            <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent shrink-0">Add live session</a>
+        @endadminCan
     </div>
 
     @if(session('success'))
@@ -125,12 +127,16 @@
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
                                     <a href="{{ route('admin.live-sessions.show', $session) }}" class="admin-btn-secondary">View</a>
-                                    <a href="{{ route('admin.live-sessions.edit', $session) }}" class="admin-btn-secondary">Edit</a>
-                                    <form action="{{ route('admin.live-sessions.destroy', $session) }}" method="post" onsubmit="return confirm('Delete this live session?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="admin-btn-danger">Delete</button>
-                                    </form>
+                                    @adminCan('live_sessions', 'edit')
+                                        <a href="{{ route('admin.live-sessions.edit', $session) }}" class="admin-btn-secondary">Edit</a>
+                                    @endadminCan
+                                    @adminCan('live_sessions', 'delete')
+                                        <form action="{{ route('admin.live-sessions.destroy', $session) }}" method="post" onsubmit="return confirm('Delete this live session?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="admin-btn-danger">Delete</button>
+                                        </form>
+                                    @endadminCan
                                 </div>
                             </td>
                         </tr>
@@ -145,7 +151,9 @@
                                     @endif
                                 </p>
                                 @if(empty($search) && empty($courseId))
-                                    <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent">Add live session</a>
+                                    @adminCan('live_sessions', 'create')
+                                        <a href="{{ route('admin.live-sessions.create') }}" class="admin-btn-accent">Add live session</a>
+                                    @endadminCan
                                 @endif
                             </td>
                         </tr>

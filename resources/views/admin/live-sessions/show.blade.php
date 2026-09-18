@@ -19,7 +19,9 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-2 shrink-0">
-                <a href="{{ route('admin.live-sessions.edit', $liveSession) }}" class="admin-btn-secondary">Edit</a>
+                @adminCan('live_sessions', 'edit')
+                    <a href="{{ route('admin.live-sessions.edit', $liveSession) }}" class="admin-btn-secondary">Edit</a>
+                @endadminCan
                 <a href="{{ $liveSession->meeting_url }}" target="_blank" rel="noopener" class="admin-btn-accent">Open meeting</a>
             </div>
         </div>

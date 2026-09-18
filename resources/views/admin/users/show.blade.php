@@ -14,23 +14,63 @@
             <span aria-hidden="true">←</span> All users
         </a>
         <div class="mt-2 flex flex-wrap items-center gap-3">
-            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $user->is_admin ? 'bg-navy text-white' : 'bg-primary-light text-primary' }} text-sm font-semibold uppercase">
+            <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $user->isStaff() ? 'bg-navy text-white' : 'bg-primary-light text-primary' }} text-sm font-semibold uppercase">
                 {{ \Illuminate\Support\Str::substr($user->displayFirstName() ?: $user->email, 0, 1) }}
             </span>
             <div class="min-w-0">
                 <h2 class="font-display font-semibold text-lg text-navy truncate">{{ $studentName }}</h2>
                 <p class="text-xs text-slate-400 truncate">{{ $user->email }}</p>
             </div>
-            @if($user->is_admin)
-                <span class="inline-flex px-2 py-0.5 rounded-md bg-navy text-white text-xs font-medium">Admin</span>
+            @if($user->isSuperAdmin())
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-navy text-white text-xs font-medium">Super Admin</span>
+            @elseif($user->role)
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-primary-light text-primary text-xs font-medium">{{ $user->role->name }}</span>
             @else
                 <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Student</span>
             @endif
+            @if($user->is_active)
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Active</span>
+            @else
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Inactive</span>
+            @endif
+            <div class="flex flex-wrap gap-2 ml-auto">
+                @adminCan('users', 'edit')
+                    <a href="{{ route('admin.users.edit', $user) }}" class="admin-btn-secondary">Edit</a>
+                    <form action="{{ route('admin.users.status', $user) }}" method="post">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="admin-btn-secondary">{{ $user->is_active ? 'Deactivate' : 'Activate' }}</button>
+                    </form>
+                @endadminCan
+            </div>
         </div>
         <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
             <span>Joined {{ $user->created_at->format('M j, Y') }}</span>
             <span>Last sign in {{ $user->last_login_at ? $user->last_login_at->format('M j, Y') : '—' }}</span>
+            @if($user->hasCustomPermissions())
+                <span>Custom module access</span>
+            @endif
         </div>
+        @if($user->canAccessAdmin() || $user->role)
+            <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+                <h3 class="text-sm font-semibold text-navy mb-3">Module access</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                    @foreach(config('admin-modules.modules') as $moduleKey => $module)
+                        @php $actions = $user->permissionMap()[$moduleKey] ?? []; @endphp
+                        <div class="rounded-xl border border-slate-100 px-3 py-2">
+                            <p class="text-sm font-medium text-navy">{{ $module['label'] }}</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">
+                                @if($actions)
+                                    {{ collect($actions)->map(fn ($action) => config('admin-modules.actions.'.$action, ucfirst($action)))->join(', ') }}
+                                @else
+                                    No access
+                                @endif
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     </div>
 
     <section class="mb-5" aria-labelledby="user-progress-kpi-heading">

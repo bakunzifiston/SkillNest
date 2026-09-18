@@ -74,9 +74,13 @@
             @endif
         </form>
         <div class="flex flex-wrap items-center gap-2 shrink-0">
-            <a href="{{ route('admin.quiz-results.index') }}" class="admin-btn-secondary">View results</a>
-            <a href="{{ route('admin.quiz-results.export') }}" class="admin-btn-secondary">Export CSV</a>
-            <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">Create quiz</a>
+            @adminCan('quiz_results', 'view')
+                <a href="{{ route('admin.quiz-results.index') }}" class="admin-btn-secondary">View results</a>
+                <a href="{{ route('admin.quiz-results.export') }}" class="admin-btn-secondary">Export CSV</a>
+            @endadminCan
+            @adminCan('quizzes', 'create')
+                <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">Create quiz</a>
+            @endadminCan
         </div>
     </div>
 
@@ -139,12 +143,16 @@
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
                                     <a href="{{ route('admin.quizzes.questions.index', $quiz) }}" class="admin-btn-secondary">Questions</a>
-                                    <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="admin-btn-secondary">Edit</a>
-                                    <form action="{{ route('admin.quizzes.destroy', $quiz) }}" method="post" onsubmit="return confirm('Delete this quiz and all its questions?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="admin-btn-danger">Delete</button>
-                                    </form>
+                                    @adminCan('quizzes', 'edit')
+                                        <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="admin-btn-secondary">Edit</a>
+                                    @endadminCan
+                                    @adminCan('quizzes', 'delete')
+                                        <form action="{{ route('admin.quizzes.destroy', $quiz) }}" method="post" onsubmit="return confirm('Delete this quiz and all its questions?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="admin-btn-danger">Delete</button>
+                                        </form>
+                                    @endadminCan
                                 </div>
                             </td>
                         </tr>
@@ -155,7 +163,9 @@
                                     <p class="text-sm text-slate-500">No quizzes match your filters.</p>
                                 @else
                                     <p class="text-sm text-slate-500 mb-3">No quizzes yet.</p>
-                                    <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">Create quiz</a>
+                                    @adminCan('quizzes', 'create')
+                                        <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">Create quiz</a>
+                                    @endadminCan
                                 @endif
                             </td>
                         </tr>

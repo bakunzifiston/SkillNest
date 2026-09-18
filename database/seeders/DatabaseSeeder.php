@@ -24,18 +24,24 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Test User',
                 'password' => bcrypt('password'),
                 'email_verified_at' => now(),
+                'is_active' => true,
             ]
         );
 
-        User::updateOrCreate(
+        $superAdminRole = \App\Models\Role::ensureSystemRoles();
+
+        $admin = User::updateOrCreate(
             ['email' => config('admin.email')],
             [
                 'name' => config('admin.name'),
                 'password' => Hash::make(config('admin.password')),
                 'is_admin' => true,
+                'is_active' => true,
                 'email_verified_at' => now(),
             ]
         );
+        $admin->assignRole($superAdminRole);
+        $admin->save();
 
         $this->call(CategoryCourseSeeder::class);
     }
