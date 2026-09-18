@@ -240,4 +240,84 @@ class CourseLessonAccessTest extends TestCase
         $response->assertSee('data-lesson-complete-done', false);
         $response->assertDontSee('Mark as complete', false);
     }
+
+    public function test_completed_youtube_lesson_still_loads_player_for_rewatch(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create(['name' => 'Design', 'slug' => 'design']);
+        $course = Course::create([
+            'category_id' => $category->id,
+            'title' => 'Web Design',
+            'slug' => 'web-design',
+            'description' => 'Course description',
+            'price' => 0,
+            'level' => 'beginner',
+        ]);
+        $chapter = Chapter::create([
+            'course_id' => $course->id,
+            'title' => 'Chapter 1',
+            'sort_order' => 1,
+        ]);
+        $lesson = Lesson::create([
+            'chapter_id' => $chapter->id,
+            'title' => 'Intro video',
+            'type' => Lesson::TYPE_YOUTUBE,
+            'source_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'sort_order' => 1,
+        ]);
+        Enrollment::create(['user_id' => $user->id, 'course_id' => $course->id]);
+        LessonCompletion::create([
+            'user_id' => $user->id,
+            'lesson_id' => $lesson->id,
+            'completed_at' => now(),
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('courses.lessons.show', [$course, $lesson]));
+
+        $response->assertOk();
+        $response->assertSee('id="lesson-youtube-player"', false);
+        $response->assertSee('data-youtube-id="dQw4w9WgXcQ"', false);
+        $response->assertSee('data-already-completed="1"', false);
+    }
+
+    public function test_completed_course_offers_watch_again_to_first_lesson(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create(['name' => 'Design', 'slug' => 'design']);
+        $course = Course::create([
+            'category_id' => $category->id,
+            'title' => 'Web Design',
+            'slug' => 'web-design',
+            'description' => 'Course description',
+            'price' => 0,
+            'level' => 'beginner',
+        ]);
+        $chapter = Chapter::create([
+            'course_id' => $course->id,
+            'title' => 'Chapter 1',
+            'sort_order' => 1,
+        ]);
+        $lesson = Lesson::create([
+            'chapter_id' => $chapter->id,
+            'title' => 'Intro',
+            'type' => Lesson::TYPE_VIDEO,
+            'sort_order' => 1,
+        ]);
+        Enrollment::create(['user_id' => $user->id, 'course_id' => $course->id]);
+        LessonCompletion::create([
+            'user_id' => $user->id,
+            'lesson_id' => $lesson->id,
+            'completed_at' => now(),
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('courses.show', $course));
+
+        $response->assertOk();
+        $response->assertSee('Watch again', false);
+        $response->assertSee(route('courses.lessons.show', [$course, $lesson], false), false);
+    }
 }

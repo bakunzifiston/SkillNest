@@ -120,25 +120,10 @@ function initLessonProgress(root) {
         recordComplete('manual');
     });
 
-    if (alreadyCompleted) {
-        return;
-    }
-
-    function canCompleteByEngagement() {
-        return Date.now() - pageOpenedAt >= minDwellMs;
-    }
-
     const video = root.querySelector('video[data-lesson-video]');
-    if (video) {
-        video.addEventListener('ended', () => recordComplete('auto'));
-        video.addEventListener('timeupdate', () => {
-            if (video.duration > 0 && video.currentTime / video.duration >= 0.9) {
-                recordComplete('auto');
-            }
-        });
-    }
-
     const youtubeId = root.dataset.youtubeId;
+
+    // Always mount players so students can rewatch after completing a lesson.
     if (lessonType === 'youtube' && youtubeId) {
         const mountId = 'lesson-youtube-player';
         if (document.getElementById(mountId)) {
@@ -163,6 +148,10 @@ function initLessonProgress(root) {
             loadApi().then(() => {
                 new window.YT.Player(mountId, {
                     videoId: youtubeId,
+                    playerVars: {
+                        rel: 0,
+                        modestbranding: 1,
+                    },
                     events: {
                         onStateChange: (event) => {
                             if (event.data === window.YT.PlayerState.ENDED) {
@@ -173,6 +162,23 @@ function initLessonProgress(root) {
                 });
             });
         }
+    }
+
+    if (alreadyCompleted) {
+        return;
+    }
+
+    function canCompleteByEngagement() {
+        return Date.now() - pageOpenedAt >= minDwellMs;
+    }
+
+    if (video) {
+        video.addEventListener('ended', () => recordComplete('auto'));
+        video.addEventListener('timeupdate', () => {
+            if (video.duration > 0 && video.currentTime / video.duration >= 0.9) {
+                recordComplete('auto');
+            }
+        });
     }
 
     const scrollMarker = root.querySelector('[data-lesson-scroll-marker]');
