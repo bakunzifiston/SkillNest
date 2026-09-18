@@ -30,11 +30,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->user()->update(['last_login_at' => now()]);
 
-        if ($request->user()->canAccessAdmin()) {
-            return redirect()->intended(route('admin.dashboard', absolute: false));
+        $fallback = $request->user()->canAccessAdmin()
+            ? route('admin.dashboard', absolute: false)
+            : route('dashboard', absolute: false);
+
+        $intended = $request->session()->pull('url.intended', $fallback);
+
+        if (str_contains((string) $intended, '/logout')) {
+            $intended = $fallback;
         }
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        return redirect()->to($intended);
     }
 
     /**
