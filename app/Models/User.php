@@ -101,9 +101,18 @@ class User extends Authenticatable
         return (bool) $this->is_admin || $this->role?->isSuperAdmin();
     }
 
+    public function isAccountActive(): bool
+    {
+        if (! array_key_exists('is_active', $this->getAttributes())) {
+            return true;
+        }
+
+        return (bool) $this->getAttributes()['is_active'];
+    }
+
     public function canAccessAdmin(): bool
     {
-        return (bool) $this->is_active && ($this->is_admin || $this->role_id !== null);
+        return $this->isAccountActive() && ($this->is_admin || $this->role_id !== null);
     }
 
     public function hasCustomPermissions(): bool

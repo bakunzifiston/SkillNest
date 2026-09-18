@@ -40,11 +40,15 @@ class AppServiceProvider extends ServiceProvider
         View::composer('layouts.admin', function ($view): void {
             $user = auth()->user();
 
-            if ($user) {
-                $user->loadMissing(['role.permissions', 'permissions']);
-            }
+            try {
+                if ($user && Schema::hasTable('roles')) {
+                    $user->loadMissing(['role.permissions', 'permissions']);
+                }
 
-            $view->with('adminNavGroups', AdminAccess::navGroups($user));
+                $view->with('adminNavGroups', AdminAccess::navGroups($user));
+            } catch (Throwable) {
+                $view->with('adminNavGroups', []);
+            }
         });
     }
 

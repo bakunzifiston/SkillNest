@@ -49,7 +49,7 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! Auth::user()?->is_active) {
+        if (Auth::user() && ! Auth::user()->isAccountActive()) {
             Auth::logout();
 
             throw ValidationException::withMessages([

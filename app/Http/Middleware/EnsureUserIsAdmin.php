@@ -17,7 +17,11 @@ class EnsureUserIsAdmin
             abort(403, 'Access denied.');
         }
 
-        $user->loadMissing(['role.permissions', 'permissions']);
+        try {
+            $user->loadMissing(['role.permissions', 'permissions']);
+        } catch (\Throwable) {
+            // Roles tables may not exist yet on a freshly deployed server.
+        }
 
         $resolved = AdminAccess::resolve($request->route()?->getName(), $request->method());
 

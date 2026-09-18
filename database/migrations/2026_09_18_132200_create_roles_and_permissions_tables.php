@@ -9,37 +9,50 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('roles', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->string('description')->nullable();
-            $table->boolean('is_system')->default(false);
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('roles')) {
+            Schema::create('roles', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('slug')->unique();
+                $table->string('description')->nullable();
+                $table->boolean('is_system')->default(false);
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('role_permissions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('role_id')->constrained()->cascadeOnDelete();
-            $table->string('module');
-            $table->string('action');
-            $table->timestamps();
-            $table->unique(['role_id', 'module', 'action']);
-        });
+        if (! Schema::hasTable('role_permissions')) {
+            Schema::create('role_permissions', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('role_id')->constrained()->cascadeOnDelete();
+                $table->string('module');
+                $table->string('action');
+                $table->timestamps();
+                $table->unique(['role_id', 'module', 'action']);
+            });
+        }
 
-        Schema::create('user_permissions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('module');
-            $table->string('action');
-            $table->timestamps();
-            $table->unique(['user_id', 'module', 'action']);
-        });
+        if (! Schema::hasTable('user_permissions')) {
+            Schema::create('user_permissions', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+                $table->string('module');
+                $table->string('action');
+                $table->timestamps();
+                $table->unique(['user_id', 'module', 'action']);
+            });
+        }
 
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('role_id')->nullable()->after('is_admin')->constrained()->nullOnDelete();
-            $table->boolean('is_active')->default(true)->after('role_id');
-        });
+        if (! Schema::hasColumn('users', 'role_id') || ! Schema::hasColumn('users', 'is_active')) {
+            Schema::table('users', function (Blueprint $table) {
+                if (! Schema::hasColumn('users', 'role_id')) {
+                    $table->foreignId('role_id')->nullable()->after('is_admin')->constrained()->nullOnDelete();
+                }
+
+                if (! Schema::hasColumn('users', 'is_active')) {
+                    $table->boolean('is_active')->default(true)->after('role_id');
+                }
+            });
+        }
 
         $now = now();
         $roleId = DB::table('roles')->insertGetId([

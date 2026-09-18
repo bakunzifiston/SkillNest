@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class EnsureAdminUser extends Command
 {
@@ -14,6 +17,8 @@ class EnsureAdminUser extends Command
 
     public function handle(): int
     {
+        $this->ensureRolesTables();
+
         $email = $this->option('email') ?: config('admin.email');
         $password = $this->option('password') ?: config('admin.password');
         $name = $this->option('name') ?: config('admin.name');
@@ -24,7 +29,7 @@ class EnsureAdminUser extends Command
         $user->is_admin = true;
         $user->is_active = true;
         $user->email_verified_at = $user->email_verified_at ?? now();
-        $user->assignRole(\App\Models\Role::ensureSystemRoles());
+        $user->assignRole(Role::ensureSystemRoles());
         $user->save();
 
         $this->info('Super admin user is ready.');
@@ -35,5 +40,21 @@ class EnsureAdminUser extends Command
         $this->line('Log in at: '.url('/login'));
 
         return self::SUCCESS;
+    }
+
+    private function ensureRolesTables(): void
+    {
+        if (Schema::hasTable('roles') && Schema::hasColumn('users', 'is_active')) {
+            return;
+        }
+
+        $migration = '2026_09_18_132200_create_roles_and_permissions_tables';
+
+        DB::table('migrations')->where('migration', $migration)->delete();
+
+        $this->call('migrate', [
+            '--force' => true,
+            '--path' => 'database/migrations/'.$migration.'.php',
+        ]);
     }
 }
