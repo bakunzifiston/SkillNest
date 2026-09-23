@@ -118,7 +118,7 @@
                                 </span>
                                 <div class="min-w-0">
                                     <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Email</p>
-                                    <a href="mailto:bakunzifiston@gmail.com" class="mt-1 block text-navy font-medium hover:text-primary break-all transition">bakunzifiston@gmail.com</a>
+                                    <a href="mailto:info@KoraLink.rw" class="mt-1 block text-navy font-medium hover:text-primary break-all transition">info@KoraLink.rw</a>
                                 </div>
                             </li>
                             <li class="flex gap-4">
@@ -127,7 +127,7 @@
                                 </span>
                                 <div>
                                     <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Phone</p>
-                                    <a href="tel:0783092757" class="mt-1 block text-navy font-medium hover:text-primary transition">0783092757</a>
+                                    <a href="tel:+250788123456" class="mt-1 block text-navy font-medium hover:text-primary transition">+250 788 123 456</a>
                                 </div>
                             </li>
                             <li class="flex gap-4">
@@ -136,7 +136,7 @@
                                 </span>
                                 <div>
                                     <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Address</p>
-                                    <p class="mt-1 text-navy font-medium">Kigali, Gasabo</p>
+                                    <p class="mt-1 text-navy font-medium">Kigali, Rwanda</p>
                                 </div>
                             </li>
                         </ul>
