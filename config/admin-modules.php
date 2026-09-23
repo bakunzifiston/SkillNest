@@ -15,7 +15,7 @@ return [
         'Learners' => ['users', 'roles', 'imports', 'course_progress'],
         'Assessments' => ['quizzes', 'quiz_results'],
         'Analytics' => ['reports'],
-        'Site' => ['settings', 'partners', 'contact_messages'],
+        'Site' => ['settings', 'partners'],
     ],
 
     'modules' => [
@@ -191,13 +191,19 @@ return [
         'settings' => [
             'label' => 'Settings',
             'icon' => 'settings',
-            'actions' => ['view', 'edit'],
+            'actions' => ['view', 'edit', 'delete'],
             'nav' => [
                 [
                     'label' => 'Settings',
                     'route' => 'admin.settings.edit',
                     'icon' => 'settings',
                     'active' => 'admin.settings.*',
+                ],
+                [
+                    'label' => 'Contact messages',
+                    'route' => 'admin.contact-messages.index',
+                    'icon' => 'mail',
+                    'active' => 'admin.contact-messages.*',
                 ],
             ],
         ],
@@ -211,19 +217,6 @@ return [
                     'route' => 'admin.partners.index',
                     'icon' => 'image',
                     'active' => 'admin.partners.*',
-                ],
-            ],
-        ],
-        'contact_messages' => [
-            'label' => 'Contact Messages',
-            'icon' => 'mail',
-            'actions' => ['view', 'delete'],
-            'nav' => [
-                [
-                    'label' => 'Contact messages',
-                    'route' => 'admin.contact-messages.index',
-                    'icon' => 'mail',
-                    'active' => 'admin.contact-messages.*',
                 ],
             ],
         ],
@@ -251,7 +244,7 @@ return [
         'admin.reports' => 'reports',
         'admin.settings' => 'settings',
         'admin.partners' => 'partners',
-        'admin.contact-messages' => 'contact_messages',
+        'admin.contact-messages' => 'settings',
     ],
 
     'route_actions' => [

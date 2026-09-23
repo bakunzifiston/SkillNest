@@ -15,7 +15,7 @@
                 All messages have been read.
             @endif
         </p>
-        @adminCan('contact_messages', 'delete')
+        @adminCan('settings', 'delete')
             @if(($readCount ?? 0) > 0)
                 <form action="{{ route('admin.contact-messages.destroy-all') }}" method="post" onsubmit="return confirm('Delete all read messages?');">
                     @csrf
@@ -64,7 +64,7 @@
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
                                     <a href="{{ route('admin.contact-messages.show', $message) }}" class="admin-btn-secondary">View</a>
-                                    @adminCan('contact_messages', 'delete')
+                                    @adminCan('settings', 'delete')
                                         <form action="{{ route('admin.contact-messages.destroy', $message) }}" method="post" onsubmit="return confirm('Delete this message?');">
                                             @csrf
                                             @method('DELETE')
