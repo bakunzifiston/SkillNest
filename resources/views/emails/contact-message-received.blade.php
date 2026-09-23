@@ -3,12 +3,12 @@
 
 A new message has been submitted through the contact form.
 
-**From:** {{ $message->name }} ({{ $message->email }})  
-**Subject:** {{ $message->subject ?? '(No subject)' }}
+**From:** {{ $contactMessage->name }} ({{ $contactMessage->email }})  
+**Subject:** {{ $contactMessage->subject ?? '(No subject)' }}
 
 ---
 
-{{ nl2br(e($message->message)) }}
+{{ nl2br(e($contactMessage->message)) }}
 
 ---
 

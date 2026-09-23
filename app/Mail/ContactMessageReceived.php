@@ -14,20 +14,23 @@ class ContactMessageReceived extends Mailable
     use Queueable, SerializesModels;
 
     public function __construct(
-        public ContactMessage $message
+        public ContactMessage $contactMessage
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New contact message from ' . $this->message->name,
+            subject: 'New contact message from '.$this->contactMessage->name,
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.contact-message-received',
+            markdown: 'emails.contact-message-received',
+            with: [
+                'contactMessage' => $this->contactMessage,
+            ],
         );
     }
 }

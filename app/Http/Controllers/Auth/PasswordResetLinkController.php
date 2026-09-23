@@ -35,13 +35,19 @@ class PasswordResetLinkController extends Controller
         ]);
 
         try {
-            // Attempt to send when the account exists. Throttling is enforced by the broker.
-            Password::sendResetLink($request->only('email'));
+            $status = Password::sendResetLink($request->only('email'));
+
+            // Log broker outcome for ops (not shown to the browser).
+            Log::info('Password reset link requested.', [
+                'status' => $status,
+                'mailer' => config('mail.default'),
+                'mail_host' => config('mail.mailers.smtp.host'),
+            ]);
         } catch (Throwable $e) {
-            // Do not expose mail/transport failures to the browser (and avoid
-            // turning existing-account mail errors into an enumeration signal).
             Log::error('Password reset email failed to send.', [
                 'exception' => $e->getMessage(),
+                'mailer' => config('mail.default'),
+                'mail_host' => config('mail.mailers.smtp.host'),
             ]);
         }
 
