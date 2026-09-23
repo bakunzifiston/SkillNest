@@ -278,6 +278,7 @@ class CourseLessonAccessTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('id="lesson-youtube-player"', false);
+        $response->assertSee('youtube.com/embed/dQw4w9WgXcQ', false);
         $response->assertSee('data-youtube-id="dQw4w9WgXcQ"', false);
         $response->assertSee('data-already-completed="1"', false);
     }

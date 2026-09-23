@@ -6,7 +6,11 @@
     @php
         $youtubeId = null;
         if ($lesson->type === \App\Models\Lesson::TYPE_YOUTUBE && ! empty($lesson->source_url)) {
-            preg_match('/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/', $lesson->source_url, $youtubeMatch);
+            preg_match(
+                '/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{6,})/i',
+                $lesson->source_url,
+                $youtubeMatch
+            );
             $youtubeId = $youtubeMatch[1] ?? null;
         }
     @endphp
@@ -48,7 +52,18 @@
                                     @break
                                 @case(\App\Models\Lesson::TYPE_YOUTUBE)
                                     @if($youtubeId)
-                                        <div id="lesson-youtube-player" class="aspect-video rounded-xl overflow-hidden bg-slate-900"></div>
+                                        {{-- Native iframe so completed lessons can always be rewatched, even if JS fails to load. --}}
+                                        <div class="aspect-video rounded-xl overflow-hidden bg-slate-900">
+                                            <iframe
+                                                id="lesson-youtube-player"
+                                                class="h-full w-full"
+                                                src="https://www.youtube.com/embed/{{ $youtubeId }}?rel=0&modestbranding=1&enablejsapi=1"
+                                                title="{{ $lesson->title }}"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                allowfullscreen
+                                                referrerpolicy="strict-origin-when-cross-origin"
+                                            ></iframe>
+                                        </div>
                                     @elseif(!empty($lesson->source_url))
                                         <a href="{{ $lesson->source_url }}" target="_blank" rel="noopener" class="text-primary hover:underline">Watch on YouTube</a>
                                     @else

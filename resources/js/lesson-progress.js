@@ -1,6 +1,39 @@
 /**
  * Lesson completion: automatic tracking + manual "Mark as complete" button.
+ * YouTube/HTML5 players always stay available so students can rewatch completed lessons.
  */
+function loadYouTubeApi() {
+    return new Promise((resolve) => {
+        if (window.YT?.Player) {
+            resolve();
+            return;
+        }
+
+        const prev = window.onYouTubeIframeAPIReady;
+        window.onYouTubeIframeAPIReady = () => {
+            prev?.();
+            resolve();
+        };
+
+        if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            document.head.appendChild(tag);
+        } else {
+            // Script already present; ready callback may have fired before we subscribed.
+            const started = Date.now();
+            const timer = setInterval(() => {
+                if (window.YT?.Player) {
+                    clearInterval(timer);
+                    resolve();
+                } else if (Date.now() - started > 8000) {
+                    clearInterval(timer);
+                }
+            }, 50);
+        }
+    });
+}
+
 function initLessonProgress(root) {
     if (!root) {
         return;
@@ -122,46 +155,31 @@ function initLessonProgress(root) {
 
     const video = root.querySelector('video[data-lesson-video]');
     const youtubeId = root.dataset.youtubeId;
+    const youtubeMount = document.getElementById('lesson-youtube-player');
 
-    // Always mount players so students can rewatch after completing a lesson.
-    if (lessonType === 'youtube' && youtubeId) {
-        const mountId = 'lesson-youtube-player';
-        if (document.getElementById(mountId)) {
-            const loadApi = () =>
-                new Promise((resolve) => {
-                    if (window.YT?.Player) {
-                        resolve();
-                        return;
-                    }
-                    const prev = window.onYouTubeIframeAPIReady;
-                    window.onYouTubeIframeAPIReady = () => {
-                        prev?.();
-                        resolve();
-                    };
-                    if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-                        const tag = document.createElement('script');
-                        tag.src = 'https://www.youtube.com/iframe_api';
-                        document.head.appendChild(tag);
-                    }
-                });
+    // Upgrade the embed iframe with the IFrame API for auto-complete on end.
+    // The iframe itself stays playable for rewatch even if this step fails.
+    if (lessonType === 'youtube' && youtubeId && youtubeMount) {
+        loadYouTubeApi().then(() => {
+            if (!window.YT?.Player) {
+                return;
+            }
 
-            loadApi().then(() => {
-                new window.YT.Player(mountId, {
-                    videoId: youtubeId,
-                    playerVars: {
-                        rel: 0,
-                        modestbranding: 1,
+            new window.YT.Player(youtubeMount, {
+                videoId: youtubeId,
+                playerVars: {
+                    rel: 0,
+                    modestbranding: 1,
+                },
+                events: {
+                    onStateChange: (event) => {
+                        if (event.data === window.YT.PlayerState.ENDED) {
+                            recordComplete('auto');
+                        }
                     },
-                    events: {
-                        onStateChange: (event) => {
-                            if (event.data === window.YT.PlayerState.ENDED) {
-                                recordComplete('auto');
-                            }
-                        },
-                    },
-                });
+                },
             });
-        }
+        });
     }
 
     if (alreadyCompleted) {
