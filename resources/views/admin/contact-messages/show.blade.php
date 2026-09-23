@@ -6,7 +6,7 @@
 @section('content')
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <a href="{{ route('admin.contact-messages.index') }}" class="admin-btn-secondary">Back to messages</a>
-        @adminCan('settings', 'delete')
+        @adminCan('dashboard', 'view')
             <form action="{{ route('admin.contact-messages.destroy', $message) }}" method="post" onsubmit="return confirm('Delete this message?');">
                 @csrf
                 @method('DELETE')

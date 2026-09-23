@@ -30,6 +30,12 @@ return [
                     'icon' => 'dashboard',
                     'active' => 'admin.dashboard',
                 ],
+                [
+                    'label' => 'Contact messages',
+                    'route' => 'admin.contact-messages.index',
+                    'icon' => 'mail',
+                    'active' => 'admin.contact-messages.*',
+                ],
             ],
         ],
         'categories' => [
@@ -191,19 +197,13 @@ return [
         'settings' => [
             'label' => 'Settings',
             'icon' => 'settings',
-            'actions' => ['view', 'edit', 'delete'],
+            'actions' => ['view', 'edit'],
             'nav' => [
                 [
                     'label' => 'Settings',
                     'route' => 'admin.settings.edit',
                     'icon' => 'settings',
                     'active' => 'admin.settings.*',
-                ],
-                [
-                    'label' => 'Contact messages',
-                    'route' => 'admin.contact-messages.index',
-                    'icon' => 'mail',
-                    'active' => 'admin.contact-messages.*',
                 ],
             ],
         ],
@@ -244,7 +244,7 @@ return [
         'admin.reports' => 'reports',
         'admin.settings' => 'settings',
         'admin.partners' => 'partners',
-        'admin.contact-messages' => 'settings',
+        'admin.contact-messages' => 'dashboard',
     ],
 
     'route_actions' => [
@@ -255,7 +255,10 @@ return [
         'admin.settings.update' => 'edit',
         'admin.courses.enrolled-users' => 'view',
         'admin.users.status' => 'edit',
-        'admin.contact-messages.destroy-all' => 'delete',
+        'admin.contact-messages.index' => 'view',
+        'admin.contact-messages.show' => 'view',
+        'admin.contact-messages.destroy' => 'view',
+        'admin.contact-messages.destroy-all' => 'view',
     ],
 
 ];

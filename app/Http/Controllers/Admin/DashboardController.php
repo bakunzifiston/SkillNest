@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ContactMessage;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Instructor;
@@ -322,6 +323,8 @@ class DashboardController extends Controller
             'recentEnrollments' => $recentEnrollments,
             'recentActivity' => $this->recentActivity($progressByEnrollment, $completions, $courses, $selectedCourseId),
             'attentionCourses' => $attention,
+            'unreadContactMessages' => ContactMessage::query()->whereNull('read_at')->count(),
+            'contactMessagesTotal' => ContactMessage::query()->count(),
             'thresholds' => [
                 'low_completion_rate' => self::LOW_COMPLETION_RATE,
                 'low_quiz_avg' => self::LOW_QUIZ_AVG,

@@ -69,6 +69,30 @@
         @endif
     </form>
 
+    <a
+        href="{{ route('admin.contact-messages.index') }}"
+        class="mb-5 flex items-center justify-between gap-4 rounded-2xl border border-primary-muted/70 bg-gradient-to-br from-primary-light to-white px-4 py-4 hover:border-primary transition focus:outline-none focus:ring-2 focus:ring-primary"
+    >
+        <div class="flex items-center gap-3 min-w-0">
+            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-white" aria-hidden="true">
+                @include('admin.partials.dashboard-icon', ['icon' => 'mail', 'class' => 'h-5 w-5'])
+            </span>
+            <div class="min-w-0">
+                <p class="font-display font-semibold text-navy">Contact messages</p>
+                <p class="text-sm text-slate-600">
+                    @if(($unreadContactMessages ?? 0) > 0)
+                        {{ number_format($unreadContactMessages) }} unread · {{ number_format($contactMessagesTotal) }} total
+                    @elseif(($contactMessagesTotal ?? 0) > 0)
+                        {{ number_format($contactMessagesTotal) }} message{{ $contactMessagesTotal === 1 ? '' : 's' }}
+                    @else
+                        View messages from the contact form
+                    @endif
+                </p>
+            </div>
+        </div>
+        <span class="text-sm font-medium text-primary shrink-0">Open →</span>
+    </a>
+
     <section class="mb-5" aria-labelledby="kpi-heading">
         <h2 id="kpi-heading" class="sr-only">Key metrics</h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
