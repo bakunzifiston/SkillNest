@@ -6,7 +6,14 @@
         </p>
     </div>
 
-    <x-auth-session-status class="mb-5" :status="session('status')" />
+    @if(session('status') && str_contains((string) session('status'), 'Password reset successfully'))
+        <div class="mb-5 rounded-xl border border-success-muted bg-success-light px-4 py-3 text-sm text-success-darker" role="status">
+            <p class="font-semibold">Password reset successfully</p>
+            <p class="mt-1">You can now sign in using your new password.</p>
+        </div>
+    @else
+        <x-auth-session-status class="mb-5" :status="session('status')" />
+    @endif
 
     @if(session('url.intended'))
         <div class="mb-5 rounded-xl border border-primary-muted/50 bg-primary-light px-4 py-3 text-sm text-navy">

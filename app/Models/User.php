@@ -271,6 +271,14 @@ class User extends Authenticatable
         return $parts[1] ?? '';
     }
 
+    /**
+     * Send the password reset notification (branded KoraLink Academy email).
+     */
+    public function sendPasswordResetNotification(#[\SensitiveParameter] $token): void
+    {
+        $this->notify(new \App\Notifications\ResetPassword($token));
+    }
+
     public function enrollments()
     {
         return $this->hasMany(Enrollment::class);

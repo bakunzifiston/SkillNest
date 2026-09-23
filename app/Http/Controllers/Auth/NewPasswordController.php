@@ -7,20 +7,37 @@ use App\Models\User;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class NewPasswordController extends Controller
 {
     /**
-     * Display the password reset view.
+     * Display the password reset view, or a friendly invalid/expired state.
      */
     public function create(Request $request): View
     {
-        return view('auth.reset-password', ['request' => $request]);
+        $token = (string) $request->route('token');
+        $email = strtolower(trim((string) $request->query('email', $request->input('email', ''))));
+
+        if ($token === '' || $email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return view('auth.reset-password-invalid');
+        }
+
+        $user = User::query()->where('email', $email)->first();
+
+        if (! $user || ! Password::tokenExists($user, $token)) {
+            return view('auth.reset-password-invalid');
+        }
+
+        return view('auth.reset-password', [
+            'request' => $request,
+            'email' => $email,
+            'token' => $token,
+        ]);
     }
 
     /**
@@ -30,20 +47,24 @@ class NewPasswordController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $email = strtolower(trim((string) $request->input('email')));
+        $request->merge(['email' => $email]);
+
         $request->validate([
-            'token' => ['required'],
-            'email' => ['required', 'email'],
+            'token' => ['required', 'string'],
+            'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'password.confirmed' => 'The passwords do not match.',
+            'password.min' => 'The password must be at least :min characters.',
         ]);
 
-        // Here we will attempt to reset the user's password. If it is successful we
-        // will update the password on an actual user model and persist it to the
-        // database. Otherwise we will parse the error and return the response.
         $status = Password::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user) use ($request) {
+                // Let the User "hashed" cast hash the password once.
                 $user->forceFill([
-                    'password' => Hash::make($request->password),
+                    'password' => $request->password,
                     'remember_token' => Str::random(60),
                 ])->save();
 
@@ -51,12 +72,22 @@ class NewPasswordController extends Controller
             }
         );
 
-        // If the password was successfully reset, we will redirect the user back to
-        // the application's home authenticated view. If there is an error we can
-        // redirect them back to where they came from with their error message.
-        return $status == Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', __($status))
-                    : back()->withInput($request->only('email'))
-                        ->withErrors(['email' => __($status)]);
+        if ($status === Password::PASSWORD_RESET) {
+            return redirect()
+                ->route('login')
+                ->with('status', 'Password reset successfully. You can now sign in using your new password.');
+        }
+
+        if ($status === Password::INVALID_TOKEN) {
+            return redirect()
+                ->route('password.request')
+                ->withErrors([
+                    'email' => 'This password reset link is invalid or has expired. Please request a new password reset link.',
+                ]);
+        }
+
+        throw ValidationException::withMessages([
+            'email' => [__($status)],
+        ]);
     }
 }
