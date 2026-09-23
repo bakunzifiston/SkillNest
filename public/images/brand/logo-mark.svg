@@ -1,19 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100" fill="none" aria-hidden="true">
-  <!-- Left figure: brand blue -->
-  <circle cx="46" cy="20" r="12" fill="#19499B"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 90" fill="none" aria-hidden="true">
+  <!-- Updated KoraLink mark: interlocking figures (blue + orange) -->
+  <circle cx="48" cy="18" r="11" fill="#19499B"/>
   <path
-    d="M22 50c0-14 11-24 26-24h18c10 0 18 8 18 18v2c0 10-8 18-18 18H62"
+    d="M24 48c0-13 10-22 24-22h20c9 0 16 7 16 16v1c0 9-7 16-16 16H64"
     stroke="#19499B"
-    stroke-width="16"
+    stroke-width="15"
     stroke-linecap="round"
     stroke-linejoin="round"
   />
-  <!-- Right figure: brand orange -->
-  <circle cx="114" cy="20" r="12" fill="#F16029"/>
+  <circle cx="112" cy="18" r="11" fill="#F16029"/>
   <path
-    d="M138 50c0-14-11-24-26-24H94c-10 0-18 8-18 18v2c0 10 8 18 18 18h12"
+    d="M136 48c0-13-10-22-24-22H92c-9 0-16 7-16 16v1c0 9 7 16 16 16h12"
     stroke="#F16029"
-    stroke-width="16"
+    stroke-width="15"
     stroke-linecap="round"
     stroke-linejoin="round"
   />

@@ -27,7 +27,7 @@
         '2xl' => 'text-4xl',
     ];
     $usingCustomLogo = ! empty($siteLogoUrl);
-    $src = $usingCustomLogo ? $siteLogoUrl : asset('images/brand/logo-mark.svg');
+    $src = $usingCustomLogo ? $siteLogoUrl : asset('images/brand/logo-mark.png');
     $nameColor = $variant === 'dark' ? 'text-white' : 'text-navy';
     $imgClass = ($heights[$size] ?? $heights['md']).' w-auto object-contain object-left shrink-0';
 @endphp
