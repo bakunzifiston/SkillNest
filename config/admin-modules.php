@@ -15,7 +15,7 @@ return [
         'Learners' => ['users', 'roles', 'imports', 'course_progress'],
         'Assessments' => ['quizzes', 'quiz_results'],
         'Analytics' => ['reports'],
-        'Site' => ['settings', 'partners'],
+        'Site' => ['settings', 'partners', 'contact_messages'],
     ],
 
     'modules' => [
@@ -214,6 +214,19 @@ return [
                 ],
             ],
         ],
+        'contact_messages' => [
+            'label' => 'Contact Messages',
+            'icon' => 'mail',
+            'actions' => ['view', 'delete'],
+            'nav' => [
+                [
+                    'label' => 'Contact messages',
+                    'route' => 'admin.contact-messages.index',
+                    'icon' => 'mail',
+                    'active' => 'admin.contact-messages.*',
+                ],
+            ],
+        ],
     ],
 
     'route_modules' => [
@@ -238,7 +251,7 @@ return [
         'admin.reports' => 'reports',
         'admin.settings' => 'settings',
         'admin.partners' => 'partners',
-        'admin.contact-messages' => 'settings',
+        'admin.contact-messages' => 'contact_messages',
     ],
 
     'route_actions' => [

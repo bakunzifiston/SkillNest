@@ -5,34 +5,48 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ContactMessage;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ContactMessageController extends Controller
 {
     public function index(): View
     {
-        $messages = ContactMessage::orderByDesc('created_at')->paginate(20);
-        return view('admin.contact-messages.index', compact('messages'));
+        $messages = ContactMessage::query()
+            ->orderByDesc('created_at')
+            ->paginate(20);
+
+        $unreadCount = ContactMessage::query()->whereNull('read_at')->count();
+        $readCount = ContactMessage::query()->whereNotNull('read_at')->count();
+
+        return view('admin.contact-messages.index', compact('messages', 'unreadCount', 'readCount'));
     }
 
-    public function show(ContactMessage $message): View
+    public function show(ContactMessage $contact_message): View
     {
-        if (!$message->read_at) {
-            $message->update(['read_at' => now()]);
+        if (! $contact_message->read_at) {
+            $contact_message->update(['read_at' => now()]);
         }
-        return view('admin.contact-messages.show', compact('message'));
+
+        return view('admin.contact-messages.show', [
+            'message' => $contact_message,
+        ]);
     }
 
-    public function destroy(ContactMessage $message): RedirectResponse
+    public function destroy(ContactMessage $contact_message): RedirectResponse
     {
-        $message->delete();
-        return redirect()->route('admin.contact-messages.index')->with('success', 'Message deleted.');
+        $contact_message->delete();
+
+        return redirect()
+            ->route('admin.contact-messages.index')
+            ->with('success', 'Message deleted.');
     }
 
     public function destroyAll(): RedirectResponse
     {
-        ContactMessage::whereNotNull('read_at')->delete();
-        return redirect()->route('admin.contact-messages.index')->with('success', 'All read messages deleted.');
+        ContactMessage::query()->whereNotNull('read_at')->delete();
+
+        return redirect()
+            ->route('admin.contact-messages.index')
+            ->with('success', 'All read messages deleted.');
     }
 }
