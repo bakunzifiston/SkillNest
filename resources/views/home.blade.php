@@ -186,7 +186,7 @@
     <section class="py-16 lg:py-20 bg-white border-t border-slate-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-10">
-                <h2 class="font-display font-bold text-2xl lg:text-3xl text-slate-900">Trusted by teams everywhere</h2>
+                <h2 class="font-display font-bold text-2xl lg:text-3xl text-slate-900">Our Partners</h2>
             </div>
             <div class="flex flex-wrap items-center justify-center gap-12 lg:gap-16">
                 @foreach($partners as $partner)
