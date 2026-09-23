@@ -66,11 +66,6 @@
                                     </a>
                                 @else
                                     <span class="inline-flex items-center px-4 py-2 rounded-xl bg-success-muted text-success-darker font-medium">Course completed</span>
-                                    @if($firstLesson)
-                                        <a href="{{ route('courses.lessons.show', [$course, $firstLesson]) }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
-                                            Watch again
-                                        </a>
-                                    @endif
                                 @endif
                                 <a href="{{ route('courses.my-courses') }}" class="inline-flex items-center px-4 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-medium">My courses</a>
                             </div>

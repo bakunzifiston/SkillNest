@@ -27,13 +27,11 @@ class CourseController extends Controller
         $totalLessons = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
 
         $resumeLesson = null;
-        $firstLesson = null;
         $completedLessonIds = collect();
         if ($enrolled && $totalLessons > 0) {
             $completedLessonIds = auth()->user()->lessonCompletions()->pluck('lesson_id');
             foreach ($course->chapters as $chapter) {
                 foreach ($chapter->lessons as $lesson) {
-                    $firstLesson ??= $lesson;
                     if (! $completedLessonIds->contains($lesson->id) && ! $resumeLesson) {
                         $resumeLesson = $lesson;
                     }
@@ -47,7 +45,6 @@ class CourseController extends Controller
             'completedCount',
             'totalLessons',
             'resumeLesson',
-            'firstLesson',
             'completedLessonIds',
             'upcomingLiveSessions'
         ));

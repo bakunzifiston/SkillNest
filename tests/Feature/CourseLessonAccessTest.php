@@ -283,7 +283,7 @@ class CourseLessonAccessTest extends TestCase
         $response->assertSee('data-already-completed="1"', false);
     }
 
-    public function test_completed_course_offers_watch_again_to_first_lesson(): void
+    public function test_completed_course_keeps_lesson_links_without_watch_again_button(): void
     {
         $user = User::factory()->create();
         $category = Category::create(['name' => 'Design', 'slug' => 'design']);
@@ -318,7 +318,8 @@ class CourseLessonAccessTest extends TestCase
             ->get(route('courses.show', $course));
 
         $response->assertOk();
-        $response->assertSee('Watch again', false);
+        $response->assertSee('Course completed', false);
+        $response->assertDontSee('Watch again', false);
         $response->assertSee(route('courses.lessons.show', [$course, $lesson], false), false);
     }
 }
