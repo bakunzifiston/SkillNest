@@ -277,10 +277,12 @@ class CourseLessonAccessTest extends TestCase
             ->get(route('courses.lessons.show', [$course, $lesson]));
 
         $response->assertOk();
-        $response->assertSee('id="lesson-youtube-player"', false);
-        $response->assertSee('youtube.com/embed/dQw4w9WgXcQ', false);
+        $response->assertSee('data-youtube-player', false);
+        $response->assertSee('data-youtube-play', false);
         $response->assertSee('data-youtube-id="dQw4w9WgXcQ"', false);
+        $response->assertSee('i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg', false);
         $response->assertSee('data-already-completed="1"', false);
+        $response->assertDontSee('Watch on YouTube', false);
     }
 
     public function test_completed_course_keeps_lesson_links_without_watch_again_button(): void

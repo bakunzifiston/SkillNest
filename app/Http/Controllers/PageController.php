@@ -6,8 +6,11 @@ use App\Mail\ContactMessageReceived;
 use App\Models\Category;
 use App\Models\ContactMessage;
 use App\Models\Course;
+use App\Models\Enrollment;
 use App\Models\Partner;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
@@ -16,54 +19,62 @@ class PageController extends Controller
     public function home(): View
     {
         try {
-            $categories = Category::orderBy('name')->get();
-            $latestCourses = Course::with('category')->latest()->take(6)->get();
+            $categories = Category::query()
+                ->withCount('courses')
+                ->orderBy('name')
+                ->get();
+
+            $latestCourses = Course::query()
+                ->with(['category', 'instructor', 'chapters.lessons'])
+                ->latest()
+                ->take(6)
+                ->get();
+
+            $partners = Partner::query()
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get();
+
+            $stats = [
+                'learners' => User::students()->count(),
+                'courses' => Course::count(),
+                'categories' => $categories->count(),
+                'enrollments' => Enrollment::count(),
+            ];
         } catch (\Throwable) {
             $categories = collect();
             $latestCourses = collect();
-        }
-
-        if ($categories->isEmpty()) {
-            $categories = collect([
-                (object)['name' => 'Development', 'slug' => 'development', 'icon' => '💻', 'courses_count' => 12],
-                (object)['name' => 'Design', 'slug' => 'design', 'icon' => '🎨', 'courses_count' => 8],
-                (object)['name' => 'Business', 'slug' => 'business', 'icon' => '📊', 'courses_count' => 10],
-                (object)['name' => 'Marketing', 'slug' => 'marketing', 'icon' => '📣', 'courses_count' => 6],
-            ]);
-        }
-
-        if ($latestCourses->isEmpty()) {
-            $latestCourses = collect([
-                (object)['id' => 1, 'title' => 'PHP & Laravel Fundamentals', 'description' => 'Build modern web applications with Laravel.', 'duration' => '8 hours', 'price' => 0, 'category' => (object)['name' => 'Development'], 'image' => null],
-                (object)['id' => 2, 'title' => 'JavaScript from Zero to Hero', 'description' => 'Master JavaScript and modern frontend tools.', 'duration' => '12 hours', 'price' => 49, 'category' => (object)['name' => 'Development'], 'image' => null],
-                (object)['id' => 3, 'title' => 'UI/UX Fundamentals', 'description' => 'Design user-friendly interfaces and experiences.', 'duration' => '6 hours', 'price' => 39, 'category' => (object)['name' => 'Design'], 'image' => null],
-            ]);
-        }
-
-        try {
-            $partners = Partner::orderBy('sort_order')->orderBy('id')->get();
-        } catch (\Throwable) {
             $partners = collect();
+            $stats = [
+                'learners' => 0,
+                'courses' => 0,
+                'categories' => 0,
+                'enrollments' => 0,
+            ];
         }
 
-        return view('home', compact('categories', 'latestCourses', 'partners'));
+        return view('home', compact('categories', 'latestCourses', 'partners', 'stats'));
     }
 
     public function courses(Request $request): View
     {
         try {
-            $query = Course::with('category');
+            $query = Course::with(['category', 'instructor', 'chapters.lessons']);
             if ($request->filled('category')) {
                 $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
             }
             $courses = $query->latest()->paginate(12);
-            $categories = Category::orderBy('name')->get();
+            $categories = Category::query()->withCount('courses')->orderBy('name')->get();
         } catch (\Throwable) {
             $courses = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 12);
             $categories = collect();
         }
 
-        return view('courses.index', compact('courses', 'categories'));
+        $activeCategory = $request->filled('category')
+            ? $categories->firstWhere('slug', $request->string('category')->toString())
+            : null;
+
+        return view('courses.index', compact('courses', 'categories', 'activeCategory'));
     }
 
     public function about(): View
@@ -85,17 +96,14 @@ class PageController extends Controller
             'message' => 'required|string|max:5000',
         ]);
 
-        // Save the contact message to database
         $contactMessage = ContactMessage::create($validated);
 
-        // Send notification email to admin (if admin email is configured)
         $adminEmails = [config('mail.from.address')];
-        if (!empty($adminEmails[0])) {
+        if (! empty($adminEmails[0])) {
             try {
                 Mail::to($adminEmails)->send(new ContactMessageReceived($contactMessage));
             } catch (\Exception $e) {
-                // Log error but still show success message to user
-                \Illuminate\Support\Facades\Log::error('Failed to send contact message notification: ' . $e->getMessage());
+                Log::error('Failed to send contact message notification: '.$e->getMessage());
             }
         }
 

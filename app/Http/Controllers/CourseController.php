@@ -86,7 +86,7 @@ class CourseController extends Controller
     {
         $enrollments = auth()->user()
             ->enrollments()
-            ->with(['course.chapters.lessons'])
+            ->with(['course.category', 'course.chapters.lessons'])
             ->latest()
             ->paginate(12);
 

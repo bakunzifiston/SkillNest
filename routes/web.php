@@ -33,13 +33,27 @@ Route::middleware('auth')->group(function () {
     Route::get('/quizzes/attempts/{quizAttempt}/result', [\App\Http\Controllers\QuizController::class, 'result'])->name('quizzes.result');
 });
 
-// User dashboard (Breeze)
+// Learner dashboard
 Route::get('/dashboard', function () {
-    if (auth()->user()->canAccessAdmin()) {
+    $user = auth()->user();
+
+    if ($user->canAccessAdmin()) {
         return redirect()->route('admin.dashboard');
     }
 
-    return view('dashboard');
+    $courseEnrollments = $user->enrollments()
+        ->with(['course.category', 'course.chapters.lessons'])
+        ->latest()
+        ->take(6)
+        ->get();
+
+    $bundleEnrollments = $user->bundleEnrollments()
+        ->with('bundle')
+        ->latest('enrolled_at')
+        ->take(5)
+        ->get();
+
+    return view('dashboard', compact('courseEnrollments', 'bundleEnrollments'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {

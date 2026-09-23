@@ -1,36 +1,92 @@
 /**
  * Lesson completion: automatic tracking + manual "Mark as complete" button.
- * YouTube/HTML5 players always stay available so students can rewatch completed lessons.
+ * YouTube uses a thumbnail + play button, then mounts an embed on click.
  */
-function loadYouTubeApi() {
-    return new Promise((resolve) => {
-        if (window.YT?.Player) {
-            resolve();
+function youtubeEmbedSrc(videoId, origin) {
+    const params = new URLSearchParams({
+        autoplay: '1',
+        rel: '0',
+        modestbranding: '1',
+        playsinline: '1',
+        enablejsapi: '1',
+    });
+
+    if (origin) {
+        params.set('origin', origin);
+    }
+
+    return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+}
+
+function initYouTubePlayer(root, onEnded) {
+    const mount = root.querySelector('[data-youtube-player]');
+    if (!mount) {
+        return;
+    }
+
+    const videoId = mount.dataset.youtubeId;
+    const playBtn = mount.querySelector('[data-youtube-play]');
+    const frameHost = mount.querySelector('[data-youtube-frame]');
+    if (!videoId || !playBtn || !frameHost) {
+        return;
+    }
+
+    let started = false;
+
+    const handleMessage = (event) => {
+        if (!started) {
+            return;
+        }
+        if (event.origin !== 'https://www.youtube.com' && event.origin !== 'https://www.youtube-nocookie.com') {
             return;
         }
 
-        const prev = window.onYouTubeIframeAPIReady;
-        window.onYouTubeIframeAPIReady = () => {
-            prev?.();
-            resolve();
-        };
-
-        if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
-            const tag = document.createElement('script');
-            tag.src = 'https://www.youtube.com/iframe_api';
-            document.head.appendChild(tag);
-        } else {
-            // Script already present; ready callback may have fired before we subscribed.
-            const started = Date.now();
-            const timer = setInterval(() => {
-                if (window.YT?.Player) {
-                    clearInterval(timer);
-                    resolve();
-                } else if (Date.now() - started > 8000) {
-                    clearInterval(timer);
-                }
-            }, 50);
+        let data = event.data;
+        if (typeof data === 'string') {
+            try {
+                data = JSON.parse(data);
+            } catch {
+                return;
+            }
         }
+
+        // playerState 0 === ended
+        const state = data?.info?.playerState ?? data?.info;
+        if (data?.event === 'infoDelivery' && state === 0) {
+            onEnded?.();
+        }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    playBtn.addEventListener('click', () => {
+        if (started) {
+            return;
+        }
+        started = true;
+
+        const iframe = document.createElement('iframe');
+        iframe.id = 'lesson-youtube-player';
+        iframe.className = 'h-full w-full';
+        iframe.src = youtubeEmbedSrc(videoId, window.location.origin);
+        iframe.title = 'Lesson video';
+        iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        iframe.allowFullscreen = true;
+        iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
+
+        frameHost.innerHTML = '';
+        frameHost.appendChild(iframe);
+        frameHost.classList.remove('hidden');
+        playBtn.remove();
+
+        // Tell the player we want API events (ended).
+        iframe.addEventListener('load', () => {
+            try {
+                iframe.contentWindow?.postMessage(JSON.stringify({ event: 'listening', id: videoId }), '*');
+            } catch {
+                // Ignore cross-origin postMessage failures.
+            }
+        });
     });
 }
 
@@ -153,35 +209,16 @@ function initLessonProgress(root) {
         recordComplete('manual');
     });
 
-    const video = root.querySelector('video[data-lesson-video]');
-    const youtubeId = root.dataset.youtubeId;
-    const youtubeMount = document.getElementById('lesson-youtube-player');
-
-    // Upgrade the embed iframe with the IFrame API for auto-complete on end.
-    // The iframe itself stays playable for rewatch even if this step fails.
-    if (lessonType === 'youtube' && youtubeId && youtubeMount) {
-        loadYouTubeApi().then(() => {
-            if (!window.YT?.Player) {
-                return;
-            }
-
-            new window.YT.Player(youtubeMount, {
-                videoId: youtubeId,
-                playerVars: {
-                    rel: 0,
-                    modestbranding: 1,
-                },
-                events: {
-                    onStateChange: (event) => {
-                        if (event.data === window.YT.PlayerState.ENDED) {
-                            recordComplete('auto');
-                        }
-                    },
-                },
-            });
-        });
+    if (lessonType === 'youtube') {
+        initYouTubePlayer(root, () => recordComplete('auto'));
     }
 
+    if (alreadyCompleted && lessonType !== 'youtube') {
+        return;
+    }
+
+    // Completed YouTube lessons still get a playable player above;
+    // skip auto-tracking listeners only.
     if (alreadyCompleted) {
         return;
     }
@@ -190,6 +227,7 @@ function initLessonProgress(root) {
         return Date.now() - pageOpenedAt >= minDwellMs;
     }
 
+    const video = root.querySelector('video[data-lesson-video]');
     if (video) {
         video.addEventListener('ended', () => recordComplete('auto'));
         video.addEventListener('timeupdate', () => {
@@ -200,7 +238,7 @@ function initLessonProgress(root) {
     }
 
     const scrollMarker = root.querySelector('[data-lesson-scroll-marker]');
-    if (scrollMarker) {
+    if (scrollMarker && lessonType !== 'youtube') {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries.some((e) => e.isIntersecting) && canCompleteByEngagement()) {

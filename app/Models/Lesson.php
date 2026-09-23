@@ -38,6 +38,38 @@ class Lesson extends Model
         return url('lesson-file/' . ltrim($this->file_path, '/'));
     }
 
+    /**
+     * Extract a YouTube video id from source_url when this is a YouTube lesson.
+     */
+    public function youtubeVideoId(): ?string
+    {
+        if ($this->type !== self::TYPE_YOUTUBE || empty($this->source_url)) {
+            return null;
+        }
+
+        $url = trim($this->source_url);
+
+        if (preg_match('/(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/i', $url, $match)) {
+            return $match[1];
+        }
+
+        if (preg_match('/^[a-zA-Z0-9_-]{11}$/', $url)) {
+            return $url;
+        }
+
+        return null;
+    }
+
+    public function youtubeEmbedUrl(): ?string
+    {
+        $id = $this->youtubeVideoId();
+        if (! $id) {
+            return null;
+        }
+
+        return 'https://www.youtube.com/embed/'.$id.'?rel=0&modestbranding=1&playsinline=1&enablejsapi=1';
+    }
+
     public function chapter()
     {
         return $this->belongsTo(Chapter::class);
