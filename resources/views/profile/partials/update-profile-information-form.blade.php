@@ -53,6 +53,11 @@
             @endif
         </div>
 
+        <div class="pt-1">
+            <p class="text-sm font-semibold text-navy mb-3">Location</p>
+            @include('partials.location-fields', ['user' => $user])
+        </div>
+
         <div class="flex items-center gap-4 pt-1">
             <button type="submit" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2">
                 {{ __('Save') }}

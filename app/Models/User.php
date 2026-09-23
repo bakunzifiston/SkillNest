@@ -31,6 +31,10 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'country',
+        'province',
+        'district',
+        'sector',
         'password',
         'is_admin',
         'role_id',
@@ -269,6 +273,16 @@ class User extends Authenticatable
         $parts = preg_split('/\s+/', trim((string) $this->name), 2) ?: [];
 
         return $parts[1] ?? '';
+    }
+
+    public function displayLocation(): string
+    {
+        return \App\Support\RwandaLocations::format(
+            $this->country,
+            $this->province,
+            $this->district,
+            $this->sector
+        );
     }
 
     /**

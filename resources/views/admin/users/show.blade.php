@@ -47,6 +47,9 @@
         <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
             <span>Joined {{ $user->created_at->format('M j, Y') }}</span>
             <span>Last sign in {{ $user->last_login_at ? $user->last_login_at->format('M j, Y') : '—' }}</span>
+            @if($user->displayLocation())
+                <span>{{ $user->displayLocation() }}</span>
+            @endif
             @if($user->hasCustomPermissions())
                 <span>Custom module access</span>
             @endif

@@ -31,6 +31,10 @@ class ProfileTest extends TestCase
                 'first_name' => 'Test',
                 'last_name' => 'User',
                 'email' => 'test@example.com',
+                'country' => 'Rwanda',
+                'province' => 'Kigali City',
+                'district' => 'Gasabo',
+                'sector' => 'Remera',
             ]);
 
         $response
@@ -43,6 +47,10 @@ class ProfileTest extends TestCase
         $this->assertSame('User', $user->last_name);
         $this->assertSame('Test User', $user->name);
         $this->assertSame('test@example.com', $user->email);
+        $this->assertSame('Rwanda', $user->country);
+        $this->assertSame('Kigali City', $user->province);
+        $this->assertSame('Gasabo', $user->district);
+        $this->assertSame('Remera', $user->sector);
         $this->assertNull($user->email_verified_at);
     }
 
@@ -56,6 +64,10 @@ class ProfileTest extends TestCase
                 'first_name' => 'Test',
                 'last_name' => 'User',
                 'email' => $user->email,
+                'country' => 'Rwanda',
+                'province' => 'Kigali City',
+                'district' => 'Gasabo',
+                'sector' => 'Kimironko',
             ]);
 
         $response

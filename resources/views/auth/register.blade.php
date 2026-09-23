@@ -29,6 +29,11 @@
             <x-input-error :messages="$errors->get('email')" class="mt-1.5" />
         </div>
 
+        <div class="pt-1">
+            <p class="text-sm font-semibold text-navy mb-3">Location</p>
+            @include('partials.location-fields')
+        </div>
+
         <div>
             <x-input-label for="password" :value="__('Password')" class="text-slate-700" />
             <x-text-input id="password" class="block mt-1.5 w-full"

@@ -22,6 +22,15 @@
     @error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
 </div>
 
+<div class="pt-1">
+    <h3 class="text-sm font-semibold text-navy mb-3">Location</h3>
+    @include('partials.location-fields', [
+        'user' => $user,
+        'selectClass' => 'mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent',
+        'labelClass' => 'block text-sm font-medium text-slate-700',
+    ])
+</div>
+
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     <div>
         <label for="password" class="block text-sm font-medium text-slate-700">Password {{ $isEdit ? '(optional)' : '' }}</label>

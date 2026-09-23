@@ -104,6 +104,10 @@ class UserController extends Controller
         $user->first_name = $data['first_name'];
         $user->last_name = $data['last_name'];
         $user->email = $data['email'];
+        $user->country = $data['country'];
+        $user->province = $data['province'] ?? null;
+        $user->district = $data['district'] ?? null;
+        $user->sector = $data['sector'] ?? null;
         $user->password = $data['password'];
         $user->is_active = $data['is_active'];
         $user->email_verified_at = now();
@@ -217,6 +221,10 @@ class UserController extends Controller
         $user->first_name = $data['first_name'];
         $user->last_name = $data['last_name'];
         $user->email = $data['email'];
+        $user->country = $data['country'];
+        $user->province = $data['province'] ?? null;
+        $user->district = $data['district'] ?? null;
+        $user->sector = $data['sector'] ?? null;
         $user->is_active = $data['is_active'];
         $user->assignRole($role);
 
@@ -300,7 +308,19 @@ class UserController extends Controller
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['array'],
             'permissions.*.*' => ['string'],
+            ...\App\Support\RwandaLocations::validationRules(),
         ]);
+
+        $hierarchyErrors = \App\Support\RwandaLocations::validateHierarchy($data);
+        if ($hierarchyErrors !== []) {
+            throw \Illuminate\Validation\ValidationException::withMessages($hierarchyErrors);
+        }
+
+        if (($data['country'] ?? null) !== \App\Support\RwandaLocations::DEFAULT_COUNTRY) {
+            $data['province'] = null;
+            $data['district'] = null;
+            $data['sector'] = null;
+        }
 
         $data['is_active'] = $request->boolean('is_active');
         $data['role_id'] = $data['role_id'] ?? null;
