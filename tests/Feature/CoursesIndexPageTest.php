@@ -19,6 +19,7 @@ class CoursesIndexPageTest extends TestCase
         ]);
 
         Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'UI Foundations',
             'slug' => 'ui-foundations',
@@ -45,6 +46,7 @@ class CoursesIndexPageTest extends TestCase
         $business = Category::create(['name' => 'Business', 'slug' => 'business']);
 
         Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $design->id,
             'title' => 'Design Course',
             'slug' => 'design-course',
@@ -54,6 +56,7 @@ class CoursesIndexPageTest extends TestCase
         ]);
 
         Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $business->id,
             'title' => 'Business Course',
             'slug' => 'business-course',

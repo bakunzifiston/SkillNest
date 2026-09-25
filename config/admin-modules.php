@@ -255,6 +255,7 @@ return [
         'admin.settings.update' => 'edit',
         'admin.courses.enrolled-users' => 'view',
         'admin.users.status' => 'edit',
+        'admin.courses.status' => 'edit',
         'admin.contact-messages.destroy' => 'delete',
         'admin.contact-messages.destroy-all' => 'delete',
     ],

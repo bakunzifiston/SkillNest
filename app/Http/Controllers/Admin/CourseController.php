@@ -17,10 +17,14 @@ class CourseController extends Controller
     {
         $search = trim((string) $request->get('search', ''));
         $categoryId = $request->filled('category_id') ? (int) $request->get('category_id') : null;
+        $status = $request->get('status');
 
         $query = Course::with(['category', 'instructor'])->withCount('enrollments');
         if ($categoryId) {
             $query->where('category_id', $categoryId);
+        }
+        if (in_array($status, [Course::STATUS_DRAFT, Course::STATUS_PUBLISHED], true)) {
+            $query->where('status', $status);
         }
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
@@ -33,10 +37,10 @@ class CourseController extends Controller
         $courses = $query->latest()->paginate(15)->withQueryString();
         $categories = Category::orderBy('name')->get();
 
-        $all = Course::query()->get(['id', 'price', 'instructor_id', 'category_id']);
+        $all = Course::query()->get(['id', 'price', 'instructor_id', 'category_id', 'status']);
         $totalCourses = $all->count();
-        $freeCourses = $all->where('price', '<=', 0)->count();
-        $paidCourses = $totalCourses - $freeCourses;
+        $publishedCourses = $all->where('status', Course::STATUS_PUBLISHED)->count();
+        $draftCourses = $all->where('status', Course::STATUS_DRAFT)->count();
         $totalEnrollments = \App\Models\Enrollment::count();
 
         $kpis = [
@@ -47,15 +51,15 @@ class CourseController extends Controller
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Free',
-                'value' => $freeCourses,
+                'label' => 'Published',
+                'value' => $publishedCourses,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Paid',
-                'value' => $paidCourses,
-                'icon' => 'enroll',
+                'label' => 'Draft',
+                'value' => $draftCourses,
+                'icon' => 'book',
                 'tone' => 'accent',
             ],
             [
@@ -71,7 +75,8 @@ class CourseController extends Controller
             'categories',
             'kpis',
             'search',
-            'categoryId'
+            'categoryId',
+            'status'
         ));
     }
 
@@ -79,6 +84,7 @@ class CourseController extends Controller
     {
         $categories = Category::orderBy('name')->get();
         $instructors = Instructor::orderBy('name')->get();
+
         return view('admin.courses.create', compact('categories', 'instructors'));
     }
 
@@ -92,14 +98,16 @@ class CourseController extends Controller
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'duration' => 'nullable|string|max:100',
             'level' => 'nullable|string|in:beginner,intermediate,advanced',
+            'status' => 'required|in:'.Course::STATUS_DRAFT.','.Course::STATUS_PUBLISHED,
             'is_free' => 'nullable|boolean',
             'price' => 'nullable|numeric|min:0',
         ];
         $validated = $request->validate($rules);
 
-        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']) . '-' . uniqid();
+        $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']).'-'.uniqid();
         $validated['price'] = ($request->boolean('is_free') || empty($request->input('price'))) ? 0 : (float) $request->input('price');
         $validated['level'] = $validated['level'] ?? 'beginner';
+        $validated['status'] = $validated['status'] ?? Course::STATUS_DRAFT;
         $validated['instructor_id'] = $request->input('instructor_id') ?: null;
 
         if ($request->hasFile('banner')) {
@@ -111,6 +119,7 @@ class CourseController extends Controller
         unset($validated['banner'], $validated['is_free']);
         $course = Course::create($validated);
         $course->category->increment('courses_count');
+
         return redirect()->route('admin.courses.edit', $course)->with('success', 'Course created. Add sections and lessons below.')->with('tab', 'curriculum');
     }
 
@@ -123,6 +132,7 @@ class CourseController extends Controller
         }
         $categories = Category::orderBy('name')->get();
         $instructors = Instructor::orderBy('name')->get();
+
         return view('admin.courses.edit', compact('course', 'categories', 'instructors'));
     }
 
@@ -136,6 +146,7 @@ class CourseController extends Controller
             'banner' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'duration' => 'nullable|string|max:100',
             'level' => 'nullable|string|in:beginner,intermediate,advanced',
+            'status' => 'required|in:'.Course::STATUS_DRAFT.','.Course::STATUS_PUBLISHED,
             'is_free' => 'nullable|boolean',
             'price' => 'nullable|numeric|min:0',
         ];
@@ -159,7 +170,23 @@ class CourseController extends Controller
             Category::where('id', $oldCategoryId)->decrement('courses_count');
             $course->category->increment('courses_count');
         }
+
         return redirect()->route('admin.courses.edit', $course)->with('success', 'Course updated.');
+    }
+
+    public function updateStatus(Request $request, Course $course): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:'.Course::STATUS_DRAFT.','.Course::STATUS_PUBLISHED,
+        ]);
+
+        $course->update(['status' => $validated['status']]);
+
+        $label = $validated['status'] === Course::STATUS_PUBLISHED ? 'published' : 'saved as draft';
+
+        return redirect()
+            ->back()
+            ->with('success', "Course {$label}.");
     }
 
     public function destroy(Course $course): RedirectResponse
@@ -169,6 +196,7 @@ class CourseController extends Controller
         }
         $course->category->decrement('courses_count');
         $course->delete();
+
         return redirect()->route('admin.courses.index')->with('success', 'Course deleted.');
     }
 }
