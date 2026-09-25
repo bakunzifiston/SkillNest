@@ -14,7 +14,7 @@ class BundleController extends Controller
     public function index(): View
     {
         $bundles = Bundle::where('status', Bundle::STATUS_PUBLISHED)
-            ->withCount('courses')
+            ->withCount(['courses' => fn ($q) => $q->published()])
             ->latest()
             ->paginate(12);
         return view('bundles.index', compact('bundles'));
@@ -25,7 +25,7 @@ class BundleController extends Controller
         if ($bundle->status !== Bundle::STATUS_PUBLISHED) {
             abort(404);
         }
-        $bundle->load('courses.category');
+        $bundle->load(['courses' => fn ($q) => $q->published()->with('category')]);
         $enrolled = auth()->check() && auth()->user()->hasEnrolledBundle($bundle);
         $bundleEnrollment = null;
         if ($enrolled) {
@@ -49,14 +49,16 @@ class BundleController extends Controller
             return redirect()->route('bundles.show', $bundle)->with('info', 'You are already enrolled in this bundle.');
         }
 
+        $publishedCourses = $bundle->courses()->published()->get();
+
         $bundleEnrollment = BundleEnrollment::create([
             'user_id' => $user->id,
             'bundle_id' => $bundle->id,
             'enrolled_at' => now(),
-            'total_courses' => $bundle->courses()->count(),
+            'total_courses' => $publishedCourses->count(),
         ]);
 
-        foreach ($bundle->courses as $course) {
+        foreach ($publishedCourses as $course) {
             if (! $user->hasEnrolled($course)) {
                 Enrollment::create(['user_id' => $user->id, 'course_id' => $course->id]);
                 $course->increment('students_count');

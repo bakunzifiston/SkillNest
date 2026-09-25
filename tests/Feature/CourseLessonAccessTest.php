@@ -25,6 +25,7 @@ class CourseLessonAccessTest extends TestCase
         ]);
 
         $course = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Web Design',
             'slug' => 'web-design',
@@ -66,6 +67,7 @@ class CourseLessonAccessTest extends TestCase
         ]);
 
         $course = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Web Design',
             'slug' => 'web-design',
@@ -89,6 +91,7 @@ class CourseLessonAccessTest extends TestCase
         ]);
 
         $otherCourse = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Photoshop Basics',
             'slug' => 'photoshop-basics',
@@ -128,6 +131,7 @@ class CourseLessonAccessTest extends TestCase
         $user = User::factory()->create();
         $category = Category::create(['name' => 'Design', 'slug' => 'design']);
         $course = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Web Design',
             'slug' => 'web-design',
@@ -170,6 +174,7 @@ class CourseLessonAccessTest extends TestCase
         $user = User::factory()->create();
         $category = Category::create(['name' => 'Design', 'slug' => 'design']);
         $course = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Web Design',
             'slug' => 'web-design',
@@ -206,6 +211,7 @@ class CourseLessonAccessTest extends TestCase
         $user = User::factory()->create();
         $category = Category::create(['name' => 'Design', 'slug' => 'design']);
         $course = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Web Design',
             'slug' => 'web-design',
@@ -246,6 +252,7 @@ class CourseLessonAccessTest extends TestCase
         $user = User::factory()->create();
         $category = Category::create(['name' => 'Design', 'slug' => 'design']);
         $course = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Web Design',
             'slug' => 'web-design',
@@ -290,6 +297,7 @@ class CourseLessonAccessTest extends TestCase
         $user = User::factory()->create();
         $category = Category::create(['name' => 'Design', 'slug' => 'design']);
         $course = Course::create([
+            'status' => Course::STATUS_PUBLISHED,
             'category_id' => $category->id,
             'title' => 'Web Design',
             'slug' => 'web-design',

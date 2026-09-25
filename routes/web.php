@@ -94,6 +94,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('categories', \App\Http\Controllers\Admin\CategoryController::class)->except(['show']);
     Route::resource('instructors', \App\Http\Controllers\Admin\InstructorController::class)->except(['show']);
     Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class)->except(['show']);
+    Route::patch('courses/{course}/status', [\App\Http\Controllers\Admin\CourseController::class, 'updateStatus'])->name('courses.status');
     Route::get('reports', [\App\Http\Controllers\Admin\ReportsController::class, 'index'])->name('reports.index');
     Route::get('quiz-results', [\App\Http\Controllers\Admin\QuizResultsController::class, 'index'])->name('quiz-results.index');
     Route::get('quiz-results/export', [\App\Http\Controllers\Admin\QuizResultsController::class, 'export'])->name('quiz-results.export');

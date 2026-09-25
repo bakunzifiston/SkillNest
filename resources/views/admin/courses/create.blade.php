@@ -80,6 +80,16 @@
                 </div>
             </div>
 
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                <select name="status" id="status" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent max-w-xs">
+                    <option value="draft" @selected(old('status', 'draft') === 'draft')>Draft — not visible on the public site</option>
+                    <option value="published" @selected(old('status') === 'published')>Published — live on the public site</option>
+                </select>
+                <p class="mt-1 text-xs text-gray-500">Draft courses stay in the admin panel only until you publish them.</p>
+                @error('status')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
+
             <div class="flex gap-3">
                 <button type="submit" class="admin-btn-accent">Create course</button>
                 <a href="{{ route('admin.courses.index') }}" class="admin-btn-secondary">Cancel</a>

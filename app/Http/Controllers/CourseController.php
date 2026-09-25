@@ -16,6 +16,8 @@ class CourseController extends Controller
 {
     public function show(Course $course): View|RedirectResponse
     {
+        $this->ensurePubliclyAccessible($course);
+
         $course->load(['chapters.lessons', 'category', 'instructor', 'quizzes' => fn ($q) => $q->where('is_published', true)->orderBy('sort_order')->withCount('questions')]);
         $upcomingLiveSessions = $course->liveSessions()
             ->with('invitedAttendees')
@@ -52,6 +54,8 @@ class CourseController extends Controller
 
     public function enroll(Request $request, Course $course): RedirectResponse
     {
+        $this->ensurePubliclyAccessible($course);
+
         if (! auth()->check()) {
             session()->put('url.intended', route('courses.show', $course, false));
             return redirect()->route('login');
@@ -86,6 +90,7 @@ class CourseController extends Controller
     {
         $enrollments = auth()->user()
             ->enrollments()
+            ->whereHas('course', fn ($q) => $q->published())
             ->with(['course.category', 'course.chapters.lessons'])
             ->latest()
             ->paginate(12);
@@ -95,6 +100,8 @@ class CourseController extends Controller
 
     public function showLesson(Course $course, Lesson $lesson): View|RedirectResponse
     {
+        $this->ensurePubliclyAccessible($course);
+
         if (! auth()->check()) {
             session()->put('url.intended', route('courses.lessons.show', [$course, $lesson], false));
             return redirect()->route('login');
@@ -194,5 +201,22 @@ class CourseController extends Controller
         }
 
         return redirect()->route('courses.show', $course)->with('success', 'Lesson marked complete. You have finished this course!');
+    }
+
+    /**
+     * Draft courses are hidden from the public site.
+     * Staff can still preview them in the admin panel or via the public URL while logged in as staff.
+     */
+    private function ensurePubliclyAccessible(Course $course): void
+    {
+        if ($course->isPublished()) {
+            return;
+        }
+
+        if (auth()->user()?->canAccessAdmin()) {
+            return;
+        }
+
+        abort(404);
     }
 }
