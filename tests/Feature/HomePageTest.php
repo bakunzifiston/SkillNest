@@ -28,6 +28,7 @@ class HomePageTest extends TestCase
             'price' => 0,
             'duration' => '4 hours',
             'level' => 'beginner',
+            'status' => Course::STATUS_PUBLISHED,
         ]);
 
         Partner::create([

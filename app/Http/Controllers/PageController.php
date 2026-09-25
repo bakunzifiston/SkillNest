@@ -20,11 +20,12 @@ class PageController extends Controller
     {
         try {
             $categories = Category::query()
-                ->withCount('courses')
+                ->withCount('publishedCourses as courses_count')
                 ->orderBy('name')
                 ->get();
 
             $latestCourses = Course::query()
+                ->published()
                 ->with(['category', 'instructor', 'chapters.lessons'])
                 ->latest()
                 ->take(6)
@@ -37,7 +38,7 @@ class PageController extends Controller
 
             $stats = [
                 'learners' => User::students()->count(),
-                'courses' => Course::count(),
+                'courses' => Course::published()->count(),
                 'categories' => $categories->count(),
                 'enrollments' => Enrollment::count(),
             ];
@@ -59,12 +60,12 @@ class PageController extends Controller
     public function courses(Request $request): View
     {
         try {
-            $query = Course::with(['category', 'instructor', 'chapters.lessons']);
+            $query = Course::published()->with(['category', 'instructor', 'chapters.lessons']);
             if ($request->filled('category')) {
                 $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
             }
             $courses = $query->latest()->paginate(12);
-            $categories = Category::query()->withCount('courses')->orderBy('name')->get();
+            $categories = Category::query()->withCount('publishedCourses as courses_count')->orderBy('name')->get();
         } catch (\Throwable) {
             $courses = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 12);
             $categories = collect();
