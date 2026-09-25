@@ -2,11 +2,37 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
-    protected $fillable = ['category_id', 'instructor_id', 'title', 'slug', 'description', 'image', 'price', 'duration', 'level', 'students_count'];
+    public const STATUS_DRAFT = 'draft';
+
+    public const STATUS_PUBLISHED = 'published';
+
+    protected $fillable = [
+        'category_id',
+        'instructor_id',
+        'title',
+        'slug',
+        'description',
+        'image',
+        'price',
+        'duration',
+        'level',
+        'status',
+        'students_count',
+    ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Course $course) {
+            if (blank($course->status)) {
+                $course->status = self::STATUS_DRAFT;
+            }
+        });
+    }
 
     /**
      * Full URL for the course banner image (for use in img src).
@@ -20,12 +46,28 @@ class Course extends Model
         if (str_starts_with($this->image, 'http')) {
             return $this->image;
         }
-        return url('course-image/' . ltrim($this->image, '/'));
+
+        return url('course-image/'.ltrim($this->image, '/'));
     }
 
     public function getRouteKeyName(): string
     {
         return 'slug';
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->status === self::STATUS_PUBLISHED;
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->status === self::STATUS_DRAFT;
+    }
+
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', self::STATUS_PUBLISHED);
     }
 
     public function category()

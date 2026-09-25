@@ -54,7 +54,7 @@
     </section>
 
     <div class="mb-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-        <form action="{{ route('admin.courses.index') }}" method="get" class="flex flex-wrap gap-2 w-full lg:max-w-2xl">
+        <form action="{{ route('admin.courses.index') }}" method="get" class="flex flex-wrap gap-2 w-full lg:max-w-3xl">
             <input
                 type="text"
                 name="search"
@@ -68,8 +68,13 @@
                     <option value="{{ $cat->id }}" @selected((int) ($categoryId ?? 0) === (int) $cat->id)>{{ $cat->name }}</option>
                 @endforeach
             </select>
+            <select name="status" class="rounded-xl border-slate-300 text-sm min-w-[9rem]">
+                <option value="">All statuses</option>
+                <option value="published" @selected(($status ?? '') === 'published')>Published</option>
+                <option value="draft" @selected(($status ?? '') === 'draft')>Draft</option>
+            </select>
             <button type="submit" class="admin-btn-secondary">Filter</button>
-            @if(!empty($search) || !empty($categoryId))
+            @if(!empty($search) || !empty($categoryId) || !empty($status))
                 <a href="{{ route('admin.courses.index') }}" class="admin-btn-secondary">Clear</a>
             @endif
         </form>
@@ -89,6 +94,7 @@
                     <tr>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Category</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Status</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Price</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Students</th>
                         <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Duration</th>
@@ -118,6 +124,13 @@
                                     <span class="text-slate-300">—</span>
                                 @endif
                             </td>
+                            <td class="px-4 py-3">
+                                @if($course->status === 'published')
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Published</span>
+                                @else
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Draft</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 @if(($course->price ?? 0) > 0)
                                     <span class="inline-flex px-2 py-0.5 rounded-md bg-accent-light text-accent-darker text-xs font-medium tabular-nums">${{ number_format($course->price, 0) }}</span>
@@ -132,6 +145,17 @@
                                     @adminCan('courses', 'edit')
                                         <a href="{{ route('admin.courses.edit', $course) }}" class="admin-btn-secondary">Edit</a>
                                         <a href="{{ route('admin.courses.edit', $course) }}?tab=curriculum" class="admin-btn-secondary">Curriculum</a>
+                                        <form action="{{ route('admin.courses.status', $course) }}" method="post">
+                                            @csrf
+                                            @method('PATCH')
+                                            @if($course->status === 'published')
+                                                <input type="hidden" name="status" value="draft">
+                                                <button type="submit" class="admin-btn-secondary">Unpublish</button>
+                                            @else
+                                                <input type="hidden" name="status" value="published">
+                                                <button type="submit" class="admin-btn-accent">Publish</button>
+                                            @endif
+                                        </form>
                                     @endadminCan
                                     @adminCan('courses', 'delete')
                                         <form action="{{ route('admin.courses.destroy', $course) }}" method="post" onsubmit="return confirm('Delete this course?');">
@@ -145,15 +169,15 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-10 text-center">
+                            <td colspan="7" class="px-4 py-10 text-center">
                                 <p class="text-sm text-slate-500 mb-3">
-                                    @if(!empty($search) || !empty($categoryId))
+                                    @if(!empty($search) || !empty($categoryId) || !empty($status))
                                         No courses match your filters.
                                     @else
                                         No courses yet.
                                     @endif
                                 </p>
-                                @if(empty($search) && empty($categoryId))
+                                @if(empty($search) && empty($categoryId) && empty($status))
                                     @adminCan('courses', 'create')
                                         <a href="{{ route('admin.courses.create') }}" class="admin-btn-accent">Add course</a>
                                     @endadminCan
