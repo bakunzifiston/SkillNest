@@ -186,9 +186,15 @@
                                                             </div>
                                                         @endif
                                                     </li>
+                                                    @foreach($course->quizzes->where('lesson_id', $lesson->id) as $quiz)
+                                                        @include('courses.partials.quiz-row')
+                                                    @endforeach
                                                 @empty
                                                     <li class="px-5 py-4 text-sm text-slate-500">No lessons in this chapter yet.</li>
                                                 @endforelse
+                                                @foreach($course->quizzes->where('chapter_id', $chapter->id)->whereNull('lesson_id') as $quiz)
+                                                    @include('courses.partials.quiz-row')
+                                                @endforeach
                                             </ul>
                                         </div>
                                     @endforeach
@@ -227,15 +233,26 @@
                                 </div>
                             @endif
 
-                            @if($enrolled && $course->quizzes->isNotEmpty())
+                            @php $generalQuizzes = $course->quizzes->whereNull('chapter_id'); @endphp
+                            @if($generalQuizzes->isNotEmpty())
                                 <div class="mt-10">
                                     <h2 class="font-display font-bold text-xl text-navy mb-5">Quizzes</h2>
                                     <div class="space-y-3">
-                                        @foreach($course->quizzes as $quiz)
-                                            <a href="{{ route('courses.quizzes.show', [$course, $quiz]) }}" class="block rounded-2xl border border-slate-200 bg-white p-5 hover:border-primary-muted hover:shadow-brand transition">
-                                                <span class="font-semibold text-navy">{{ $quiz->title }}</span>
-                                                <p class="text-sm text-slate-500 mt-1">Passing grade: {{ $quiz->passing_grade }}% · {{ $quiz->questions_count ?? 0 }} questions</p>
-                                            </a>
+                                        @foreach($generalQuizzes as $quiz)
+                                            @if($enrolled)
+                                                <a href="{{ route('courses.quizzes.show', [$course, $quiz]) }}" class="block rounded-2xl border border-slate-200 bg-white p-5 hover:border-primary-muted hover:shadow-brand transition">
+                                                    <span class="font-semibold text-navy">{{ $quiz->title }}</span>
+                                                    <p class="text-sm text-slate-500 mt-1">Passing grade: {{ $quiz->passing_grade }}% · {{ $quiz->questions_count ?? 0 }} questions</p>
+                                                </a>
+                                            @else
+                                                <div class="rounded-2xl border border-slate-200 bg-white p-5 flex items-center justify-between gap-3">
+                                                    <div>
+                                                        <span class="font-semibold text-navy">{{ $quiz->title }}</span>
+                                                        <p class="text-sm text-slate-500 mt-1">Passing grade: {{ $quiz->passing_grade }}% · {{ $quiz->questions_count ?? 0 }} questions</p>
+                                                    </div>
+                                                    <span class="text-xs text-slate-400">Enroll to access</span>
+                                                </div>
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>

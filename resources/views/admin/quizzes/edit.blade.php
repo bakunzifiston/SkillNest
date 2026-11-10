@@ -11,6 +11,7 @@
             <div>
                 <p class="text-sm text-gray-500">Course: {{ $quiz->course->title }}</p>
             </div>
+            @include('admin.quizzes.partials.placement', ['courseLocked' => true, 'selectedCourseId' => $quiz->course_id, 'selectedChapterId' => $quiz->chapter_id, 'selectedLessonId' => $quiz->lesson_id])
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
                 <input type="text" name="title" id="title" value="{{ old('title', $quiz->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
@@ -33,7 +34,8 @@
             </div>
             <div>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" name="is_published" value="1" {{ old('is_published', $quiz->is_published) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-accent">
+                    <input type="hidden" name="is_published" value="0">
+                    <input type="checkbox" name="is_published" value="1" {{ (bool) old('is_published', $quiz->is_published) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-accent">
                     <span class="text-sm text-gray-700">Published</span>
                 </label>
             </div>

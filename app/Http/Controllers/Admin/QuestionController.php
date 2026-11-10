@@ -30,16 +30,25 @@ class QuestionController extends Controller
             'type' => 'required|in:mcq,true_false',
             'question_text' => 'required|string|max:2000',
             'points' => 'required|integer|min:1|max:100',
+            'true_false_correct' => 'required_if:type,true_false|nullable|in:true,false',
         ]);
+        unset($validated['true_false_correct']);
         $validated['quiz_id'] = $quiz->id;
         $validated['sort_order'] = $quiz->questions()->max('sort_order') + 1;
 
         if ($validated['type'] === 'mcq') {
-            $options = array_values(array_filter(array_map(fn ($t) => trim((string) $t), $request->input('options', []))));
+            // Keep each option's original form position so the chosen correct
+            // radio still points at the right text after blank options are dropped.
+            $rawOptions = array_map(fn ($t) => trim((string) $t), $request->input('options', []));
+            $options = array_values(array_filter($rawOptions, fn ($t) => $t !== ''));
             if (count($options) < 2) {
                 return redirect()->back()->withInput()->withErrors(['options' => 'MCQ must have at least 2 options.']);
             }
-            $correctIndex = min((int) $request->input('correct_option', 0), count($options) - 1);
+            $chosen = (int) $request->input('correct_option', 0);
+            if (($rawOptions[$chosen] ?? '') === '') {
+                return redirect()->back()->withInput()->withErrors(['options' => 'The correct option must not be blank.']);
+            }
+            $correctIndex = array_search($chosen, array_keys(array_filter($rawOptions, fn ($t) => $t !== '')), true);
         }
 
         $question = Question::create($validated);

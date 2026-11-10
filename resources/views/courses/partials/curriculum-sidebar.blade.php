@@ -3,6 +3,7 @@
     $completedLessonIds = $completedLessonIds ?? collect();
     $sidebarClass = $sidebarClass ?? '';
     $lessonNumber = 0;
+    $quizzes = $course->relationLoaded('quizzes') ? $course->quizzes : collect();
 @endphp
 
 <aside class="lg:w-72 lg:min-w-[18rem] flex-shrink-0 bg-navy border-b lg:border-b-0 lg:border-r border-white/10 {{ $sidebarClass }}">
@@ -48,6 +49,9 @@
                             'label' => $chapter->title,
                         ])
                     </li>
+                    @foreach($quizzes->where('chapter_id', $chapter->id) as $quiz)
+                        <li>@include('courses.partials.curriculum-quiz-link')</li>
+                    @endforeach
                 </ul>
             @else
                 <details class="group border-b border-white/15 last:border-b-0" @if($isActiveChapter) open @endif>
@@ -76,6 +80,12 @@
                                     'label' => $label,
                                 ])
                             </li>
+                            @foreach($quizzes->where('lesson_id', $l->id) as $quiz)
+                                <li>@include('courses.partials.curriculum-quiz-link')</li>
+                            @endforeach
+                        @endforeach
+                        @foreach($quizzes->where('chapter_id', $chapter->id)->whereNull('lesson_id') as $quiz)
+                            <li>@include('courses.partials.curriculum-quiz-link')</li>
                         @endforeach
                     </ul>
                 </details>

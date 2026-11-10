@@ -1,5 +1,5 @@
 /**
- * Lesson completion: automatic tracking + manual "Mark as complete" button.
+ * Lesson completion: automatic tracking only (video end / 90% watched, or content read).
  * YouTube uses a thumbnail + play button, then mounts an embed on click.
  */
 function youtubeEmbedSrc(videoId, origin) {
@@ -105,8 +105,6 @@ function initLessonProgress(root) {
     const control = document.getElementById('lesson-complete-control');
     const incompleteBlock = control?.querySelector('[data-lesson-complete-incomplete]');
     const doneBlock = control?.querySelector('[data-lesson-complete-done]');
-    const completeBtn = root.querySelector('[data-lesson-complete-btn]');
-    const completeForm = root.querySelector('[data-lesson-complete-form]');
     const statusEl = document.getElementById('lesson-progress-status');
 
     function showCompletedUI(message) {
@@ -134,22 +132,14 @@ function initLessonProgress(root) {
         statusEl.textContent = message;
     }
 
-    async function recordComplete(source = 'auto') {
+    async function recordComplete() {
         if (recorded) {
             return;
-        }
-
-        if (completeBtn) {
-            completeBtn.disabled = true;
-            completeBtn.textContent = source === 'manual' ? 'Saving…' : 'Mark as complete';
         }
 
         const token = document.querySelector('meta[name="csrf-token"]')?.content;
         if (!token) {
             recorded = false;
-            if (completeBtn) {
-                completeBtn.disabled = false;
-            }
             return;
         }
 
@@ -167,11 +157,7 @@ function initLessonProgress(root) {
 
             if (!response.ok) {
                 recorded = false;
-                if (completeBtn) {
-                    completeBtn.disabled = false;
-                    completeBtn.textContent = 'Mark as complete';
-                }
-                setStatus('Could not save progress. Try the button again.');
+                setStatus('Could not save your progress. Please reload the page.');
                 return;
             }
 
@@ -196,21 +182,12 @@ function initLessonProgress(root) {
             }
         } catch {
             recorded = false;
-            if (completeBtn) {
-                completeBtn.disabled = false;
-                completeBtn.textContent = 'Mark as complete';
-            }
-            setStatus('Could not save progress. Try the button again.');
+            setStatus('Could not save your progress. Please reload the page.');
         }
     }
 
-    completeForm?.addEventListener('submit', (event) => {
-        event.preventDefault();
-        recordComplete('manual');
-    });
-
     if (lessonType === 'youtube') {
-        initYouTubePlayer(root, () => recordComplete('auto'));
+        initYouTubePlayer(root, () => recordComplete());
     }
 
     if (alreadyCompleted && lessonType !== 'youtube') {
@@ -229,10 +206,10 @@ function initLessonProgress(root) {
 
     const video = root.querySelector('video[data-lesson-video]');
     if (video) {
-        video.addEventListener('ended', () => recordComplete('auto'));
+        video.addEventListener('ended', () => recordComplete());
         video.addEventListener('timeupdate', () => {
             if (video.duration > 0 && video.currentTime / video.duration >= 0.9) {
-                recordComplete('auto');
+                recordComplete();
             }
         });
     }
@@ -242,7 +219,7 @@ function initLessonProgress(root) {
         const observer = new IntersectionObserver(
             (entries) => {
                 if (entries.some((e) => e.isIntersecting) && canCompleteByEngagement()) {
-                    recordComplete('auto');
+                    recordComplete();
                     observer.disconnect();
                 }
             },
@@ -256,7 +233,7 @@ function initLessonProgress(root) {
             }
             const content = root.querySelector('[data-lesson-content]');
             if (content && content.scrollHeight <= window.innerHeight * 1.1) {
-                recordComplete('auto');
+                recordComplete();
             }
         }, minDwellMs + 500);
     }

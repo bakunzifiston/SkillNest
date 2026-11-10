@@ -139,7 +139,7 @@ class CourseController extends Controller
             }
         }
 
-        $course->load(['chapters.lessons']);
+        $course->load(['chapters.lessons', 'quizzes' => fn ($q) => $q->where('is_published', true)->orderBy('sort_order')->withCount('questions')]);
         $lesson->load('chapter');
         $completedLessonIds = auth()->user()->lessonCompletions()->pluck('lesson_id');
         $completed = $completedLessonIds->contains($lesson->id);

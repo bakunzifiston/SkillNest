@@ -201,9 +201,10 @@ class CourseLessonAccessTest extends TestCase
             ->get(route('courses.lessons.show', [$course, $lesson]));
 
         $response->assertOk();
-        $response->assertSee('Mark as complete', false);
+        $response->assertDontSee('Mark as complete', false);
+        $response->assertDontSee('data-lesson-complete-btn', false);
         $response->assertSee('data-lesson-progress', false);
-        $response->assertSee('data-lesson-complete-btn', false);
+        $response->assertSee('marked complete automatically', false);
     }
 
     public function test_completed_lesson_shows_completed_state_not_button(): void

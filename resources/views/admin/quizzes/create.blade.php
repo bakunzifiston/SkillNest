@@ -17,6 +17,7 @@
                 </select>
                 @error('course_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
+            @include('admin.quizzes.partials.placement', ['courseLocked' => false, 'selectedChapterId' => request('chapter_id'), 'selectedLessonId' => null])
             <div>
                 <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
                 <input type="text" name="title" id="title" value="{{ old('title') }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
@@ -39,7 +40,8 @@
             </div>
             <div>
                 <label class="flex items-center gap-2">
-                    <input type="checkbox" name="is_published" value="1" {{ old('is_published', true) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-accent">
+                    <input type="hidden" name="is_published" value="0">
+                    <input type="checkbox" name="is_published" value="1" {{ (bool) old('is_published', true) ? 'checked' : '' }} class="rounded border-gray-300 text-primary focus:ring-accent">
                     <span class="text-sm text-gray-700">Published (visible to students)</span>
                 </label>
             </div>

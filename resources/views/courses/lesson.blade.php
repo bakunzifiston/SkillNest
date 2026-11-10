@@ -171,19 +171,16 @@
                                         ✓ Completed
                                     </span>
                                 @else
-                                    <div data-lesson-complete-incomplete class="flex flex-wrap items-center gap-4">
-                                        <form data-lesson-complete-form action="{{ route('lessons.complete', $lesson) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button
-                                                type="submit"
-                                                data-lesson-complete-btn
-                                                class="inline-flex items-center px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
-                                            >
-                                                Mark as complete
-                                            </button>
-                                        </form>
+                                    <div data-lesson-complete-incomplete>
                                         <p id="lesson-progress-status" class="text-sm text-slate-500">
-                                            Or finish automatically as you watch or read this lesson.
+                                            @switch($lesson->type)
+                                                @case('youtube')
+                                                @case('video')
+                                                    This lesson is marked complete automatically when you finish watching the video.
+                                                    @break
+                                                @default
+                                                    This lesson is marked complete automatically once you have read it.
+                                            @endswitch
                                         </p>
                                     </div>
                                     <span data-lesson-complete-done class="hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-success-light text-success-darker text-sm font-semibold w-fit">

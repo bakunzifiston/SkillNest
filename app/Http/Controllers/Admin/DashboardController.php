@@ -585,7 +585,7 @@ class DashboardController extends Controller
     private function coursePerformance(Collection $courses, Collection $enrollments, array $progressByEnrollment, Collection $attempts): Collection
     {
         $enrollmentsByCourse = $enrollments->groupBy('course_id');
-        $attemptsByQuiz = $attempts->groupBy('quiz_id');
+        $attemptsByQuiz = $attempts->toBase()->groupBy('quiz_id');
 
         return $courses->map(function (Course $course) use ($enrollmentsByCourse, $progressByEnrollment, $attemptsByQuiz) {
             $courseEnrollments = $enrollmentsByCourse->get($course->id, collect());
