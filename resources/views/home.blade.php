@@ -294,7 +294,7 @@
             @if($partners->isNotEmpty())
                 <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
                     @foreach($partners as $partner)
-                        <li class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-6 min-h-[7.5rem]">
+                        <li class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-6 min-h-[7.5rem]">
                             @if($partner->logo_url)
                                 <img
                                     src="{{ $partner->logo_url }}"
