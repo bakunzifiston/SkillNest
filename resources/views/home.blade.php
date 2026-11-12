@@ -299,7 +299,8 @@
                                 <img
                                     src="{{ $partner->logo_url }}"
                                     alt="{{ $partner->name ?: 'Partner organization' }}"
-                                    class="h-12 w-auto max-w-full object-contain"
+                                    class="w-auto max-w-full object-contain"
+                                    style="height: 80px;"
                                     loading="lazy"
                                 >
                             @endif
