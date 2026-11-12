@@ -17,6 +17,11 @@
                     <x-brand-logo size="md" />
                 </a>
 
+                <div class="hidden md:flex items-center gap-2 shrink-0" style="border-left: 1px solid #e2e8f0; padding-left: 1rem;">
+                    <span class="text-xs text-slate-500 leading-tight" style="max-width: 5.5rem;">In partnership with</span>
+                    <img src="{{ asset('images/partners/mastercard.webp') }}" alt="Mastercard" style="height: 34px; width: auto;" loading="eager">
+                </div>
+
                 <nav class="hidden lg:flex items-center gap-7" aria-label="Primary">
                     <a href="{{ route('home') }}" class="text-sm font-medium transition {{ request()->routeIs('home') ? 'text-primary' : 'text-slate-600 hover:text-primary' }}">Home</a>
                     <a href="{{ route('courses.index') }}" class="text-sm font-medium transition {{ request()->routeIs('courses.*') && ! request()->routeIs('courses.my-courses') ? 'text-primary' : 'text-slate-600 hover:text-primary' }}">Courses</a>
