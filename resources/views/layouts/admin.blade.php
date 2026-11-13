@@ -7,6 +7,17 @@
     <title>@yield('title', 'Admin') — {{ config('app.name') }}</title>
     <x-brand-meta />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Keep the admin sidebar fixed in view while the page content scrolls (desktop). */
+        @media (min-width: 1024px) {
+            aside.admin-sidebar {
+                position: sticky;
+                top: 0;
+                height: 100vh;
+                align-self: flex-start;
+            }
+        }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen" x-data="{ sidebarOpen: false }">
     <div class="flex min-h-screen">
