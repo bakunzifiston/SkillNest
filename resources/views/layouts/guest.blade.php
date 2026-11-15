@@ -19,6 +19,11 @@
                         <x-brand-logo size="lg" variant="dark" />
                     </a>
                 </div>
+                <div class="relative flex-1 flex items-center justify-center" style="padding: 1.5rem 0; min-height: 0;">
+                    <div style="width: 100%; max-width: 26rem;">
+                        @include('partials.auth-illustration')
+                    </div>
+                </div>
                 <div class="relative max-w-md">
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Digital Jobs for Youth in Health</p>
                     <h1 class="mt-4 font-display font-bold text-3xl xl:text-4xl tracking-tight leading-tight">
@@ -28,7 +33,7 @@
                         Access courses, track your progress, and grow your impact through the KoraLink Agents Academy.
                     </p>
                 </div>
-                <p class="relative text-sm text-slate-400">
+                <p class="relative text-sm text-slate-400" style="margin-top: 1.5rem;">
                     &copy; {{ date('Y') }} {{ config('app.name') }}
                 </p>
             </aside>

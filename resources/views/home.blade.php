@@ -1,5 +1,51 @@
 @extends('layouts.site')
 
+@push('styles')
+    <style>
+        /* Category cards: coloured with the brand blue via CSS variables set inline. */
+        .cat-card {
+            --c: #19499B; --bg: #E8EEF7; --bd: #C9D6EE; --tx: #102C5E;
+            position: relative; display: flex; flex-direction: column; overflow: hidden;
+            padding: 1.25rem; border-radius: 1rem; border: 1px solid var(--bd);
+            background: linear-gradient(160deg, var(--bg) 0%, #ffffff 72%);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .cat-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--c); }
+        .cat-card:hover { transform: translateY(-3px); border-color: var(--c); box-shadow: 0 14px 28px -16px var(--c); }
+        .cat-card:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+        .cat-icon { display: inline-flex; width: 2.9rem; height: 2.9rem; align-items: center; justify-content: center; border-radius: .8rem; background: var(--c); color: #fff; box-shadow: 0 8px 16px -8px var(--c); }
+        .cat-name { margin-top: 1rem; font-weight: 600; color: #0B1B33; transition: color .2s ease; }
+        .cat-card:hover .cat-name { color: var(--tx); }
+        .cat-count { align-self: flex-start; margin-top: .5rem; padding: .1rem .65rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--bd); color: var(--tx); font-size: .75rem; font-weight: 600; }
+        .cat-browse { margin-top: 1rem; display: inline-flex; align-items: center; gap: .25rem; color: var(--tx); font-size: .875rem; font-weight: 600; }
+        .cat-arrow { transition: transform .2s ease; }
+        .cat-card:hover .cat-arrow { transform: translateX(3px); }
+
+        /* "How it works" step cards: brand orange. */
+        .step-card {
+            --c: #F16029; --bg: #FEF0EA; --bd: #FBD4C4; --tx: #B8461A;
+            position: relative; overflow: hidden; padding: 1.25rem; border-radius: 1rem;
+            border: 1px solid var(--bd);
+            background: linear-gradient(160deg, var(--bg) 0%, #ffffff 75%);
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .step-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--c); }
+        .step-card:hover { transform: translateY(-3px); border-color: var(--c); box-shadow: 0 14px 28px -16px var(--c); }
+        .step-num { display: inline-flex; width: 2.9rem; height: 2.9rem; align-items: center; justify-content: center; border-radius: .8rem; background: var(--c); color: #fff; font-weight: 700; font-size: 1.15rem; box-shadow: 0 8px 16px -8px var(--c); }
+        .step-card:hover .step-title { color: var(--tx); }
+
+        /* Impact numbers: neutral white cards on a light-grey band, no colour accents. */
+        .stat-card {
+            padding: 1.5rem 1.25rem; text-align: center; border-radius: 1rem;
+            background: #ffffff; border: 1px solid #E2E8F0;
+            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+        }
+        .stat-card:hover { transform: translateY(-3px); border-color: #CBD5E1; box-shadow: 0 14px 28px -18px rgba(15, 23, 42, .35); }
+        .stat-num { font-weight: 700; font-size: 2.25rem; line-height: 1.1; color: #1F2937; }
+        .stat-label { margin-top: .35rem; font-size: .875rem; font-weight: 600; color: #475569; }
+    </style>
+@endpush
+
 @section('title', 'Home')
 
 @section('content')
@@ -72,18 +118,19 @@
                     @foreach($categories as $category)
                         <a
                             href="{{ route('courses.index', ['category' => $category->slug]) }}"
-                            class="group flex flex-col rounded-2xl border border-slate-200 bg-white p-5 hover:border-primary-muted hover:shadow-brand transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            class="cat-card group"
+                            style="{{ \App\Support\CategoryTheme::style() }}"
                         >
-                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary group-hover:bg-primary group-hover:text-white transition">
+                            <span class="cat-icon">
                                 @include('partials.category-icon', ['slug' => $category->slug, 'name' => $category->name, 'class' => 'h-5 w-5'])
                             </span>
-                            <span class="mt-4 font-display font-semibold text-navy group-hover:text-primary transition">{{ $category->name }}</span>
-                            <span class="mt-1 text-sm text-slate-500">
+                            <span class="cat-name font-display">{{ $category->name }}</span>
+                            <span class="cat-count">
                                 {{ $category->courses_count }} {{ \Illuminate\Support\Str::plural('course', $category->courses_count) }}
                             </span>
-                            <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary opacity-80 group-hover:opacity-100">
+                            <span class="cat-browse">
                                 Browse
-                                <svg class="h-4 w-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <svg class="cat-arrow h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </span>
                         </a>
                     @endforeach
@@ -188,9 +235,9 @@
                     ['03', 'Learn at Your Pace', 'Access lessons and track your progress as you go.'],
                     ['04', 'Complete & Grow', 'Finish your journey and keep building new skills.'],
                 ] as [$step, $title, $copy])
-                    <li class="rounded-2xl bg-white border border-slate-200 p-5">
-                        <span class="font-display font-bold text-2xl text-accent tabular-nums">{{ $step }}</span>
-                        <h3 class="mt-3 font-display font-semibold text-navy">{{ $title }}</h3>
+                    <li class="step-card">
+                        <span class="step-num font-display tabular-nums">{{ $step }}</span>
+                        <h3 class="step-title mt-4 font-display font-semibold text-navy transition">{{ $title }}</h3>
                         <p class="mt-2 text-sm text-slate-600 leading-relaxed">{{ $copy }}</p>
                     </li>
                 @endforeach
@@ -235,7 +282,7 @@
     </section>
 
     {{-- Trust / impact --}}
-    <section class="py-14 lg:py-16 bg-primary-light">
+    <section class="py-14 lg:py-16 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             @php
                 $hasStats = ($stats['learners'] ?? 0) > 0 || ($stats['courses'] ?? 0) > 0 || ($stats['categories'] ?? 0) > 0;
@@ -243,27 +290,27 @@
             @if($hasStats)
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                     @if(($stats['learners'] ?? 0) > 0)
-                        <div class="rounded-2xl bg-white/70 border border-primary-muted/40 px-5 py-6 text-center">
-                            <p class="font-display font-bold text-3xl text-navy tabular-nums">{{ number_format($stats['learners']) }}</p>
-                            <p class="mt-1 text-sm text-slate-600">Learners</p>
+                        <div class="stat-card">
+                            <p class="stat-num font-display tabular-nums">{{ number_format($stats['learners']) }}</p>
+                            <p class="stat-label">Learners</p>
                         </div>
                     @endif
                     @if(($stats['courses'] ?? 0) > 0)
-                        <div class="rounded-2xl bg-white/70 border border-primary-muted/40 px-5 py-6 text-center">
-                            <p class="font-display font-bold text-3xl text-navy tabular-nums">{{ number_format($stats['courses']) }}</p>
-                            <p class="mt-1 text-sm text-slate-600">Courses</p>
+                        <div class="stat-card">
+                            <p class="stat-num font-display tabular-nums">{{ number_format($stats['courses']) }}</p>
+                            <p class="stat-label">Courses</p>
                         </div>
                     @endif
                     @if(($stats['categories'] ?? 0) > 0)
-                        <div class="rounded-2xl bg-white/70 border border-primary-muted/40 px-5 py-6 text-center">
-                            <p class="font-display font-bold text-3xl text-navy tabular-nums">{{ number_format($stats['categories']) }}</p>
-                            <p class="mt-1 text-sm text-slate-600">Categories</p>
+                        <div class="stat-card">
+                            <p class="stat-num font-display tabular-nums">{{ number_format($stats['categories']) }}</p>
+                            <p class="stat-label">Categories</p>
                         </div>
                     @endif
                     @if(($stats['enrollments'] ?? 0) > 0)
-                        <div class="rounded-2xl bg-white/70 border border-primary-muted/40 px-5 py-6 text-center">
-                            <p class="font-display font-bold text-3xl text-navy tabular-nums">{{ number_format($stats['enrollments']) }}</p>
-                            <p class="mt-1 text-sm text-slate-600">Enrollments</p>
+                        <div class="stat-card">
+                            <p class="stat-num font-display tabular-nums">{{ number_format($stats['enrollments']) }}</p>
+                            <p class="stat-label">Enrollments</p>
                         </div>
                     @endif
                 </div>
@@ -275,7 +322,7 @@
                         'Skills for the digital economy',
                         'Supported by program partners',
                     ] as $statement)
-                        <div class="rounded-2xl bg-white/70 border border-primary-muted/40 px-5 py-5">
+                        <div class="rounded-2xl bg-white border border-slate-200 px-5 py-5">
                             <p class="font-display font-semibold text-navy text-sm leading-snug">{{ $statement }}</p>
                         </div>
                     @endforeach

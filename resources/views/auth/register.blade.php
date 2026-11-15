@@ -83,8 +83,7 @@
 
         <div x-show="type === 'agent'" x-cloak class="pt-1">
             <div class="mb-3">
-                <p class="text-sm font-semibold text-navy">{{ __('Additional details') }} <span class="font-normal text-slate-500">({{ __('optional') }})</span></p>
-                <p class="mt-1 text-xs text-slate-500">{{ __('You can skip this now and add it later from your profile.') }}</p>
+                <p class="text-sm font-semibold text-navy">{{ __('Additional details') }}</p>
             </div>
             <fieldset x-bind:disabled="type !== 'agent'" style="display: contents;">
                 @include('partials.agent-kyc-fields', ['user' => null])
