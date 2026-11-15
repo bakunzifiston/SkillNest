@@ -53,6 +53,14 @@
             @endif
         </div>
 
+        @if($user->isStudent() && $user->isAgent())
+            <div class="pt-1">
+                <p class="text-sm font-semibold text-navy mb-1">{{ __('Additional details') }} <span class="font-normal text-slate-500">({{ __('optional') }})</span></p>
+                <p class="mb-3 text-xs text-slate-500">{{ __('Used to verify your identity as an Agent.') }}</p>
+                @include('partials.agent-kyc-fields', ['user' => $user])
+            </div>
+        @endif
+
         <div class="pt-1">
             <p class="text-sm font-semibold text-navy mb-3">Location</p>
             @include('partials.location-fields', ['user' => $user])

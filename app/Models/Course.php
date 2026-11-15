@@ -22,8 +22,29 @@ class Course extends Model
         'duration',
         'level',
         'status',
+        'access_level',
+        'partner_organization_id',
         'students_count',
     ];
+
+    public const ACCESS_ALL = 'all';
+
+    public const ACCESS_AGENTS = 'agents';
+
+    public const ACCESS_PARTNERS = 'partners';
+
+    public const ACCESS_PARTNER = 'partner';
+
+    /** @return array<string, string> */
+    public static function accessLevels(): array
+    {
+        return [
+            self::ACCESS_ALL => 'All learners (Agents and all Partners)',
+            self::ACCESS_AGENTS => 'Agents only',
+            self::ACCESS_PARTNERS => 'All Partners',
+            self::ACCESS_PARTNER => 'Specific Partner organization',
+        ];
+    }
 
     protected static function booted(): void
     {
@@ -68,6 +89,180 @@ class Course extends Model
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('status', self::STATUS_PUBLISHED);
+    }
+
+    public function partnerOrganization()
+    {
+        return $this->belongsTo(PartnerOrganization::class);
+    }
+
+    public function accessLevelOrAll(): string
+    {
+        return $this->access_level ?: self::ACCESS_ALL;
+    }
+
+    public function accessLabel(): string
+    {
+        return match ($this->accessLevelOrAll()) {
+            self::ACCESS_AGENTS => 'Agents only',
+            self::ACCESS_PARTNERS => 'All Partners',
+            self::ACCESS_PARTNER => ($this->partnerOrganization?->name ?? 'Partner').' only',
+            default => 'All learners',
+        };
+    }
+
+    /**
+     * Is this course in the audience of the given user? Guests only match
+     * courses open to everyone. Staff can always preview any course.
+     */
+    public function isAvailableTo(?User $user): bool
+    {
+        $level = $this->accessLevelOrAll();
+
+        if ($level === self::ACCESS_ALL) {
+            return true;
+        }
+
+        if (! $user) {
+            return false;
+        }
+
+        if ($user->canAccessAdmin()) {
+            return true;
+        }
+
+        return match ($level) {
+            self::ACCESS_AGENTS => $user->isAgent(),
+            self::ACCESS_PARTNERS => $user->isPartner(),
+            self::ACCESS_PARTNER => $user->isPartner()
+                && $this->partner_organization_id !== null
+                && (int) $user->partner_organization_id === (int) $this->partner_organization_id,
+            default => false,
+        };
+    }
+
+    /**
+     * Query string for the Register link on this course's page: partner-only
+     * courses open the Partner sign-up (with the organization preselected).
+     *
+     * @return array<string, mixed>
+     */
+    public function registerLinkParams(): array
+    {
+        $params = ['course' => $this->slug];
+
+        if (in_array($this->accessLevelOrAll(), [self::ACCESS_PARTNERS, self::ACCESS_PARTNER], true)) {
+            $params['type'] = User::TYPE_PARTNER;
+            if ($this->accessLevelOrAll() === self::ACCESS_PARTNER && $this->partner_organization_id) {
+                $params['organization'] = $this->partner_organization_id;
+            }
+        }
+
+        return $params;
+    }
+
+    /**
+     * Courses assigned to a learner's own category: "Agents only" for Agents;
+     * "All Partners" and their own organization's courses for Partners.
+     * Courses open to everyone are not "assigned" to anyone in particular.
+     */
+    public function scopeAssignedTo(Builder $query, User $user): Builder
+    {
+        return $query->where(function (Builder $q) use ($user) {
+            if ($user->isPartner()) {
+                $q->where('access_level', self::ACCESS_PARTNERS);
+                if ($user->partner_organization_id) {
+                    $q->orWhere(fn (Builder $p) => $p
+                        ->where('access_level', self::ACCESS_PARTNER)
+                        ->where('partner_organization_id', $user->partner_organization_id));
+                }
+            } else {
+                $q->where('access_level', self::ACCESS_AGENTS);
+            }
+        });
+    }
+
+    /** Every course the learner is allowed to take: those made for their category plus the ones open to all. */
+    public function scopeOpenTo(Builder $query, User $user): Builder
+    {
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('access_level', self::ACCESS_ALL)
+                ->orWhere(fn (Builder $assigned) => $assigned->assignedTo($user));
+        });
+    }
+
+    /** Who the course is for, e.g. "Partners", "Agents" or "SFH". */
+    public function audienceName(): string
+    {
+        return match ($this->accessLevelOrAll()) {
+            self::ACCESS_AGENTS => 'Agents',
+            self::ACCESS_PARTNERS => 'Partners',
+            self::ACCESS_PARTNER => $this->partnerOrganization?->name ?? 'Partners',
+            default => 'everyone',
+        };
+    }
+
+    /**
+     * Warning shown on a restricted course to someone who cannot enroll in it.
+     * Null when the viewer may enroll.
+     */
+    public function audienceWarning(?User $user): ?string
+    {
+        if ($this->isAvailableTo($user)) {
+            return null;
+        }
+
+        $for = $this->accessLevelOrAll() === self::ACCESS_PARTNER
+            ? $this->audienceName().' partner learners only'
+            : $this->audienceName().' only';
+
+        if (! $user) {
+            return "This course is for {$for}. Log in with an eligible account to enroll.";
+        }
+
+        return "This course is for {$for}. Your account ({$user->learnerCategoryLabel()}) can't enroll in it.";
+    }
+
+    /**
+     * Learner attributes for accounts created on this course's behalf
+     * (e.g. CSV import), so they land inside the course's audience.
+     *
+     * @return array{learner_type: string, partner_organization_id: int|null}
+     */
+    public function defaultLearnerAttributes(): array
+    {
+        if ($this->accessLevelOrAll() === self::ACCESS_PARTNER && $this->partner_organization_id) {
+            return [
+                'learner_type' => User::TYPE_PARTNER,
+                'partner_organization_id' => $this->partner_organization_id,
+            ];
+        }
+
+        return ['learner_type' => User::TYPE_AGENT, 'partner_organization_id' => null];
+    }
+
+    /** Enrolled learners who fall outside the course's current audience. */
+    public function enrolledOutsideAudienceCount(): int
+    {
+        $level = $this->accessLevelOrAll();
+
+        if ($level === self::ACCESS_ALL) {
+            return 0;
+        }
+
+        return $this->enrollments()->whereHas('user', function (Builder $u) use ($level) {
+            $u->students();
+
+            match ($level) {
+                self::ACCESS_AGENTS => $u->where('learner_type', '!=', User::TYPE_AGENT),
+                self::ACCESS_PARTNERS => $u->where('learner_type', '!=', User::TYPE_PARTNER),
+                default => $u->where(fn (Builder $x) => $x
+                    ->where('learner_type', '!=', User::TYPE_PARTNER)
+                    ->orWhere(fn (Builder $y) => $y
+                        ->whereNull('partner_organization_id')
+                        ->orWhere('partner_organization_id', '!=', $this->partner_organization_id ?? 0))),
+            };
+        })->count();
     }
 
     public function category()

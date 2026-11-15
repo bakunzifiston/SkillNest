@@ -15,7 +15,7 @@
                 <span class="block font-medium text-slate-700">{{ $quiz->title }}</span>
                 <span class="block text-xs text-slate-500">Passing grade: {{ $quiz->passing_grade }}% · {{ $quiz->questions_count ?? 0 }} questions</span>
             </span>
-            <span class="text-xs text-slate-400">Enroll to access</span>
+            <span class="text-xs text-slate-400">{{ ($audienceWarning ?? null) ? 'Not available for your account' : 'Enroll to access' }}</span>
         </div>
     @endif
 </li>

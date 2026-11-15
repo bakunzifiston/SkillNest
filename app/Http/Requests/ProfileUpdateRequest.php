@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\User;
+use App\Support\AgentKyc;
 use App\Support\RwandaLocations;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,8 +29,19 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            ...AgentKyc::rules(),
             ...RwandaLocations::validationRules(),
         ];
+    }
+
+    public function messages(): array
+    {
+        return AgentKyc::messages();
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->merge(AgentKyc::normalize($this->all()));
     }
 
     public function withValidator(Validator $validator): void

@@ -130,6 +130,9 @@
                                 @else
                                     <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Draft</span>
                                 @endif
+                                @if($course->accessLevelOrAll() !== 'all')
+                                    <span class="mt-1 flex w-fit px-2 py-0.5 rounded-md bg-primary-light text-primary text-xs font-medium" title="Who can access this course">{{ $course->accessLabel() }}</span>
+                                @endif
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 @if(($course->price ?? 0) > 0)

@@ -31,10 +31,16 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'phone',
+        'national_id',
+        'date_of_birth',
+        'gender',
         'country',
         'province',
         'district',
         'sector',
+        'learner_type',
+        'partner_organization_id',
         'password',
         'is_admin',
         'role_id',
@@ -50,6 +56,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'national_id',
     ];
 
     /**
@@ -65,7 +72,57 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_admin' => 'boolean',
             'is_active' => 'boolean',
+            'national_id' => 'encrypted',
+            'date_of_birth' => 'date',
         ];
+    }
+
+    public const TYPE_AGENT = 'agent';
+
+    public const TYPE_PARTNER = 'partner';
+
+    public static function learnerTypes(): array
+    {
+        return [
+            self::TYPE_AGENT => 'Agent',
+            self::TYPE_PARTNER => 'Partner',
+        ];
+    }
+
+    public function partnerOrganization(): BelongsTo
+    {
+        return $this->belongsTo(PartnerOrganization::class);
+    }
+
+    public function isPartner(): bool
+    {
+        return $this->learner_type === self::TYPE_PARTNER;
+    }
+
+    public function isAgent(): bool
+    {
+        return ! $this->isPartner();
+    }
+
+    /** "Agent" or "Partner (SFH)". */
+    public function learnerCategoryLabel(): string
+    {
+        if ($this->isPartner()) {
+            $org = $this->partnerOrganization?->name;
+
+            return $org ? 'Partner ('.$org.')' : 'Partner';
+        }
+
+        return 'Agent';
+    }
+
+    /**
+     * Whether this user may view/open a course: it is in their audience, they
+     * are staff, or they were already enrolled before the audience changed.
+     */
+    public function canAccessCourse(Course $course): bool
+    {
+        return $course->isAvailableTo($this) || $this->hasEnrolled($course);
     }
 
     public function role(): BelongsTo

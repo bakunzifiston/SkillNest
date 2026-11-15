@@ -96,6 +96,22 @@
                                         <span class="inline-flex items-center px-4 py-2.5 rounded-xl bg-success text-white text-sm font-medium">Course completed</span>
                                     @endif
                                     <a href="{{ route('courses.my-courses') }}" class="inline-flex items-center px-5 py-2.5 rounded-xl border border-white/25 text-white hover:bg-white/10 font-medium text-sm transition">My Learning</a>
+                                @elseif($audienceWarning)
+                                    <div class="w-full max-w-xl rounded-xl border border-accent-muted bg-accent-light px-4 py-3 text-accent-darker" role="alert">
+                                        <div class="flex items-start gap-3">
+                                            <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                                            <div>
+                                                <p class="text-sm font-semibold">Enrollment not available</p>
+                                                <p class="mt-0.5 text-sm">{{ $audienceWarning }}</p>
+                                                @guest
+                                                    <div class="mt-3 flex flex-wrap gap-2">
+                                                        <a href="{{ route('login') }}" class="inline-flex items-center px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:bg-accent-dark transition">Log in</a>
+                                                        <a href="{{ route('register', $course->registerLinkParams()) }}" class="inline-flex items-center px-4 py-2 rounded-lg border border-accent-muted text-accent-darker text-sm font-semibold hover:bg-white/60 transition">Register</a>
+                                                    </div>
+                                                @endguest
+                                            </div>
+                                        </div>
+                                    </div>
                                 @else
                                     <form action="{{ route('courses.enroll', $course) }}" method="POST" class="inline">
                                         @csrf
@@ -182,7 +198,7 @@
                                                             <div class="flex items-center gap-3 px-5 py-3.5">
                                                                 <span class="flex-shrink-0 w-6 text-xs tabular-nums text-slate-400">{{ $lessonIndex + 1 }}</span>
                                                                 <span class="flex-1 min-w-0 font-medium text-slate-700">{{ $lesson->title }}</span>
-                                                                <span class="text-xs text-slate-400">Enroll to access</span>
+                                                                <span class="text-xs text-slate-400">{{ $audienceWarning ? 'Not available for your account' : 'Enroll to access' }}</span>
                                                             </div>
                                                         @endif
                                                     </li>
@@ -250,7 +266,7 @@
                                                         <span class="font-semibold text-navy">{{ $quiz->title }}</span>
                                                         <p class="text-sm text-slate-500 mt-1">Passing grade: {{ $quiz->passing_grade }}% · {{ $quiz->questions_count ?? 0 }} questions</p>
                                                     </div>
-                                                    <span class="text-xs text-slate-400">Enroll to access</span>
+                                                    <span class="text-xs text-slate-400">{{ $audienceWarning ? 'Not available for your account' : 'Enroll to access' }}</span>
                                                 </div>
                                             @endif
                                         @endforeach

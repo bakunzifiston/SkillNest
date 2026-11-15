@@ -190,6 +190,17 @@ class CourseProgressCsvImporter
             }
 
             $user = $existingUsers->get($row['email']);
+            if ($user && ! in_array($user->id, $enrolledUserIds, true) && ! $course->isAvailableTo($user)) {
+                $preview[] = [
+                    ...$row,
+                    'action' => 'skip',
+                    'action_label' => 'Skip (not in this course\'s audience)',
+                    'progress_note' => '—',
+                    'lessons_to_complete' => 0,
+                ];
+                continue;
+            }
+
             $lessonsToComplete = $this->lessonsToCompleteCount((int) $row['percent_completed'], $totalLessons);
 
             if (! $user) {
@@ -274,6 +285,13 @@ class CourseProgressCsvImporter
                 DB::transaction(function () use ($row, $course, $lessons, $totalLessons, &$summary) {
                     $user = User::query()->where('email', $row['email'])->first();
 
+                    if ($user && ! $course->isAvailableTo($user) && ! $user->hasEnrolled($course)) {
+                        $summary['skipped_rows']++;
+                        $summary['errors'][] = 'Line '.($row['line'] ?? '?').': '.$row['email'].' is not in this course\'s audience ('.$course->accessLabel().').';
+
+                        return;
+                    }
+
                     if ($user) {
                         $summary['existing_users']++;
                         if (! empty($row['last_sign_in']) && empty($user->last_login_at)) {
@@ -288,6 +306,7 @@ class CourseProgressCsvImporter
                             'email' => $row['email'],
                             'password' => Str::password(32),
                             'is_admin' => false,
+                            ...$course->defaultLearnerAttributes(),
                             'email_verified_at' => now(),
                             'last_login_at' => $row['last_sign_in'],
                         ])->save();

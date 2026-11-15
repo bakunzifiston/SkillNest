@@ -95,6 +95,7 @@
                         </select>
                     </div>
                 </div>
+                @include('admin.courses._access', ['course' => $course, 'partnerOrganizations' => $partnerOrganizations])
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                     <select name="status" id="status" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent max-w-xs">

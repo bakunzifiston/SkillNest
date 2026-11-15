@@ -62,18 +62,55 @@
                 </a>
             </div>
 
+            @php
+                $hasOrgCourses = $organizationCourses->isNotEmpty();
+                $hasAssigned = $availableCourses->isNotEmpty() || $hasOrgCourses;
+                $continue = $hasAssigned ? $otherEnrollments : $courseEnrollments;
+            @endphp
+
+            @if($hasOrgCourses)
+                <div>
+                    <div class="mb-5">
+                        <h2 class="font-display font-bold text-xl text-navy">{{ $organization->name }} courses</h2>
+                        <p class="mt-1 text-sm text-slate-500">Selected for your organization</p>
+                    </div>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        @foreach($organizationCourses as $course)
+                            @include('courses.partials.dashboard-card', ['course' => $course, 'enrolled' => $enrolledCourseIds->contains($course->id)])
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if($availableCourses->isNotEmpty())
+                <div>
+                    <div class="mb-5">
+                        <h2 class="font-display font-bold text-xl text-navy">{{ $hasOrgCourses ? 'Other courses' : 'Courses for you' }}</h2>
+                        <p class="mt-1 text-sm text-slate-500">
+                            {{ $hasOrgCourses ? 'More courses available to your account' : 'Available to your account ('.auth()->user()->learnerCategoryLabel().'), starting with the ones made for you' }}
+                        </p>
+                    </div>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        @foreach($availableCourses as $course)
+                            @include('courses.partials.dashboard-card', ['course' => $course, 'enrolled' => $enrolledCourseIds->contains($course->id)])
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if(! $hasAssigned || $continue->isNotEmpty())
             <div>
                 <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
                     <div>
                         <h2 class="font-display font-bold text-xl text-navy">Continue learning</h2>
                         <p class="mt-1 text-sm text-slate-500">Pick up where you left off</p>
                     </div>
-                    @if($courseEnrollments->isNotEmpty())
+                    @if($continue->isNotEmpty())
                         <a href="{{ route('courses.my-courses') }}" class="text-sm font-semibold text-primary hover:text-accent-dark">View all courses →</a>
                     @endif
                 </div>
 
-                @if($courseEnrollments->isEmpty())
+                @if($continue->isEmpty())
                     <div class="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center">
                         <div class="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-xl bg-primary-light text-primary mb-4">
                             @include('partials.category-icon', ['slug' => 'book', 'name' => '', 'class' => 'h-6 w-6'])
@@ -84,7 +121,7 @@
                     </div>
                 @else
                     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        @foreach($courseEnrollments as $enrollment)
+                        @foreach($continue as $enrollment)
                             @php
                                 $course = $enrollment->course;
                                 $total = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
@@ -130,6 +167,7 @@
                     </div>
                 @endif
             </div>
+            @endif
 
             @if($bundleEnrollments->isNotEmpty())
                 <div>
@@ -157,6 +195,23 @@
                             </li>
                         @endforeach
                     </ul>
+                </div>
+            @endif
+
+            @if($otherGroupCourses->isNotEmpty())
+                <div>
+                    <div class="flex flex-wrap items-end justify-between gap-3 mb-5">
+                        <div>
+                            <h2 class="font-display font-bold text-xl text-navy">Courses for other groups</h2>
+                            <p class="mt-1 text-sm text-slate-500">Made for other groups. You can read about them but not enroll</p>
+                        </div>
+                        <a href="{{ route('courses.index') }}" class="text-sm font-semibold text-primary hover:text-accent-dark">Browse all courses →</a>
+                    </div>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        @foreach($otherGroupCourses as $course)
+                            @include('courses.partials.dashboard-card', ['course' => $course, 'enrolled' => false, 'locked' => true])
+                        @endforeach
+                    </div>
                 </div>
             @endif
         </div>

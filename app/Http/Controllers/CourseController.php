@@ -41,8 +41,11 @@ class CourseController extends Controller
             }
         }
 
+        $audienceWarning = $enrolled ? null : $course->audienceWarning(auth()->user());
+
         return view('courses.show', compact(
             'course',
+            'audienceWarning',
             'enrolled',
             'completedCount',
             'totalLessons',
@@ -64,6 +67,11 @@ class CourseController extends Controller
         $user = auth()->user();
         if ($user->hasEnrolled($course)) {
             return redirect()->route('courses.show', $course)->with('info', 'You are already enrolled.');
+        }
+
+        // Server-side audience check: never trust that the button was hidden.
+        if (! $course->isAvailableTo($user)) {
+            abort(403, 'This course is not available for your learner category.');
         }
 
         Enrollment::create(['user_id' => $user->id, 'course_id' => $course->id]);
@@ -105,6 +113,11 @@ class CourseController extends Controller
         if (! auth()->check()) {
             session()->put('url.intended', route('courses.lessons.show', [$course, $lesson], false));
             return redirect()->route('login');
+        }
+        // Restricted courses stay visible, but their lessons are only for the audience (or those already enrolled).
+        if (! auth()->user()->canAccessCourse($course)) {
+            return redirect()->route('courses.show', $course)
+                ->with('error', $course->audienceWarning(auth()->user()) ?? 'This course is not available for your account.');
         }
         $lesson->loadMissing('chapter');
         if ((int) $lesson->chapter->course_id !== (int) $course->id) {

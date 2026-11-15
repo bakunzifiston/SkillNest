@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Course;
+use App\Models\PartnerOrganization;
 use App\Models\Role;
 use App\Models\User;
 use App\Support\AdminAccess;
@@ -23,7 +24,7 @@ class UserController extends Controller
         $statusFilter = (string) $request->get('status', 'all');
 
         $users = User::query()
-            ->with('role')
+            ->with(['role', 'partnerOrganization'])
             ->withCount('enrollments')
             ->when($search !== '', function ($q) use ($search) {
                 $q->where(function ($q) use ($search) {
@@ -108,6 +109,8 @@ class UserController extends Controller
         $user->province = $data['province'] ?? null;
         $user->district = $data['district'] ?? null;
         $user->sector = $data['sector'] ?? null;
+        $user->learner_type = $data['learner_type'];
+        $user->partner_organization_id = $data['partner_organization_id'];
         $user->password = $data['password'];
         $user->is_active = $data['is_active'];
         $user->email_verified_at = now();
@@ -225,6 +228,8 @@ class UserController extends Controller
         $user->province = $data['province'] ?? null;
         $user->district = $data['district'] ?? null;
         $user->sector = $data['sector'] ?? null;
+        $user->learner_type = $data['learner_type'];
+        $user->partner_organization_id = $data['partner_organization_id'];
         $user->is_active = $data['is_active'];
         $user->assignRole($role);
 
@@ -283,6 +288,7 @@ class UserController extends Controller
             : ($user?->role?->permissionMap() ?? []);
 
         return [
+            'partnerOrganizations' => PartnerOrganization::orderBy('name')->get(),
             'roles' => $roles,
             'modules' => AdminAccess::modules(),
             'groups' => config('admin-modules.groups', []),
@@ -304,6 +310,8 @@ class UserController extends Controller
             'password' => [$user ? 'nullable' : 'required', 'confirmed', Password::defaults()],
             'role_id' => ['nullable', 'integer', 'exists:roles,id'],
             'is_active' => ['nullable', 'boolean'],
+            'learner_type' => ['nullable', Rule::in(array_keys(User::learnerTypes()))],
+            'partner_organization_id' => ['nullable', 'integer', 'exists:partner_organizations,id', 'required_if:learner_type,'.User::TYPE_PARTNER],
             'customize_permissions' => ['nullable', 'boolean'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['array'],
@@ -324,6 +332,12 @@ class UserController extends Controller
 
         $data['is_active'] = $request->boolean('is_active');
         $data['role_id'] = $data['role_id'] ?? null;
+
+        // Not sent: keep the user's current category (new users default to Agent).
+        $data['learner_type'] = $data['learner_type'] ?? ($user?->learner_type ?? User::TYPE_AGENT);
+        $data['partner_organization_id'] = $data['learner_type'] === User::TYPE_PARTNER
+            ? ($data['partner_organization_id'] ?? $user?->partner_organization_id)
+            : null;
 
         return $data;
     }

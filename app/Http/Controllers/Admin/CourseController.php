@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\PartnerOrganization;
 use App\Models\Instructor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -19,7 +21,7 @@ class CourseController extends Controller
         $categoryId = $request->filled('category_id') ? (int) $request->get('category_id') : null;
         $status = $request->get('status');
 
-        $query = Course::with(['category', 'instructor'])->withCount('enrollments');
+        $query = Course::with(['category', 'instructor', 'partnerOrganization'])->withCount('enrollments');
         if ($categoryId) {
             $query->where('category_id', $categoryId);
         }
@@ -85,7 +87,9 @@ class CourseController extends Controller
         $categories = Category::orderBy('name')->get();
         $instructors = Instructor::orderBy('name')->get();
 
-        return view('admin.courses.create', compact('categories', 'instructors'));
+        $partnerOrganizations = PartnerOrganization::orderBy('name')->get();
+
+        return view('admin.courses.create', compact('categories', 'instructors', 'partnerOrganizations'));
     }
 
     public function store(Request $request): RedirectResponse
@@ -101,6 +105,8 @@ class CourseController extends Controller
             'status' => 'required|in:'.Course::STATUS_DRAFT.','.Course::STATUS_PUBLISHED,
             'is_free' => 'nullable|boolean',
             'price' => 'nullable|numeric|min:0',
+            'access_level' => ['nullable', Rule::in(array_keys(Course::accessLevels()))],
+            'partner_organization_id' => ['nullable', 'integer', 'exists:partner_organizations,id', 'required_if:access_level,'.Course::ACCESS_PARTNER],
         ];
         $validated = $request->validate($rules);
 
@@ -109,6 +115,10 @@ class CourseController extends Controller
         $validated['level'] = $validated['level'] ?? 'beginner';
         $validated['status'] = $validated['status'] ?? Course::STATUS_DRAFT;
         $validated['instructor_id'] = $request->input('instructor_id') ?: null;
+        $validated['access_level'] = $validated['access_level'] ?? Course::ACCESS_ALL;
+        $validated['partner_organization_id'] = $validated['access_level'] === Course::ACCESS_PARTNER
+            ? ($validated['partner_organization_id'] ?? null)
+            : null;
 
         if ($request->hasFile('banner')) {
             $validated['image'] = $request->file('banner')->store('courses', 'public');
@@ -133,7 +143,9 @@ class CourseController extends Controller
         $categories = Category::orderBy('name')->get();
         $instructors = Instructor::orderBy('name')->get();
 
-        return view('admin.courses.edit', compact('course', 'categories', 'instructors'));
+        $partnerOrganizations = PartnerOrganization::orderBy('name')->get();
+
+        return view('admin.courses.edit', compact('course', 'categories', 'instructors', 'partnerOrganizations'));
     }
 
     public function update(Request $request, Course $course): RedirectResponse
@@ -149,12 +161,19 @@ class CourseController extends Controller
             'status' => 'required|in:'.Course::STATUS_DRAFT.','.Course::STATUS_PUBLISHED,
             'is_free' => 'nullable|boolean',
             'price' => 'nullable|numeric|min:0',
+            'access_level' => ['nullable', Rule::in(array_keys(Course::accessLevels()))],
+            'partner_organization_id' => ['nullable', 'integer', 'exists:partner_organizations,id', 'required_if:access_level,'.Course::ACCESS_PARTNER],
         ];
         $validated = $request->validate($rules);
 
         $validated['price'] = ($request->boolean('is_free') || $request->input('price') === '' || $request->input('price') === null) ? 0 : (float) $request->input('price');
         $validated['level'] = $validated['level'] ?? 'beginner';
         $validated['instructor_id'] = $request->input('instructor_id') ?: null;
+        // Not sent (e.g. older clients): keep the course's current audience.
+        $validated['access_level'] = $validated['access_level'] ?? $course->accessLevelOrAll();
+        $validated['partner_organization_id'] = $validated['access_level'] === Course::ACCESS_PARTNER
+            ? ($validated['partner_organization_id'] ?? $course->partner_organization_id)
+            : null;
 
         if ($request->hasFile('banner')) {
             if ($course->image) {
@@ -171,7 +190,13 @@ class CourseController extends Controller
             $course->category->increment('courses_count');
         }
 
-        return redirect()->route('admin.courses.edit', $course)->with('success', 'Course updated.');
+        $message = 'Course updated.';
+        $outside = $course->fresh()->enrolledOutsideAudienceCount();
+        if ($outside > 0) {
+            $message .= " {$outside} already-enrolled ".\Illuminate\Support\Str::plural('learner', $outside).' fall outside the new audience; they keep their access, but no new learners outside it can enroll.';
+        }
+
+        return redirect()->route('admin.courses.edit', $course)->with('success', $message);
     }
 
     public function updateStatus(Request $request, Course $course): RedirectResponse

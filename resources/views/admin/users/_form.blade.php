@@ -22,6 +22,29 @@
     @error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
 </div>
 
+<div x-data="{ type: '{{ old('learner_type', $user?->learner_type ?? 'agent') }}' }" class="space-y-3">
+    <div>
+        <label for="learner_type" class="block text-sm font-medium text-slate-700">Learner category</label>
+        <select name="learner_type" id="learner_type" x-model="type" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
+            @foreach(\App\Models\User::learnerTypes() as $value => $label)
+                <option value="{{ $value }}">{{ $label }}</option>
+            @endforeach
+        </select>
+        <p class="mt-1 text-xs text-slate-400">Controls which restricted courses this learner can see and enroll in.</p>
+        @error('learner_type')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+    </div>
+    <div x-show="type === 'partner'" x-cloak>
+        <label for="partner_organization_id" class="block text-sm font-medium text-slate-700">Partner organization</label>
+        <select name="partner_organization_id" id="partner_organization_id" x-bind:disabled="type !== 'partner'" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
+            <option value="">Select organization</option>
+            @foreach($partnerOrganizations as $org)
+                <option value="{{ $org->id }}" @selected((string) old('partner_organization_id', $user?->partner_organization_id) === (string) $org->id)>{{ $org->name }}{{ $org->is_active ? '' : ' (inactive)' }}</option>
+            @endforeach
+        </select>
+        @error('partner_organization_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+    </div>
+</div>
+
 <div class="pt-1">
     <h3 class="text-sm font-semibold text-navy mb-3">Location</h3>
     @include('partials.location-fields', [

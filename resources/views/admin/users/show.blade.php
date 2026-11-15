@@ -27,6 +27,7 @@
                 <span class="inline-flex px-2 py-0.5 rounded-md bg-primary-light text-primary text-xs font-medium">{{ $user->role->name }}</span>
             @else
                 <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Student</span>
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">{{ $user->learnerCategoryLabel() }}</span>
             @endif
             @if($user->is_active)
                 <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Active</span>
@@ -54,6 +55,27 @@
                 <span>Custom module access</span>
             @endif
         </div>
+        @if($user->isStudent() && $user->isAgent())
+            @php
+                $kyc = [
+                    'Phone' => $user->phone,
+                    'National ID' => $user->national_id,
+                    'Date of birth' => $user->date_of_birth?->format('M j, Y'),
+                    'Gender' => \App\Support\AgentKyc::genders()[$user->gender] ?? null,
+                ];
+            @endphp
+            <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+                <h3 class="text-sm font-semibold text-navy mb-3">KYC details <span class="font-normal text-slate-400">(optional, provided by the learner)</span></h3>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3 text-sm">
+                    @foreach($kyc as $label => $value)
+                        <div>
+                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-400">{{ $label }}</dt>
+                            <dd class="mt-0.5 text-slate-800">{{ filled($value) ? $value : '—' }}</dd>
+                        </div>
+                    @endforeach
+                </dl>
+            </div>
+        @endif
         @if($user->canAccessAdmin() || $user->role)
             <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
                 <h3 class="text-sm font-semibold text-navy mb-3">Module access</h3>

@@ -49,7 +49,15 @@ class BundleController extends Controller
             return redirect()->route('bundles.show', $bundle)->with('info', 'You are already enrolled in this bundle.');
         }
 
-        $publishedCourses = $bundle->courses()->published()->get();
+        // Only courses in this learner's audience are enrolled; restricted ones are skipped.
+        $publishedCourses = $bundle->courses()->published()->get()
+            ->filter(fn ($course) => $course->isAvailableTo($user))
+            ->values();
+
+        if ($publishedCourses->isEmpty()) {
+            return redirect()->route('bundles.show', $bundle)
+                ->with('error', 'None of the courses in this bundle are available for your learner category.');
+        }
 
         $bundleEnrollment = BundleEnrollment::create([
             'user_id' => $user->id,

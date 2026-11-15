@@ -125,6 +125,7 @@
                                     <span class="inline-flex px-2 py-0.5 rounded-md bg-primary-light text-primary text-xs font-medium">{{ $u->role->name }}</span>
                                 @else
                                     <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Student</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">{{ $u->learnerCategoryLabel() }}</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3">

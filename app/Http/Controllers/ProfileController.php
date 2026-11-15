@@ -26,7 +26,14 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $data = $request->validated();
+
+        // KYC details belong to Agent learners only.
+        if (! ($request->user()->isStudent() && $request->user()->isAgent())) {
+            $data = array_diff_key($data, array_flip(\App\Support\AgentKyc::FIELDS));
+        }
+
+        $request->user()->fill($data);
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;

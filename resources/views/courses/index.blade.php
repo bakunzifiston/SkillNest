@@ -117,6 +117,7 @@
                                     @else
                                         <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-[11px] font-semibold">Free</span>
                                     @endif
+                                    @include('courses.partials.access-badge')
                                 </div>
                                 <h2 class="mt-3 font-display font-semibold text-lg text-navy leading-snug">
                                     <a href="{{ route('courses.show', $course) }}" class="hover:text-primary transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">

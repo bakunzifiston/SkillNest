@@ -34,27 +34,9 @@ Route::middleware('auth')->group(function () {
 });
 
 // Learner dashboard
-Route::get('/dashboard', function () {
-    $user = auth()->user();
-
-    if ($user->canAccessAdmin()) {
-        return redirect()->route('admin.dashboard');
-    }
-
-    $courseEnrollments = $user->enrollments()
-        ->with(['course.category', 'course.chapters.lessons'])
-        ->latest()
-        ->take(6)
-        ->get();
-
-    $bundleEnrollments = $user->bundleEnrollments()
-        ->with('bundle')
-        ->latest('enrolled_at')
-        ->take(5)
-        ->get();
-
-    return view('dashboard', compact('courseEnrollments', 'bundleEnrollments'));
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', \App\Http\Controllers\LearnerDashboardController::class)
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -87,6 +69,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'edit'])->name('settings.edit');
     Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
     Route::resource('partners', \App\Http\Controllers\Admin\PartnerController::class)->except(['show']);
+    Route::post('partner-organizations/{partner_organization}/regenerate-code', [\App\Http\Controllers\Admin\PartnerOrganizationController::class, 'regenerateCode'])->name('partner-organizations.regenerate-code');
+    Route::resource('partner-organizations', \App\Http\Controllers\Admin\PartnerOrganizationController::class)->except(['show']);
     Route::resource('bundles', \App\Http\Controllers\Admin\BundleController::class)->except(['show']);
     Route::post('bundles/{bundle}/courses', [\App\Http\Controllers\Admin\BundleController::class, 'addCourse'])->name('bundles.courses.add');
     Route::delete('bundles/{bundle}/courses/{course}', [\App\Http\Controllers\Admin\BundleController::class, 'removeCourse'])->name('bundles.courses.remove');
