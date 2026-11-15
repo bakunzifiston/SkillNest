@@ -98,4 +98,38 @@ class CategoryCardsTest extends TestCase
         $this->assertGreaterThanOrEqual(7.0, $this->contrast('#1F2937', '#FFFFFF'));
         $this->assertGreaterThanOrEqual(4.5, $this->contrast('#475569', '#FFFFFF'));
     }
+
+    public function test_home_page_animations_are_safe_by_default(): void
+    {
+        $category = Category::create(['name' => 'Design', 'slug' => 'design']);
+        Course::create([
+            'category_id' => $category->id, 'title' => 'C', 'slug' => 'c', 'description' => 'd',
+            'price' => 0, 'level' => 'beginner', 'status' => Course::STATUS_PUBLISHED,
+        ]);
+        \App\Models\Partner::create(['name' => 'P', 'logo' => 'partners/x.png']);
+
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        // Content is hidden ONLY when the page's script has switched animations on (.js-reveal on <html>),
+        // so visitors without JavaScript always see everything.
+        $this->assertStringContainsString('.js-reveal .reveal {', $html);
+        $this->assertDoesNotMatchRegularExpression('/(^|\n)\s*\.reveal\s*\{[^}]*opacity:\s*0/', $html);
+
+        // Failsafe: if the animation script never loads, everything is shown after 4 seconds.
+        $this->assertStringContainsString('window.__revealReady', $html);
+        $this->assertStringContainsString('}, 4000);', $html);
+
+        // Reduced motion: no hiding, no transitions, and the script bails out early.
+        $this->assertStringContainsString('prefers-reduced-motion: reduce', $html);
+        $this->assertStringContainsString("root.classList.remove('js-reveal');", $html);
+
+        // Animated groups: course cards and partner items opt in; section cards are picked up by class.
+        $this->assertStringContainsString('<article data-reveal ', $html);
+        $this->assertStringContainsString('<li data-reveal ', $html);
+        $this->assertStringContainsString("'.cat-card, .step-card, .stat-card, [data-reveal]'", $html);
+
+        // Counters keep the real number in the HTML (so no-JS shows it) and always land on it.
+        $this->assertSame(1, preg_match('/class="stat-num[^"]*">\s*\d/', $html));
+        $this->assertStringContainsString('duration + 200', $html);
+    }
 }

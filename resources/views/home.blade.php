@@ -1,7 +1,29 @@
 @extends('layouts.site')
 
 @push('styles')
+    <script>
+        /* Scroll-reveal animations: hide-until-visible only applies when JS is running. Safety: if the
+           animation script below never loads, show everything after 4s so nothing stays hidden. */
+        document.documentElement.classList.add('js-reveal');
+        setTimeout(function () { if (!window.__revealReady) document.documentElement.classList.remove('js-reveal'); }, 4000);
+    </script>
     <style>
+        /* ---- Animations (home page) ---- */
+        .js-reveal .reveal {
+            opacity: 0; transform: translateY(22px);
+            transition: opacity .65s cubic-bezier(.22, .61, .36, 1), transform .65s cubic-bezier(.22, .61, .36, 1);
+            transition-delay: var(--d, 0ms);
+        }
+        .js-reveal .reveal.is-visible { opacity: 1; transform: none; }
+        .cat-icon, .step-num { transition: transform .25s ease; }
+        .cat-card:hover .cat-icon, .step-card:hover .step-num { transform: scale(1.1) rotate(-4deg); }
+        @media (prefers-reduced-motion: reduce) {
+            .js-reveal .reveal { opacity: 1; transform: none; transition: none; }
+            .cat-card, .step-card, .stat-card, .cat-icon, .step-num, .cat-arrow { transition: none; }
+            .cat-card:hover, .step-card:hover, .stat-card:hover { transform: none; }
+            .cat-card:hover .cat-icon, .step-card:hover .step-num, .cat-card:hover .cat-arrow { transform: none; }
+        }
+
         /* Category cards: coloured with the brand blue via CSS variables set inline. */
         .cat-card {
             --c: #19499B; --bg: #E8EEF7; --bd: #C9D6EE; --tx: #102C5E;
@@ -161,7 +183,7 @@
                         @php
                             $lessonCount = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
                         @endphp
-                        <article class="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-primary-muted hover:shadow-brand transition">
+                        <article data-reveal class="group flex flex-col bg-white rounded-2xl border border-slate-200 overflow-hidden hover:border-primary-muted hover:shadow-brand transition">
                             <a href="{{ route('courses.show', $course) }}" class="block aspect-[16/10] bg-slate-100 overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary">
                                 @if($course->banner_url)
                                     <img
@@ -342,7 +364,7 @@
             @if($partners->isNotEmpty())
                 <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
                     @foreach($partners as $partner)
-                        <li class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-6 min-h-[7.5rem]">
+                        <li data-reveal class="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-6 min-h-[7.5rem]">
                             @if($partner->logo_url)
                                 <img
                                     src="{{ $partner->logo_url }}"
@@ -383,4 +405,66 @@
             </div>
         </div>
     </section>
+
+@push('scripts')
+    <script>
+        (function () {
+            window.__revealReady = true;
+            var root = document.documentElement;
+            var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Respect "reduce motion", and browsers without IntersectionObserver: show everything, no animation.
+            if (reduce || !('IntersectionObserver' in window)) {
+                root.classList.remove('js-reveal');
+                return;
+            }
+
+            // Numbers count up from 0 when their card appears. The real value stays in the HTML as a fallback.
+            document.querySelectorAll('.stat-num').forEach(function (n) {
+                var value = parseInt(n.textContent.replace(/[^0-9]/g, ''), 10);
+                if (!isNaN(value)) { n.dataset.target = value; n.textContent = '0'; }
+            });
+
+            function countUp(card) {
+                var n = card.querySelector('.stat-num');
+                if (!n || n.dataset.target === undefined) return;
+                var target = parseInt(n.dataset.target, 10), start = null, duration = 1300;
+                function step(ts) {
+                    if (start === null) start = ts;
+                    var p = Math.min((ts - start) / duration, 1);
+                    n.textContent = Math.round(target * (1 - Math.pow(1 - p, 3))).toLocaleString('en-US');
+                    if (p < 1) requestAnimationFrame(step); else n.textContent = target.toLocaleString('en-US');
+                }
+                requestAnimationFrame(step);
+                // Safety: always land on the real number, even if the tab was in the background mid-count.
+                setTimeout(function () { n.textContent = target.toLocaleString('en-US'); }, duration + 200);
+            }
+
+            var items = document.querySelectorAll('.cat-card, .step-card, .stat-card, [data-reveal]');
+            items.forEach(function (el) {
+                var index = Array.prototype.indexOf.call(el.parentNode.children, el);
+                el.style.setProperty('--d', Math.min(index, 6) * 90 + 'ms');   // stagger within a row/grid
+                el.classList.add('reveal');
+            });
+
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (!entry.isIntersecting) return;
+                    var el = entry.target;
+                    observer.unobserve(el);
+                    el.classList.add('is-visible');
+                    countUp(el);
+                    // Hand the element back to its normal styles (so hover effects work again).
+                    var done = function () { el.classList.remove('reveal', 'is-visible'); el.style.removeProperty('--d'); };
+                    el.addEventListener('transitionend', function onEnd(ev) {
+                        if (ev.propertyName === 'opacity') { el.removeEventListener('transitionend', onEnd); done(); }
+                    });
+                    setTimeout(done, 1800);
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+            items.forEach(function (el) { observer.observe(el); });
+        })();
+    </script>
+@endpush
 @endsection
