@@ -93,9 +93,6 @@
                             {{ __('Learn About KoraLink') }}
                         </a>
                     </div>
-                    <p class="mt-8 text-sm text-slate-400">
-                        {{ __('Practical training for Digital Community Champions') }}
-                    </p>
                 </div>
 
                 <div class="lg:col-span-6">
