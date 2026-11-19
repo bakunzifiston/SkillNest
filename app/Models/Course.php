@@ -218,9 +218,17 @@ class Course extends Model
             return null;
         }
 
-        $for = $this->accessLevelOrAll() === self::ACCESS_PARTNER
-            ? __(':audience partner learners only', ['audience' => $this->audienceName()])
-            : __(':audience only', ['audience' => $this->audienceName()]);
+        if ($this->accessLevelOrAll() === self::ACCESS_PARTNER) {
+            // The organisation's own name (e.g. "SFH") is never changed.
+            $for = __(':audience partner learners only', ['audience' => $this->audienceName()]);
+        } else {
+            $audience = $this->audienceName();
+            // In Kinyarwanda the audience word ("Aba-agent", "Abafatanyabikorwa") comes mid-sentence, so it starts in lower case.
+            if (app()->getLocale() !== config('localization.default')) {
+                $audience = \Illuminate\Support\Str::lcfirst($audience);
+            }
+            $for = __(':audience only', ['audience' => $audience]);
+        }
 
         if (! $user) {
             return __('This course is for :for. Log in with an eligible account to enroll.', ['for' => $for]);

@@ -357,4 +357,49 @@ class LocalizationTest extends TestCase
 
         $this->get(route('home'))->assertHeader('Content-Language', 'en');
     }
+
+    // ------------------------------------------------------------------ audience warning wording
+
+    private function restrictedCourse(string $level, ?int $organizationId = null): Course
+    {
+        return $this->course(['title' => 'Restricted '.$level, 'slug' => 'r-'.$level, 'access_level' => $level, 'partner_organization_id' => $organizationId]);
+    }
+
+    public function test_the_partner_only_warning_reads_naturally_in_kinyarwanda(): void
+    {
+        $sfh = \App\Models\PartnerOrganization::where('slug', 'sfh')->firstOrFail();
+        $course = $this->restrictedCourse('partner', $sfh->id);
+
+        app()->setLocale('rw');
+        $this->assertSame(
+            'Iri somo rijyenewe abafatanyabikorwa ba SFH gusa. Injira ukoresheje konti yujuje ibisabwa kugira ngo wiyandikishe.',
+            $course->audienceWarning(null)
+        );
+
+        $agent = User::factory()->create();
+        $this->assertSame(
+            'Iri somo rijyenewe abafatanyabikorwa ba SFH gusa. Konti yawe (Agent) ntishobora kuryiyandikishamo.',
+            $course->audienceWarning($agent)
+        );
+        $this->assertStringNotContainsString('abanyeshuri ba Abanyeshuri', $course->audienceWarning(null));
+    }
+
+    public function test_the_other_audience_warnings_also_read_naturally_in_kinyarwanda(): void
+    {
+        app()->setLocale('rw');
+
+        $this->assertStringStartsWith('Iri somo rijyenewe aba-agent gusa.', $this->restrictedCourse('agents')->audienceWarning(null));
+        $this->assertStringStartsWith('Iri somo rijyenewe abafatanyabikorwa gusa.', $this->restrictedCourse('partners')->audienceWarning(null));
+    }
+
+    public function test_the_english_warning_is_unchanged(): void
+    {
+        $sfh = \App\Models\PartnerOrganization::where('slug', 'sfh')->firstOrFail();
+
+        $this->assertSame(
+            'This course is for SFH partner learners only. Log in with an eligible account to enroll.',
+            $this->restrictedCourse('partner', $sfh->id)->audienceWarning(null)
+        );
+        $this->assertStringStartsWith('This course is for Agents only.', $this->restrictedCourse('agents')->audienceWarning(null));
+    }
 }
