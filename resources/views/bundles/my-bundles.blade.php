@@ -1,9 +1,10 @@
 @extends('layouts.site')
 
 @section('title', __('My Bundles'))
+@section('body_class', 'has-banner')
 
 @section('content')
-    <section class="relative overflow-hidden bg-navy text-white">
+    <section class="page-banner">
         <div class="absolute inset-0 opacity-[0.08]" aria-hidden="true" style="background-image: radial-gradient(circle at 15% 20%, #F16029 0, transparent 38%), radial-gradient(circle at 85% 10%, #19499B 0, transparent 32%);"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
             <nav class="text-sm text-slate-300 mb-4" aria-label="{{ __('Breadcrumb') }}">

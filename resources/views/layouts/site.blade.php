@@ -9,6 +9,21 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         /* Header menu: keep every link on one line (Kinyarwanda words are longer), and make room on laptop widths. */
+        /* ---- Shared page banner + floating menu. A page opts in by giving the body the class "has-banner" (through the body_class section). ---- */
+        body.has-banner .site-header { position: fixed; top: 0; left: 0; right: 0; background: transparent; border: 0; backdrop-filter: none; z-index: 60; pointer-events: none; }
+        body.has-banner .site-header-bar { pointer-events: auto; width: calc(100% - 2rem); max-width: 72rem; margin: .9rem auto 0; padding-left: 1.5rem; padding-right: 1.5rem; background: #fff; border-radius: 999px; box-shadow: 0 14px 34px -14px rgba(11, 27, 51, .55); }
+        body.has-banner .site-header-bar > .flex { height: 4.25rem; }
+        @media (max-width: 1023px) {
+            body.has-banner .site-header-bar { width: auto; margin: .6rem .75rem 0; padding-left: 1rem; padding-right: 1rem; border-radius: 1.75rem; }
+        }
+        .page-banner { position: relative; overflow: hidden; color: #fff; background: linear-gradient(100deg, #102C5E 0%, #153F86 46%, #19499B 100%); }
+        .page-banner::after { content: ''; position: absolute; left: 0; right: 0; bottom: -1px; height: clamp(2.25rem, 6vw, 4.5rem); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z' fill='%23F8FAFC'/%3E%3C/svg%3E") center / 100% 100% no-repeat; pointer-events: none; }
+        .page-banner--white::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 100' preserveAspectRatio='none'%3E%3Cpath d='M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z' fill='%23FFFFFF'/%3E%3C/svg%3E"); }
+        .page-banner > .relative { padding-bottom: 4.5rem; }
+        body.has-banner .page-banner > .relative { padding-top: 7.25rem; }
+        .page-banner-photo-overlay { background: linear-gradient(100deg, rgba(16, 44, 94, .94) 0%, rgba(21, 63, 134, .82) 55%, rgba(25, 73, 155, .62) 100%); }
+        @media (max-width: 767px) { body.has-banner .page-banner > .relative { padding-top: 6.5rem; } }
+
         .site-nav a { white-space: nowrap; }
         @media (min-width: 1024px) and (max-width: 1279px) {
             .site-nav { gap: 1rem !important; }
@@ -17,9 +32,9 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col" x-data="{ mobileOpen: false }">
-    <header class="bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col @yield('body_class')" x-data="{ mobileOpen: false }">
+    <header class="site-header bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
+        <div class="site-header-bar max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-[4.25rem] lg:h-20 gap-4">
                 <a href="{{ route('home') }}" class="flex items-center min-w-0 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-lg">
                     <x-brand-logo size="md" />

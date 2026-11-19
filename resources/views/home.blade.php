@@ -65,63 +65,119 @@
         .stat-card:hover { transform: translateY(-3px); border-color: #CBD5E1; box-shadow: 0 14px 28px -18px rgba(15, 23, 42, .35); }
         .stat-num { font-weight: 700; font-size: 2.25rem; line-height: 1.1; color: #1F2937; }
         .stat-label { margin-top: .35rem; font-size: .875rem; font-weight: 600; color: #475569; }
+
+        /* ---- Home hero: floating pill menu, brand-blue banner, circular photo, curved bottom ---- */
+        .home-hero { position: relative; overflow: hidden; color: #fff; background: linear-gradient(100deg, #102C5E 0%, #153F86 46%, #19499B 100%); }
+        .home-hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 88% 30%, rgba(255, 255, 255, .10) 0, transparent 46%), radial-gradient(circle at 8% 90%, rgba(241, 96, 41, .16) 0, transparent 38%); pointer-events: none; }
+        .home-hero-inner { position: relative; padding-top: 8.75rem; padding-bottom: 7.5rem; }
+        .home-hero-grid { display: grid; gap: 3rem; align-items: center; }
+        @media (min-width: 1024px) { .home-hero-grid { grid-template-columns: 1.08fr .92fr; gap: 3.5rem; } .home-hero-inner { padding-top: 9.5rem; padding-bottom: 9rem; } }
+        .home-eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #F16029; }
+        .home-hero h1 { margin-top: 1rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.08; font-size: clamp(2.35rem, 5.4vw, 3.6rem); color: #fff; }
+        .home-hero-hl { color: #F16029; display: inline-block; }
+        .home-hero-lead { margin-top: 1.5rem; max-width: 36rem; font-size: 1.05rem; line-height: 1.7; color: rgba(255, 255, 255, .88); }
+        .home-hero-actions { margin-top: 2.25rem; display: flex; flex-wrap: wrap; gap: .85rem; }
+        .home-btn { display: inline-flex; align-items: center; justify-content: center; padding: .85rem 1.7rem; border-radius: 999px; font-weight: 600; transition: transform .2s ease, background-color .2s ease, box-shadow .2s ease; }
+        .home-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+        .home-btn--primary { background: #F16029; color: #fff; box-shadow: 0 12px 26px -12px rgba(241, 96, 41, .9); }
+        .home-btn--primary:hover { background: #D95420; transform: translateY(-2px); }
+        .home-btn--ghost { color: #fff; border: 1.5px solid rgba(255, 255, 255, .45); }
+        .home-btn--ghost:hover { background: rgba(255, 255, 255, .12); transform: translateY(-2px); }
+        .home-hero-art { position: relative; isolation: isolate; width: min(100%, 29rem); margin: 0 auto; }
+        .home-hero-photo { position: relative; aspect-ratio: 1; border-radius: 50%; border: 5px solid #F16029; padding: 10px; background: #fff; box-shadow: 0 30px 60px -26px rgba(0, 0, 0, .55); }
+        .home-hero-photo img { width: 100%; height: 100%; display: block; border-radius: 50%; object-fit: cover; object-position: 50% 32%; }
+        .home-hero-blob { position: absolute; z-index: -1; right: -7%; bottom: -5%; width: 36%; aspect-ratio: 1; border-radius: 50%; background: #F16029; }
+        .home-hero-ring { position: absolute; z-index: -1; left: -9%; top: 6%; width: 22%; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(201, 214, 238, .55); }
+        .home-hero-chip { position: absolute; left: -4%; bottom: 12%; max-width: 12.5rem; padding: .7rem .9rem; border-radius: .9rem; background: #fff; color: #0B1B33; box-shadow: 0 16px 30px -14px rgba(0, 0, 0, .5); }
+        .home-hero-chip strong { display: block; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: #19499B; }
+        .home-hero-chip span { display: block; margin-top: .15rem; font-size: .78rem; line-height: 1.3; color: #475569; }
+        .home-hero-doodle { position: absolute; pointer-events: none; }
+        @media (max-width: 1023px) { .home-hero-doodle--arrow { display: none; } .home-hero-doodle:not(.home-hero-doodle--arrow) { width: 3.5rem !important; right: 4% !important; top: 6rem !important; } }
+        .home-hero-curve { position: absolute; left: 0; bottom: -1px; width: 100%; height: clamp(3.5rem, 9vw, 7rem); display: block; }
+        @media (max-width: 1023px) { .home-hero-art { width: min(78%, 24rem); } .home-hero-chip { left: -2%; } }
+        @media (prefers-reduced-motion: no-preference) { .home-hero-art .home-hero-photo { animation: heroFloat 7s ease-in-out infinite; } }
+        @keyframes heroFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+        /* ---- Call-to-action card (end of the page) ---- */
+        .home-cta { background: #F8FAFC; padding: .5rem 0 4.5rem; }
+        .home-cta-card { position: relative; display: grid; gap: 1.5rem; overflow: hidden; border-radius: 2rem; color: #fff; padding: 2.25rem 1.5rem 0; background: linear-gradient(100deg, #102C5E 0%, #153F86 55%, #19499B 100%); box-shadow: 0 34px 60px -34px rgba(16, 44, 94, .7); }
+        .home-cta h2 { font-weight: 700; line-height: 1.1; letter-spacing: -.02em; font-size: clamp(1.9rem, 4.4vw, 2.85rem); }
+        .home-cta-hl { color: #F16029; }
+        .home-cta-lead { margin-top: 1rem; max-width: 30rem; line-height: 1.65; color: rgba(255, 255, 255, .86); }
+        .home-cta-actions { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: .8rem; }
+        .home-btn--white { background: #fff; color: #153F86; box-shadow: 0 12px 26px -14px rgba(0, 0, 0, .6); }
+        .home-btn--white:hover { background: #E8EEF7; transform: translateY(-2px); }
+        .home-cta-art { position: relative; min-height: 15rem; }
+        .home-cta-bar { position: absolute; background: #F16029; border-radius: 1.1rem 0 0 1.1rem; }
+        .home-cta-bar--a { right: -1.5rem; top: 14%; width: 62%; height: 26%; }
+        .home-cta-bar--b { right: -1.5rem; bottom: 12%; width: 52%; height: 26%; }
+        .home-cta-photo { position: absolute; left: 6%; bottom: 0; width: 70%; height: 92%; object-fit: cover; object-position: 50% 28%; border-radius: 1.6rem 1.6rem 0 0; box-shadow: 0 20px 40px -20px rgba(0, 0, 0, .55); }
+        .home-cta-badge { position: absolute; right: .25rem; top: .25rem; width: 3rem; height: 3rem; display: grid; place-items: center; border-radius: 50%; background: #fff; box-shadow: 0 12px 24px -12px rgba(0, 0, 0, .55); }
+        @media (min-width: 900px) {
+            .home-cta-card { grid-template-columns: 1.05fr .95fr; align-items: center; padding: 3.25rem 0 0 3.5rem; min-height: 26.5rem; }
+            .home-cta-copy { padding-bottom: 3.25rem; }
+            .home-cta-art { align-self: stretch; min-height: 24rem; }
+            .home-cta-badge { right: 2rem; top: 1.75rem; width: 3.25rem; height: 3.25rem; }
+        }
     </style>
 @endpush
 
-@section('title', 'Home')
+@section('body_class', 'has-banner home-page')
+@section('title', __('Home'))
 
 @section('content')
     {{-- Hero --}}
-    <section class="relative overflow-hidden bg-navy text-white">
-        <div class="absolute inset-0 opacity-[0.07]" aria-hidden="true" style="background-image: radial-gradient(circle at 20% 20%, #F16029 0, transparent 40%), radial-gradient(circle at 80% 0%, #19499B 0, transparent 35%);"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 lg:py-20">
-            <div class="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-                <div class="lg:col-span-6">
-                    <p class="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] text-accent">{{ __('KoraLink Agents Academy') }}</p>
-                    <h1 class="mt-4 font-display font-bold text-4xl sm:text-5xl lg:text-[3.25rem] leading-[1.08] tracking-tight text-white">
-                        {{ __('Build Digital Skills.') }}<br class="hidden sm:block">
-                        <span class="text-accent">{{ __('Grow Your Impact.') }}</span>
+    <section class="home-hero">
+        {{-- decorative doodles (purely visual) --}}
+        <svg class="home-hero-doodle home-hero-doodle--arrow" style="left: 44%; top: 6.6rem; width: 8rem; opacity: .8;" viewBox="0 0 140 90" fill="none" aria-hidden="true">
+            <path d="M6 82 C 30 20, 80 8, 118 30" stroke="#C9D6EE" stroke-width="2" stroke-dasharray="5 6" stroke-linecap="round"/>
+            <path d="M104 14 L124 32 L99 38 Z" fill="#7FB2F0"/>
+        </svg>
+        <svg class="home-hero-doodle" style="right: 6%; top: 7rem; width: 5.5rem;" viewBox="0 0 90 90" fill="none" aria-hidden="true">
+            <path d="M45 46 c0-6 8-6 8 0 c0 10-16 10-16-2 c0-16 26-16 26 2 c0 24-40 24-40-4 c0-30 56-28 56 6" stroke="#F16029" stroke-width="4" stroke-linecap="round"/>
+            <path d="M70 66 l-1 14 l12-8" stroke="#F16029" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+
+        <div class="home-hero-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="home-hero-grid">
+                <div>
+                    <p class="home-eyebrow">{{ __('KoraLink Agents Academy') }}</p>
+                    <h1 class="font-display">
+                        {{ __('Build Digital Skills.') }}
+                        <span class="home-hero-hl">{{ __('Grow Your Impact.') }}</span>
                     </h1>
-                    <p class="mt-6 text-base sm:text-lg text-slate-300 leading-relaxed max-w-xl">
+                    <p class="home-hero-lead">
                         {{ __('The official learning platform for KoraLink Agents under the Digital Jobs for Youth in Health program. Develop practical digital, marketplace, and professional skills to serve your community with confidence.') }}
                     </p>
-                    <div class="mt-9 flex flex-wrap gap-3">
-                        <a href="{{ route('courses.index') }}" class="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition shadow-brand-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy">
-                            {{ __('Explore Courses') }}
-                        </a>
-                        <a href="{{ route('about') }}" class="inline-flex items-center justify-center px-6 py-3 rounded-xl border border-white/25 text-white hover:bg-white/10 font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-navy">
-                            {{ __('Learn About KoraLink') }}
-                        </a>
+                    <div class="home-hero-actions">
+                        <a href="{{ route('courses.index') }}" class="home-btn home-btn--primary">{{ __('Explore Courses') }}</a>
+                        <a href="{{ route('about') }}" class="home-btn home-btn--ghost">{{ __('Learn About KoraLink') }}</a>
                     </div>
                 </div>
 
-                <div class="lg:col-span-6">
-                    <div class="relative max-w-lg mx-auto lg:max-w-none lg:ml-auto">
-                        <div class="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-brand ring-1 ring-white/10">
-                            <img
-                                src="{{ asset('images/banner/agents-workshop.jpg') }}"
-                                alt="{{ __('KoraLink agents learning together in a training workshop') }}"
-                                class="absolute inset-0 w-full h-full object-cover object-center"
-                                fetchpriority="high"
-                            >
-                        </div>
-                        <div class="absolute -bottom-6 -left-2 sm:left-4 w-[48%] sm:w-[44%] aspect-[4/3] rounded-xl overflow-hidden shadow-xl ring-2 ring-navy">
-                            <img
-                                src="{{ asset('images/banner/agents-training.jpg') }}"
-                                alt="{{ __('KoraLink agents during a hands-on training session') }}"
-                                class="absolute inset-0 w-full h-full object-cover object-center"
-                                loading="lazy"
-                            >
-                        </div>
-                        <div class="absolute -top-3 right-2 sm:right-6 rounded-xl bg-white text-navy px-3.5 py-2.5 shadow-lg max-w-[11rem]">
-                            <p class="text-[11px] font-semibold uppercase tracking-wider text-primary">{{ __('Youth in Health') }}</p>
-                            <p class="mt-0.5 text-xs text-slate-600 leading-snug">{{ __('Digital skills for community impact') }}</p>
-                        </div>
+                <div class="home-hero-art">
+                    <span class="home-hero-ring" aria-hidden="true"></span>
+                    <span class="home-hero-blob" aria-hidden="true"></span>
+                    <div class="home-hero-photo">
+                        <img
+                            src="{{ asset('images/banner/agents-field.jpg') }}"
+                            alt="{{ __('KoraLink agents learning together in a training workshop') }}"
+                            width="1024" height="682"
+                            fetchpriority="high"
+                        >
+                    </div>
+                    <div class="home-hero-chip">
+                        <strong>{{ __('Youth in Health') }}</strong>
+                        <span>{{ __('Digital skills for community impact') }}</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="h-8 sm:h-12 bg-slate-50" aria-hidden="true"></div>
+
+        {{-- curved bottom edge, in the colour of the next section --}}
+        <svg class="home-hero-curve" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,0 C480,100 960,100 1440,0 L1440,100 L0,100 Z" fill="#F8FAFC"/>
+        </svg>
     </section>
 
     {{-- Categories --}}
@@ -157,6 +213,45 @@
             @else
                 <p class="text-sm text-slate-500">{{ __('Categories will appear here once they are added.') }}</p>
             @endif
+        </div>
+    </section>
+
+    {{-- Call to action (under the categories) --}}
+    <section class="home-cta">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="home-cta-card" data-reveal>
+                <div class="home-cta-copy">
+                    <h2 class="font-display" aria-label="{{ __('Ready to grow your digital skills?') }}">
+                        {{ __('Ready to grow') }}
+                        <span class="home-cta-hl">{{ __('your digital skills?') }}</span>
+                    </h2>
+                    <p class="home-cta-lead">
+                        {{ __('Explore practical courses designed to help you learn, improve your work, and create greater impact in your community.') }}
+                    </p>
+                    <div class="home-cta-actions">
+                        <a href="{{ route('contact') }}" class="home-btn home-btn--white">{{ __('Contact us') }}</a>
+                    </div>
+                </div>
+
+                <div class="home-cta-art" aria-hidden="false">
+                    <span class="home-cta-bar home-cta-bar--a" aria-hidden="true"></span>
+                    <span class="home-cta-bar home-cta-bar--b" aria-hidden="true"></span>
+                    <img
+                        class="home-cta-photo"
+                        src="{{ asset('images/banner/agents-workshop.jpg') }}"
+                        alt="{{ __('KoraLink agents learning together in a training workshop') }}"
+                        width="1024" height="682"
+                        loading="lazy"
+                    >
+                    <span class="home-cta-badge" aria-hidden="true">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F16029" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="9" r="5.2"/>
+                            <path d="M8.6 13.3 7 21l5-2.6L17 21l-1.6-7.7"/>
+                            <path d="m10 9 1.5 1.5L14.3 7.7"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -384,25 +479,6 @@
             @endif
         </div>
     </section>
-
-    {{-- Final CTA --}}
-    <section class="py-16 lg:py-20 bg-navy text-white">
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="font-display font-bold text-2xl sm:text-3xl lg:text-4xl tracking-tight">{{ __('Ready to grow your digital skills?') }}</h2>
-            <p class="mt-4 text-slate-300 leading-relaxed">
-                {{ __('Explore practical courses designed to help you learn, improve your work, and create greater impact in your community.') }}
-            </p>
-            <div class="mt-8 flex flex-wrap justify-center gap-3">
-                <a href="{{ route('courses.index') }}" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                    {{ __('Explore Courses') }}
-                </a>
-                <a href="{{ route('about') }}" class="inline-flex items-center px-6 py-3 rounded-xl border border-white/25 text-white hover:bg-white/10 font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-white">
-                    {{ __('About KoraLink') }}
-                </a>
-            </div>
-        </div>
-    </section>
-
 @push('scripts')
     <script>
         (function () {

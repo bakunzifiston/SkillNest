@@ -1,16 +1,17 @@
 @extends('layouts.site')
 
 @section('title', __('About'))
+@section('body_class', 'has-banner')
 
 @section('content')
-    <section class="relative overflow-hidden bg-navy text-white">
+    <section class="page-banner page-banner--white">
         <div class="absolute inset-0">
             <img
                 src="{{ asset('images/banner/agents-training.jpg') }}"
                 alt=""
                 class="w-full h-full object-cover object-center opacity-40"
             >
-            <div class="absolute inset-0 bg-gradient-to-r from-navy via-navy/90 to-navy/70"></div>
+            <div class="absolute inset-0 page-banner-photo-overlay"></div>
         </div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 lg:py-20">
             <nav class="text-sm text-slate-300 mb-4" aria-label="{{ __('Breadcrumb') }}">

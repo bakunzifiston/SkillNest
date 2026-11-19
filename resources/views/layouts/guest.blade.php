@@ -12,11 +12,12 @@
     </head>
     <body class="font-sans text-slate-800 antialiased min-h-screen bg-slate-50">
         <div class="min-h-screen grid lg:grid-cols-2">
-            <aside class="relative hidden lg:flex flex-col justify-between overflow-hidden bg-navy text-white p-10 xl:p-14">
+            <aside class="auth-aside relative hidden lg:flex flex-col justify-between overflow-hidden text-white p-10 xl:p-14" style="background: linear-gradient(170deg, #19499B 0%, #153F86 45%, #102C5E 100%);">
                 <div class="absolute inset-0 opacity-[0.12]" aria-hidden="true" style="background-image: radial-gradient(circle at 20% 20%, #F16029 0, transparent 42%), radial-gradient(circle at 80% 80%, #19499B 0, transparent 40%);"></div>
                 <div class="relative flex items-start justify-between gap-4">
-                    <a href="{{ route('home') }}" class="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg">
-                        <x-brand-logo size="lg" variant="dark" />
+                    {{-- White pill, like the website menu bar, so the blue part of the logo stays visible on the blue panel --}}
+                    <a href="{{ route('home') }}" class="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-white" style="background: #fff; border-radius: 999px; padding: .5rem 1.25rem; box-shadow: 0 12px 28px -14px rgba(11, 27, 51, .6);">
+                        <x-brand-logo size="md" />
                     </a>
                     <x-language-switcher variant="dark" />
                 </div>

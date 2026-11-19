@@ -1,6 +1,7 @@
 @extends('layouts.site')
 
 @section('title', $course->tr('title'))
+@section('body_class', ($enrolled && $course->chapters->isNotEmpty()) ? '' : 'has-banner')
 
 @section('content')
     <div class="flex flex-col lg:flex-row">
@@ -15,7 +16,7 @@
         @endif
 
         <div class="flex-1 min-w-0">
-            <section class="relative overflow-hidden bg-navy text-white">
+            <section class="page-banner">
                 <div class="absolute inset-0 opacity-[0.08]" aria-hidden="true" style="background-image: radial-gradient(circle at 15% 20%, #F16029 0, transparent 38%), radial-gradient(circle at 85% 10%, #19499B 0, transparent 32%);"></div>
                 <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-14">
                     <nav class="text-sm text-slate-300 mb-4" aria-label="{{ __('Breadcrumb') }}">

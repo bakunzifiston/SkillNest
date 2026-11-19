@@ -167,7 +167,7 @@
     "Browse by category and find the skills you need.": "Reba ukurikije icyiciro ushake ubumenyi ukeneye.",
     "Browse courses": "Reba amasomo",
     "Browse the full catalog and find practical learning for your work as a Digital Community Champion.": "Reba amasomo yose maze ubone amasomo y'ingirakamaro ku kazi kawe nka Digital Community Champion.",
-    "Build Digital Skills.": "iyubakemo ubumenyi mu ikoranabuhanga.",
+    "Build Digital Skills.": "Iyubakemo ubumenyi mu ikoranabuhanga.",
     "Build your course with sections and lessons. Add sections to group lessons, then add lessons (text, video, PDF, or YouTube).": "Tegura isomo ryawe ukoresheje imitwe n'ibyigwa. Ongeraho imitwe kugira ngo ushyire hamwe ibyigwa, hanyuma wongereho ibyigwa (inyandiko, videwo, PDF cyangwa YouTube).",
     "Bundle": "Ipaki y'amasomo",
     "Bundle completed": "Ipaki y'amasomo yarangiye",
@@ -402,7 +402,7 @@
     "Explore courses": "Reba amasomo",
     "Explore practical courses designed for KoraLink Agents, or reach out if you have questions about the Academy or the program.": "Reba amasomo afatika yagenewe aba-agent ba KoraLink, cyangwa utwandikire niba ufite ibibazo ku Ishuri cyangwa kuri gahunda.",
     "Explore practical courses designed to help you build skills and grow your impact.": "Reba amasomo afatika agufasha kwiyubakamo ubumenyi no kongera umusaruro wawe.",
-    "Explore practical courses designed to help you learn, improve your work, and create greater impact in your community.": "Reba amasomo afatika agufasha kwiga, kunoza akazi kawe no kugira uruhare runini mu muryango wawe.",
+    "Explore practical courses designed to help you learn, improve your work, and create greater impact in your community.": "Reba amasomo yagufasha kwiga, kunoza akazi kawe no kugira uruhare runini mwiterambere ryumuryango.",
     "Export CSV": "Kura CSV",
     "Export the student progress CSV from your previous platform.": "Kura dosiye ya CSV y'aho abanyeshuri bageze ku rubuga rwawe rwa mbere.",
     "Failed": "Ntiwatsinze",
@@ -1089,5 +1089,7 @@
     "{1} :count row|[2,*] :count rows": "{0} imirongo :count|{1} umurongo :count|[2,*] imirongo :count",
     "← Back to home": "← Subira ahabanza",
     "← Back to Login": "← Subira ku kwinjira",
-    "KoraLink Agents Academy": "Ishuri ry'Aba-agent rya KoraLink"
+    "KoraLink Agents Academy": "Ishuri ry'Aba-agent rya KoraLink",
+    "Ready to grow": "Witeguye kongera",
+    "your digital skills?": "ubumenyi bwawe mu ikoranabuhanga?"
 }

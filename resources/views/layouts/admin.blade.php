@@ -17,6 +17,10 @@
                 align-self: flex-start;
             }
         }
+
+        /* Blue sidebar: the current page is a lighter tile with an orange marker (the old solid blue would vanish), and group titles stay readable. */
+        aside.admin-sidebar a[aria-current="page"] { background: rgba(255, 255, 255, .18) !important; box-shadow: inset 3px 0 0 #F16029; }
+        aside.admin-sidebar nav p { color: rgba(255, 255, 255, .62) !important; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen" x-data="{ sidebarOpen: false }">
@@ -30,12 +34,14 @@
         ></div>
 
         <aside
-            class="admin-sidebar fixed inset-y-0 left-0 z-50 w-64 bg-navy text-white shrink-0 flex flex-col transition-transform duration-200 ease-out lg:static lg:z-auto lg:translate-x-0"
+            class="admin-sidebar fixed inset-y-0 left-0 z-50 w-64 text-white shrink-0 flex flex-col transition-transform duration-200 ease-out lg:static lg:z-auto lg:translate-x-0"
+            style="background: linear-gradient(170deg, #19499B 0%, #153F86 45%, #102C5E 100%);"
             :class="sidebarOpen ? 'admin-sidebar-open' : ''"
         >
             <div class="p-5 border-b border-white/10">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2" @click="sidebarOpen = false">
-                    <x-brand-logo variant="dark" size="sm" />
+                    {{-- White pill, like the website menu bar, so the blue part of the logo stays visible on the blue sidebar --}}
+                    <span style="background: #fff; border-radius: 999px; padding: .35rem .9rem; box-shadow: 0 10px 22px -12px rgba(11, 27, 51, .6);"><x-brand-logo size="sm" /></span>
                     <span class="text-[10px] font-semibold uppercase tracking-wider bg-accent text-white px-2 py-0.5 rounded-full">{{ __('Admin') }}</span>
                 </a>
             </div>
