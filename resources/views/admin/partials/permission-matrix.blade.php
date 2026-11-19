@@ -84,14 +84,14 @@
                 :disabled="!roleId || locked"
             >
             <span>
-                <span class="block text-sm font-medium text-navy">Customize module access for this user</span>
-                <span class="block text-xs text-slate-500 mt-0.5">Override the selected role’s permissions. Leave unchecked to inherit the role exactly.</span>
+                <span class="block text-sm font-medium text-navy">{{ __('Customize module access for this user') }}</span>
+                <span class="block text-xs text-slate-500 mt-0.5">{{ __('Override the selected role’s permissions. Leave unchecked to inherit the role exactly.') }}</span>
             </span>
         </label>
     @endif
 
     @if($locked)
-        <p class="text-sm text-slate-500">Super Admin always has full access to every module. These permissions cannot be reduced.</p>
+        <p class="text-sm text-slate-500">{{ __('Super Admin always has full access to every module. These permissions cannot be reduced.') }}</p>
     @endif
 
     <template x-if="canEdit()">
@@ -113,7 +113,7 @@
             <div class="rounded-xl border border-slate-200 overflow-hidden">
                 @if($groupLabel !== '')
                     <div class="px-4 py-2 bg-slate-50 border-b border-slate-200">
-                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{{ $groupLabel }}</p>
+                        <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{{ __($groupLabel) }}</p>
                     </div>
                 @endif
                 <div class="divide-y divide-slate-100">
@@ -128,7 +128,7 @@
                                     :disabled="!canEdit()"
                                     @change="toggleModule('{{ $moduleKey }}', $event.target.checked)"
                                 >
-                                <span class="text-sm font-medium text-navy">{{ $module['label'] }}</span>
+                                <span class="text-sm font-medium text-navy">{{ __($module['label']) }}</span>
                             </label>
                             <div class="flex flex-wrap gap-x-4 gap-y-2 lg:ml-auto">
                                 @foreach($module['actions'] as $action)
@@ -140,7 +140,7 @@
                                             :disabled="!canEdit()"
                                             @change="toggleAction('{{ $moduleKey }}', '{{ $action }}', $event.target.checked)"
                                         >
-                                        {{ $actionLabels[$action] ?? ucfirst($action) }}
+                                        {{ __($actionLabels[$action] ?? ucfirst($action)) }}
                                     </label>
                                 @endforeach
                             </div>

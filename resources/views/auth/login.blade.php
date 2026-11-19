@@ -2,14 +2,14 @@
     <div class="mb-8">
         <h1 class="font-display font-bold text-2xl text-navy tracking-tight">{{ __('Log in') }}</h1>
         <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Welcome back. Sign in to continue learning.
+            {{ __('Welcome back. Sign in to continue learning.') }}
         </p>
     </div>
 
     @if(session('status') && str_contains((string) session('status'), 'Password reset successfully'))
         <div class="mb-5 rounded-xl border border-success-muted bg-success-light px-4 py-3 text-sm text-success-darker" role="status">
-            <p class="font-semibold">Password reset successfully</p>
-            <p class="mt-1">You can now sign in using your new password.</p>
+            <p class="font-semibold">{{ __('Password reset successfully') }}</p>
+            <p class="mt-1">{{ __('You can now sign in using your new password.') }}</p>
         </div>
     @else
         <x-auth-session-status class="mb-5" :status="session('status')" />
@@ -17,7 +17,7 @@
 
     @if(session('url.intended'))
         <div class="mb-5 rounded-xl border border-primary-muted/50 bg-primary-light px-4 py-3 text-sm text-navy">
-            Sign in or create an account to continue (for example, to enroll in a course).
+            {{ __('Sign in or create an account to continue (for example, to enroll in a course).') }}
         </div>
     @endif
 
@@ -59,9 +59,9 @@
     </form>
 
     <p class="mt-6 text-center text-sm text-slate-600">
-        New to {{ config('app.name') }}?
+        {{ __('New to :app?', ['app' => config('app.name')]) }}
         <a href="{{ route('register') }}" class="font-semibold text-primary hover:text-accent-dark transition">
-            Sign up as a learner
+            {{ __('Sign up as a learner') }}
         </a>
     </p>
 </x-guest-layout>

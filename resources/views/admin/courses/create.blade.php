@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', 'Add Course')
-@section('header', 'Add Course')
+@section('title', __('Add Course'))
+@section('header', __('Add Course'))
 
 @section('content')
     <div class="max-w-2xl">
         <form action="{{ route('admin.courses.store') }}" method="post" enctype="multipart/form-data" class="space-y-5">
             @csrf
             <div>
-                <label for="category_id" class="block text-sm font-medium text-gray-700">Category</label>
+                <label for="category_id" class="block text-sm font-medium text-gray-700">{{ __('Category') }}</label>
                 <select name="category_id" id="category_id" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
-                    <option value="">Select category</option>
+                    <option value="">{{ __('Select category') }}</option>
                     @foreach($categories as $cat)
                         <option value="{{ $cat->id }}" {{ old('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                     @endforeach
@@ -18,9 +18,9 @@
                 @error('category_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="instructor_id" class="block text-sm font-medium text-gray-700">Instructor</label>
+                <label for="instructor_id" class="block text-sm font-medium text-gray-700">{{ __('Instructor') }}</label>
                 <select name="instructor_id" id="instructor_id" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
-                    <option value="">Select instructor (optional)</option>
+                    <option value="">{{ __('Select instructor (optional)') }}</option>
                     @foreach($instructors as $inst)
                         <option value="{{ $inst->id }}" {{ old('instructor_id') == $inst->id ? 'selected' : '' }}>{{ $inst->name }}</option>
                     @endforeach
@@ -28,72 +28,80 @@
                 @error('instructor_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <label for="title" class="block text-sm font-medium text-gray-700">{{ __('Title') }}</label>
                 <input type="text" name="title" id="title" value="{{ old('title') }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <label for="description" class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label>
                 <textarea name="description" id="description" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('description') }}</textarea>
                 @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>
-                <span class="block text-sm font-medium text-gray-700 mb-2">Course type</span>
+                <span class="block text-sm font-medium text-gray-700 mb-2">{{ __('Course type') }}</span>
                 <div class="flex gap-6">
                     <label class="inline-flex items-center">
                         <input type="radio" name="is_free" value="1" {{ old('is_free', '1') == '1' ? 'checked' : '' }} class="rounded-full border-gray-300 text-primary focus:ring-accent">
-                        <span class="ml-2">Free course (price = 0)</span>
+                        <span class="ml-2">{{ __('Free course (price = 0)') }}</span>
                     </label>
                     <label class="inline-flex items-center">
                         <input type="radio" name="is_free" value="0" {{ old('is_free') === '0' ? 'checked' : '' }} class="rounded-full border-gray-300 text-primary focus:ring-accent">
-                        <span class="ml-2">Paid course</span>
+                        <span class="ml-2">{{ __('Paid course') }}</span>
                     </label>
                 </div>
             </div>
             <div id="price-field" class="{{ old('is_free', '1') == '1' ? 'hidden' : '' }}">
-                <label for="price" class="block text-sm font-medium text-gray-700">Price ($)</label>
+                <label for="price" class="block text-sm font-medium text-gray-700">{{ __('Price ($)') }}</label>
                 <input type="number" name="price" id="price" value="{{ old('price', 0) }}" min="0" step="0.01" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent max-w-xs">
                 @error('price')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div class="p-4 bg-accent-light/50 rounded-xl border border-accent-muted">
-                <label for="banner" class="block text-sm font-medium text-gray-700">Course banner</label>
-                <p class="mt-0.5 text-xs text-gray-500 mb-2">Upload an image that will appear as the course cover on the site. JPEG, PNG, GIF or WebP. Max 2MB.</p>
+                <label for="banner" class="block text-sm font-medium text-gray-700">{{ __('Course banner') }}</label>
+                <p class="mt-0.5 text-xs text-gray-500 mb-2">{{ __('Upload an image that will appear as the course cover on the site. JPEG, PNG, GIF or WebP. Max 2MB.') }}</p>
                 <input type="file" name="banner" id="banner" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent file:text-white file:font-medium hover:file:bg-accent-dark">
                 @error('banner')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                    <label for="duration" class="block text-sm font-medium text-gray-700">Duration</label>
-                    <input type="text" name="duration" id="duration" value="{{ old('duration') }}" placeholder="e.g. 8 hours" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                    <label for="duration" class="block text-sm font-medium text-gray-700">{{ __('Duration') }}</label>
+                    <input type="text" name="duration" id="duration" value="{{ old('duration') }}" placeholder="{{ __('e.g. 8 hours') }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     @error('duration')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="level" class="block text-sm font-medium text-gray-700">Level</label>
+                    <label for="level" class="block text-sm font-medium text-gray-700">{{ __('Level') }}</label>
                     <select name="level" id="level" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
-                        <option value="beginner" {{ old('level', 'beginner') == 'beginner' ? 'selected' : '' }}>Beginner</option>
-                        <option value="intermediate" {{ old('level') == 'intermediate' ? 'selected' : '' }}>Intermediate</option>
-                        <option value="advanced" {{ old('level') == 'advanced' ? 'selected' : '' }}>Advanced</option>
+                        <option value="beginner" {{ old('level', 'beginner') == 'beginner' ? 'selected' : '' }}>{{ __('Beginner') }}</option>
+                        <option value="intermediate" {{ old('level') == 'intermediate' ? 'selected' : '' }}>{{ __('Intermediate') }}</option>
+                        <option value="advanced" {{ old('level') == 'advanced' ? 'selected' : '' }}>{{ __('Advanced') }}</option>
                     </select>
                 </div>
             </div>
 
             @include('admin.courses._access', ['course' => null, 'partnerOrganizations' => $partnerOrganizations])
             <div>
-                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                <label for="status" class="block text-sm font-medium text-gray-700">{{ __('Status') }}</label>
                 <select name="status" id="status" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent max-w-xs">
-                    <option value="draft" @selected(old('status', 'draft') === 'draft')>Draft — not visible on the public site</option>
-                    <option value="published" @selected(old('status') === 'published')>Published — live on the public site</option>
+                    <option value="draft" @selected(old('status', 'draft') === 'draft')>{{ __('Draft — not visible on the public site') }}</option>
+                    <option value="published" @selected(old('status') === 'published')>{{ __('Published — live on the public site') }}</option>
                 </select>
-                <p class="mt-1 text-xs text-gray-500">Draft courses stay in the admin panel only until you publish them.</p>
+                <p class="mt-1 text-xs text-gray-500">{{ __('Draft courses stay in the admin panel only until you publish them.') }}</p>
                 @error('status')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
+            @include('admin.partials.translation-fields', [
+                'model' => null,
+                'fields' => [
+                    'title' => ['label' => __('Title'), 'type' => 'input'],
+                    'description' => ['label' => __('Description'), 'type' => 'textarea', 'rows' => 4],
+                    'duration' => ['label' => __('Duration'), 'type' => 'input'],
+                ],
+            ])
             <div class="flex gap-3">
-                <button type="submit" class="admin-btn-accent">Create course</button>
-                <a href="{{ route('admin.courses.index') }}" class="admin-btn-secondary">Cancel</a>
+                <button type="submit" class="admin-btn-accent">{{ __('Create course') }}</button>
+                <a href="{{ route('admin.courses.index') }}" class="admin-btn-secondary">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>

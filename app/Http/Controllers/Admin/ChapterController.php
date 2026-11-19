@@ -24,11 +24,13 @@ class ChapterController extends Controller
 
     public function store(Request $request, Course $course): RedirectResponse
     {
-        $validated = $request->validate(['title' => 'required|string|max:255']);
+        $validated = $request->validate(array_merge(['title' => 'required|string|max:255'], Chapter::translationRules()));
+        unset($validated['tr']);
         $validated['course_id'] = $course->id;
         $validated['sort_order'] = $course->chapters()->max('sort_order') + 1;
-        Chapter::create($validated);
-        return redirect()->route('admin.courses.edit', $course)->with('success', 'Chapter added.')->with('tab', 'curriculum');
+        $chapter = Chapter::create($validated);
+        $chapter->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.courses.edit', $course)->with('success', __('Chapter added.'))->with('tab', 'curriculum');
     }
 
     public function edit(Chapter $chapter): View
@@ -39,15 +41,17 @@ class ChapterController extends Controller
 
     public function update(Request $request, Chapter $chapter): RedirectResponse
     {
-        $validated = $request->validate(['title' => 'required|string|max:255']);
+        $validated = $request->validate(array_merge(['title' => 'required|string|max:255'], Chapter::translationRules()));
+        unset($validated['tr']);
         $chapter->update($validated);
-        return redirect()->route('admin.courses.edit', $chapter->course)->with('success', 'Chapter updated.')->with('tab', 'curriculum');
+        $chapter->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.courses.edit', $chapter->course)->with('success', __('Chapter updated.'))->with('tab', 'curriculum');
     }
 
     public function destroy(Chapter $chapter): RedirectResponse
     {
         $course = $chapter->course;
         $chapter->delete();
-        return redirect()->route('admin.courses.edit', $course)->with('success', 'Chapter deleted.')->with('tab', 'curriculum');
+        return redirect()->route('admin.courses.edit', $course)->with('success', __('Chapter deleted.'))->with('tab', 'curriculum');
     }
 }

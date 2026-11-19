@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Live Session')
-@section('header', 'Edit Live Session: ' . $liveSession->title)
+@section('title', __('Edit Live Session'))
+@section('header', __('Edit Live Session: :title', ['title' => $liveSession->title]))
 
 @section('content')
     <div class="max-w-xl">
         @if($errors->any())
             <div class="mb-4 p-3 rounded-xl bg-red-50 text-red-700 border border-red-100 text-sm">
-                <p class="font-medium">Please fix the following:</p>
+                <p class="font-medium">{{ __('Please fix the following:') }}</p>
                 <ul class="mt-1 list-disc list-inside space-y-0.5">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -19,49 +19,49 @@
             @csrf
             @method('PUT')
             <div>
-                <p class="text-sm text-gray-500">Course: {{ $liveSession->course->title }}</p>
+                <p class="text-sm text-gray-500">{{ __('Course: :title', ['title' => $liveSession->course->title]) }}</p>
             </div>
             <div>
-                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <label for="title" class="block text-sm font-medium text-gray-700">{{ __('Title') }}</label>
                 <input type="text" name="title" id="title" value="{{ old('title', $liveSession->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700">Description (optional)</label>
+                <label for="description" class="block text-sm font-medium text-gray-700">{{ __('Description (optional)') }}</label>
                 <textarea name="description" id="description" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('description', $liveSession->description) }}</textarea>
                 @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="scheduled_at" class="block text-sm font-medium text-gray-700">Date & time</label>
+                    <label for="scheduled_at" class="block text-sm font-medium text-gray-700">{{ __('Date & time') }}</label>
                     <input type="datetime-local" name="scheduled_at" id="scheduled_at" value="{{ old('scheduled_at', $liveSession->scheduled_at->format('Y-m-d\TH:i')) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     @error('scheduled_at')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="duration_minutes" class="block text-sm font-medium text-gray-700">Duration (minutes)</label>
+                    <label for="duration_minutes" class="block text-sm font-medium text-gray-700">{{ __('Duration (minutes)') }}</label>
                     <input type="number" name="duration_minutes" id="duration_minutes" value="{{ old('duration_minutes', $liveSession->duration_minutes) }}" min="5" max="480" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     @error('duration_minutes')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div>
-                <label for="meeting_url" class="block text-sm font-medium text-gray-700">Meeting URL</label>
+                <label for="meeting_url" class="block text-sm font-medium text-gray-700">{{ __('Meeting URL') }}</label>
                 <input type="url" name="meeting_url" id="meeting_url" value="{{ old('meeting_url', $liveSession->meeting_url) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('meeting_url')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="meeting_password" class="block text-sm font-medium text-gray-700">Meeting password (optional)</label>
+                <label for="meeting_password" class="block text-sm font-medium text-gray-700">{{ __('Meeting password (optional)') }}</label>
                 <input type="text" name="meeting_password" id="meeting_password" value="{{ old('meeting_password', $liveSession->meeting_password) }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('meeting_password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <p class="text-sm font-medium text-gray-700 mb-2">Invite students (invited students receive an email; only they can see the join link)</p>
-                <p class="text-sm text-gray-500 mb-2">Open the dropdown to browse the list or type to search. Remove with ×.</p>
+                <p class="text-sm font-medium text-gray-700 mb-2">{{ __('Invite students (invited students receive an email; only they can see the join link)') }}</p>
+                <p class="text-sm text-gray-500 mb-2">{{ __('Open the dropdown to browse the list or type to search. Remove with ×.') }}</p>
                 <div class="flex flex-wrap gap-2 mb-2" id="invited-tags"></div>
                 <div class="relative">
-                    <input type="text" id="invitee-search" placeholder="Search or click to see list…" autocomplete="off" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
+                    <input type="text" id="invitee-search" placeholder="{{ __('Search or click to see list…') }}" autocomplete="off" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     <div id="invitee-dropdown" class="absolute z-20 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-56 overflow-y-auto hidden"></div>
                 </div>
-                <p class="mt-1.5 text-sm text-gray-500"><button type="button" id="invitee-show-list" class="text-primary hover:text-accent-dark font-medium">Show dropdown list</button> — or type to search.</p>
+                <p class="mt-1.5 text-sm text-gray-500"><button type="button" id="invitee-show-list" class="text-primary hover:text-accent-dark font-medium">{{ __('Show dropdown list') }}</button> — {{ __('or type to search.') }}</p>
                 @php
     $invitedIdsValue = old('invited_user_ids', $liveSession->invitedAttendees->pluck('id')->toArray());
     if (is_array($invitedIdsValue)) {
@@ -70,9 +70,16 @@
 @endphp
                 <input type="hidden" name="invited_user_ids" id="invited_user_ids_input" value="{{ $invitedIdsValue }}">
             </div>
+            @include('admin.partials.translation-fields', [
+                'model' => $liveSession,
+                'fields' => [
+                    'title' => ['label' => __('Title'), 'type' => 'input'],
+                    'description' => ['label' => __('Description'), 'type' => 'textarea', 'rows' => 3],
+                ],
+            ])
             <div class="flex gap-3">
-                <button type="submit" class="admin-btn-accent">Save</button>
-                <a href="{{ route('admin.live-sessions.index') }}" class="admin-btn-secondary">Cancel</a>
+                <button type="submit" class="admin-btn-accent">{{ __('Save') }}</button>
+                <a href="{{ route('admin.live-sessions.index') }}" class="admin-btn-secondary">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>
@@ -95,7 +102,7 @@
                     var tag = document.createElement('span');
                     tag.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-accent-muted text-accent-darker';
                     tag.dataset.id = id;
-                    tag.innerHTML = ((window._invitedNames && window._invitedNames[id]) || 'ID ' + id) + ' <button type="button" class="hover:text-accent-darker">&times;</button>';
+                    tag.innerHTML = ((window._invitedNames && window._invitedNames[id]) || {{ Js::from(__('ID')) }} + ' ' + id) + ' <button type="button" class="hover:text-accent-darker">&times;</button>';
                     tag.querySelector('button').onclick = function () {
                         selected = selected.filter(function (i) { return i !== id; });
                         delete (window._invitedNames || {})[id];
@@ -111,7 +118,7 @@
                 var el = document.getElementById('invitee-dropdown');
                 el.innerHTML = '';
                 if (!users.length) {
-                    el.innerHTML = '<div class="p-3 text-sm text-gray-500">No students found. Try a different search or check that the course has enrollments.</div>';
+                    el.innerHTML = '<div class="p-3 text-sm text-gray-500">' + {{ Js::from(__('No students found. Try a different search or check that the course has enrollments.')) }} + '</div>';
                 } else {
                     users.forEach(function (u) {
                         if (selected.indexOf(String(u.id)) !== -1) return;
@@ -136,7 +143,7 @@
             function loadDropdownList(searchTerm) {
                 var dropdown = document.getElementById('invitee-dropdown');
                 dropdown.classList.remove('hidden');
-                dropdown.innerHTML = '<div class="p-3 text-sm text-gray-500">Loading…</div>';
+                dropdown.innerHTML = '<div class="p-3 text-sm text-gray-500">' + {{ Js::from(__('Loading…')) }} + '</div>';
                 var url = baseUrl + '/' + courseId + '/enrolled-users';
                 if (searchTerm && searchTerm.length >= 2) {
                     url += '?search=' + encodeURIComponent(searchTerm);

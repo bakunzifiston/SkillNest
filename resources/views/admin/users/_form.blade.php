@@ -5,40 +5,40 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     <div>
-        <label for="first_name" class="block text-sm font-medium text-slate-700">First name</label>
+        <label for="first_name" class="block text-sm font-medium text-slate-700">{{ __('First name') }}</label>
         <input type="text" name="first_name" id="first_name" value="{{ old('first_name', $user?->first_name ?? $user?->displayFirstName()) }}" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
         @error('first_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
     </div>
     <div>
-        <label for="last_name" class="block text-sm font-medium text-slate-700">Last name</label>
+        <label for="last_name" class="block text-sm font-medium text-slate-700">{{ __('Last name') }}</label>
         <input type="text" name="last_name" id="last_name" value="{{ old('last_name', $user?->last_name ?? $user?->displayLastName()) }}" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
         @error('last_name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
     </div>
 </div>
 
 <div>
-    <label for="email" class="block text-sm font-medium text-slate-700">Email</label>
+    <label for="email" class="block text-sm font-medium text-slate-700">{{ __('Email') }}</label>
     <input type="email" name="email" id="email" value="{{ old('email', $user?->email) }}" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
     @error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
 </div>
 
 <div x-data="{ type: '{{ old('learner_type', $user?->learner_type ?? 'agent') }}' }" class="space-y-3">
     <div>
-        <label for="learner_type" class="block text-sm font-medium text-slate-700">Learner category</label>
+        <label for="learner_type" class="block text-sm font-medium text-slate-700">{{ __('Learner category') }}</label>
         <select name="learner_type" id="learner_type" x-model="type" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
             @foreach(\App\Models\User::learnerTypes() as $value => $label)
                 <option value="{{ $value }}">{{ $label }}</option>
             @endforeach
         </select>
-        <p class="mt-1 text-xs text-slate-400">Controls which restricted courses this learner can see and enroll in.</p>
+        <p class="mt-1 text-xs text-slate-400">{{ __('Controls which restricted courses this learner can see and enroll in.') }}</p>
         @error('learner_type')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
     </div>
     <div x-show="type === 'partner'" x-cloak>
-        <label for="partner_organization_id" class="block text-sm font-medium text-slate-700">Partner organization</label>
+        <label for="partner_organization_id" class="block text-sm font-medium text-slate-700">{{ __('Partner organization') }}</label>
         <select name="partner_organization_id" id="partner_organization_id" x-bind:disabled="type !== 'partner'" class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
-            <option value="">Select organization</option>
+            <option value="">{{ __('Select organization') }}</option>
             @foreach($partnerOrganizations as $org)
-                <option value="{{ $org->id }}" @selected((string) old('partner_organization_id', $user?->partner_organization_id) === (string) $org->id)>{{ $org->name }}{{ $org->is_active ? '' : ' (inactive)' }}</option>
+                <option value="{{ $org->id }}" @selected((string) old('partner_organization_id', $user?->partner_organization_id) === (string) $org->id)>{{ $org->is_active ? $org->name : __(':name (inactive)', ['name' => $org->name]) }}</option>
             @endforeach
         </select>
         @error('partner_organization_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
@@ -46,7 +46,7 @@
 </div>
 
 <div class="pt-1">
-    <h3 class="text-sm font-semibold text-navy mb-3">Location</h3>
+    <h3 class="text-sm font-semibold text-navy mb-3">{{ __('Location') }}</h3>
     @include('partials.location-fields', [
         'user' => $user,
         'selectClass' => 'mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent',
@@ -56,26 +56,26 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     <div>
-        <label for="password" class="block text-sm font-medium text-slate-700">Password {{ $isEdit ? '(optional)' : '' }}</label>
+        <label for="password" class="block text-sm font-medium text-slate-700">{{ $isEdit ? __('Password (optional)') : __('Password') }}</label>
         <input type="password" name="password" id="password" autocomplete="new-password" @unless($isEdit) required @endunless class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
         @error('password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
     </div>
     <div>
-        <label for="password_confirmation" class="block text-sm font-medium text-slate-700">Confirm password</label>
+        <label for="password_confirmation" class="block text-sm font-medium text-slate-700">{{ __('Confirm password') }}</label>
         <input type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password" @unless($isEdit) required @endunless class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent">
     </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     <div>
-        <label for="role_id" class="block text-sm font-medium text-slate-700">Role / access level</label>
+        <label for="role_id" class="block text-sm font-medium text-slate-700">{{ __('Role / access level') }}</label>
         <select
             name="role_id"
             id="role_id"
             class="mt-1 block w-full rounded-xl border-slate-300 text-sm shadow-sm focus:border-accent focus:ring-accent"
             onchange="window.dispatchEvent(new CustomEvent('role-changed', { detail: this.value }))"
         >
-            <option value="">Student (no admin access)</option>
+            <option value="">{{ __('Student (no admin access)') }}</option>
             @foreach($roles as $role)
                 @if($role->isSuperAdmin() && !auth()->user()->isSuperAdmin())
                     @continue
@@ -84,10 +84,10 @@
             @endforeach
         </select>
         @error('role_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
-        <p class="mt-1 text-xs text-slate-500">Students can use the public site. Staff roles unlock the admin modules you grant below.</p>
+        <p class="mt-1 text-xs text-slate-500">{{ __('Students can use the public site. Staff roles unlock the admin modules you grant below.') }}</p>
     </div>
     <div>
-        <span class="block text-sm font-medium text-slate-700">Status</span>
+        <span class="block text-sm font-medium text-slate-700">{{ __('Status') }}</span>
         <input type="hidden" name="is_active" value="0">
         <label class="mt-2 inline-flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3">
             <input
@@ -97,15 +97,15 @@
                 class="rounded border-slate-300 text-primary focus:ring-primary"
                 @checked(old('is_active', $user?->is_active ?? true))
             >
-            <span class="text-sm text-navy">Active account</span>
+            <span class="text-sm text-navy">{{ __('Active account') }}</span>
         </label>
         @error('is_active')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
     </div>
 </div>
 
 <div class="pt-2">
-    <h3 class="text-sm font-semibold text-navy mb-1">Module access</h3>
-    <p class="text-xs text-slate-500 mb-4">Choose which admin modules this person can open, then grant View / Create / Edit / Delete where it applies.</p>
+    <h3 class="text-sm font-semibold text-navy mb-1">{{ __('Module access') }}</h3>
+    <p class="text-xs text-slate-500 mb-4">{{ __('Choose which admin modules this person can open, then grant View / Create / Edit / Delete where it applies.') }}</p>
     @include('admin.partials.permission-matrix', [
         'modules' => $modules,
         'groups' => $groups,

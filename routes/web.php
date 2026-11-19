@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('course-image/{path}', [\App\Http\Controllers\StorageController::class, 'courseImage'])->where('path', '.*')->name('course.image');
 Route::get('lesson-file/{path}', [\App\Http\Controllers\StorageController::class, 'lessonFile'])->where('path', '.*')->name('lesson.file');
 
+// Language switcher (English / Kinyarwanda)
+Route::post('/language', [\App\Http\Controllers\LocaleController::class, 'update'])->middleware('throttle:60,1')->name('locale.update');
+
 // Public site
 Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/courses', [PageController::class, 'courses'])->name('courses.index');

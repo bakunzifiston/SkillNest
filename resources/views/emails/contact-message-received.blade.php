@@ -1,10 +1,10 @@
 @component('mail::message')
-# New Contact Message
+# {{ __('New Contact Message') }}
 
-A new message has been submitted through the contact form.
+{{ __('A new message has been submitted through the contact form.') }}
 
-**From:** {{ $contactMessage->name }} ({{ $contactMessage->email }})  
-**Subject:** {{ $contactMessage->subject ?? '(No subject)' }}
+**{{ __('From:') }}** {{ $contactMessage->name }} ({{ $contactMessage->email }})  
+**{{ __('Subject:') }}** {{ $contactMessage->subject ?? __('(No subject)') }}
 
 ---
 
@@ -13,9 +13,9 @@ A new message has been submitted through the contact form.
 ---
 
 @component('mail::button', ['url' => url('/admin/dashboard')])
-View in Admin Panel
+{{ __('View in Admin Panel') }}
 @endcomponent
 
-Thanks,  
+{{ __('Thanks,') }}  
 {{ config('app.name') }}
 @endcomponent

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Instructor')
-@section('header', 'Edit Instructor')
+@section('title', __('Edit Instructor'))
+@section('header', __('Edit Instructor'))
 
 @section('content')
     <div class="max-w-xl">
@@ -9,23 +9,30 @@
             @csrf
             @method('PUT')
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <label for="name" class="block text-sm font-medium text-gray-700">{{ __('Name') }}</label>
                 <input type="text" name="name" id="name" value="{{ old('name', $instructor->name) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('name')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email (optional)</label>
+                <label for="email" class="block text-sm font-medium text-gray-700">{{ __('Email (optional)') }}</label>
                 <input type="email" name="email" id="email" value="{{ old('email', $instructor->email) }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('email')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="bio" class="block text-sm font-medium text-gray-700">Bio (optional)</label>
+                <label for="bio" class="block text-sm font-medium text-gray-700">{{ __('Bio (optional)') }}</label>
                 <textarea name="bio" id="bio" rows="3" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('bio', $instructor->bio) }}</textarea>
                 @error('bio')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
+            @include('admin.partials.translation-fields', [
+                'model' => $instructor,
+                'fields' => [
+                    'name' => ['label' => __('Name'), 'type' => 'input'],
+                    'bio' => ['label' => __('Bio'), 'type' => 'textarea', 'rows' => 3],
+                ],
+            ])
             <div class="flex gap-3">
-                <button type="submit" class="admin-btn-accent">Update instructor</button>
-                <a href="{{ route('admin.instructors.index') }}" class="admin-btn-secondary">Cancel</a>
+                <button type="submit" class="admin-btn-accent">{{ __('Update instructor') }}</button>
+                <a href="{{ route('admin.instructors.index') }}" class="admin-btn-secondary">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>

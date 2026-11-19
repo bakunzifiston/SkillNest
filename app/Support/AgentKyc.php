@@ -13,10 +13,10 @@ class AgentKyc
     public static function genders(): array
     {
         return [
-            'male' => 'Male',
-            'female' => 'Female',
-            'other' => 'Other',
-            'prefer_not_to_say' => 'Prefer not to say',
+            'male' => __('Male'),
+            'female' => __('Female'),
+            'other' => __('Other'),
+            'prefer_not_to_say' => __('Prefer not to say'),
         ];
     }
 
@@ -38,9 +38,9 @@ class AgentKyc
     public static function messages(): array
     {
         return [
-            'phone.regex' => 'Enter a valid phone number, e.g. +250 788 000 000.',
-            'national_id.regex' => 'The national ID number may contain only letters and digits (6 to 32 characters).',
-            'date_of_birth.before' => 'Date of birth must be in the past.',
+            'phone.regex' => __('Enter a valid phone number, e.g. +250 788 000 000.'),
+            'national_id.regex' => __('The national ID number may contain only letters and digits (6 to 32 characters).'),
+            'date_of_birth.before' => __('Date of birth must be in the past.'),
         ];
     }
 

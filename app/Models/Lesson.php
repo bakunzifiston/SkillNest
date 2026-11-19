@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Lesson extends Model
 {
+    use HasTranslations;
+
+    /** Fields that can be translated (see HasTranslations). */
+    protected array $translatable = ['title', 'content'];
+
     public const TYPE_TEXT = 'text';
     public const TYPE_YOUTUBE = 'youtube';
     public const TYPE_PDF = 'pdf';
@@ -16,10 +22,10 @@ class Lesson extends Model
     public static function types(): array
     {
         return [
-            self::TYPE_TEXT => 'Text content',
-            self::TYPE_YOUTUBE => 'YouTube link',
-            self::TYPE_PDF => 'PDF file',
-            self::TYPE_VIDEO => 'Uploaded video',
+            self::TYPE_TEXT => __('Text content'),
+            self::TYPE_YOUTUBE => __('YouTube link'),
+            self::TYPE_PDF => __('PDF file'),
+            self::TYPE_VIDEO => __('Uploaded video'),
         ];
     }
 

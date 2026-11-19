@@ -54,25 +54,25 @@ class UserController extends Controller
 
         $kpis = [
             [
-                'label' => 'Users',
+                'label' => __('Users'),
                 'value' => $totalUsers,
                 'icon' => 'users',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Students',
+                'label' => __('Students'),
                 'value' => $students,
                 'icon' => 'user',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Staff',
+                'label' => __('Staff'),
                 'value' => $staff,
                 'icon' => 'shield',
                 'tone' => 'accent',
             ],
             [
-                'label' => $inactive > 0 ? 'Inactive' : 'Active (30d)',
+                'label' => $inactive > 0 ? __('Inactive') : __('Active (30d)'),
                 'value' => $inactive > 0 ? $inactive : $activeRecently,
                 'icon' => 'pulse',
                 'tone' => 'slate',
@@ -121,7 +121,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('admin.users.show', $user)
-            ->with('success', 'User created.');
+            ->with('success', __('User created.'));
     }
 
     public function show(Request $request, User $user): View
@@ -166,25 +166,25 @@ class UserController extends Controller
 
         $kpis = [
             [
-                'label' => 'Enrolled',
+                'label' => __('Enrolled'),
                 'value' => $enrolledRows->count(),
                 'icon' => 'book',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Completed',
+                'label' => __('Completed'),
                 'value' => $completedCourses,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'In progress',
+                'label' => __('In progress'),
                 'value' => $inProgressCourses,
                 'icon' => 'pulse',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Avg. progress',
+                'label' => __('Avg. progress'),
                 'value' => $avgProgress,
                 'suffix' => '%',
                 'icon' => 'chart',
@@ -242,7 +242,7 @@ class UserController extends Controller
 
         return redirect()
             ->route('admin.users.show', $user)
-            ->with('success', 'User updated.');
+            ->with('success', __('User updated.'));
     }
 
     public function toggleStatus(Request $request, User $user): RedirectResponse
@@ -252,24 +252,24 @@ class UserController extends Controller
         $user->is_active = ! $user->is_active;
         $user->save();
 
-        return back()->with('success', $user->is_active ? 'User activated.' : 'User deactivated.');
+        return back()->with('success', $user->is_active ? __('User activated.') : __('User deactivated.'));
     }
 
     public function destroy(Request $request, User $user): RedirectResponse
     {
         if ($user->is($request->user())) {
-            return back()->with('error', 'You cannot delete your own account.');
+            return back()->with('error', __('You cannot delete your own account.'));
         }
 
         if ($user->isSuperAdmin() && User::activeSuperAdminCount($user->id) === 0) {
-            return back()->with('error', 'The last Super Admin cannot be deleted.');
+            return back()->with('error', __('The last Super Admin cannot be deleted.'));
         }
 
         $user->delete();
 
         return redirect()
             ->route('admin.users.index')
-            ->with('success', 'User deleted.');
+            ->with('success', __('User deleted.'));
     }
 
     /**
@@ -352,7 +352,7 @@ class UserController extends Controller
 
         if ($role->isSuperAdmin() && ! $request->user()?->isSuperAdmin()) {
             throw ValidationException::withMessages([
-                'role_id' => 'Only a Super Admin can assign the Super Admin role.',
+                'role_id' => __('Only a Super Admin can assign the Super Admin role.'),
             ]);
         }
 
@@ -380,7 +380,7 @@ class UserController extends Controller
     {
         if ($target->is($actor) && ! $willBeActive) {
             throw ValidationException::withMessages([
-                'is_active' => 'You cannot deactivate your own account.',
+                'is_active' => __('You cannot deactivate your own account.'),
             ]);
         }
 
@@ -388,7 +388,7 @@ class UserController extends Controller
 
         if ($target->isSuperAdmin() && ! $willRemainSuper && User::activeSuperAdminCount($target->id) === 0) {
             throw ValidationException::withMessages([
-                'role_id' => 'The last Super Admin cannot be demoted or deactivated.',
+                'role_id' => __('The last Super Admin cannot be demoted or deactivated.'),
             ]);
         }
     }

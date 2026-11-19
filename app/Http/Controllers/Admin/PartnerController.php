@@ -28,25 +28,25 @@ class PartnerController extends Controller
 
         $kpis = [
             [
-                'label' => 'Partners',
+                'label' => __('Partners'),
                 'value' => $total,
                 'icon' => 'users',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Named',
+                'label' => __('Named'),
                 'value' => $named,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Unnamed',
+                'label' => __('Unnamed'),
                 'value' => max(0, $total - $named),
                 'icon' => 'folder',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'On homepage',
+                'label' => __('On homepage'),
                 'value' => $total,
                 'icon' => 'live',
                 'tone' => 'slate',
@@ -74,7 +74,7 @@ class PartnerController extends Controller
             'logo' => $path,
             'sort_order' => $sortOrder,
         ]);
-        return redirect()->route('admin.partners.index')->with('success', 'Partner added.');
+        return redirect()->route('admin.partners.index')->with('success', __('Partner added.'));
     }
 
     public function edit(Partner $partner): View
@@ -96,7 +96,7 @@ class PartnerController extends Controller
             $data['logo'] = $request->file('logo')->store('partners', 'public');
         }
         $partner->update($data);
-        return redirect()->route('admin.partners.index')->with('success', 'Partner updated.');
+        return redirect()->route('admin.partners.index')->with('success', __('Partner updated.'));
     }
 
     public function destroy(Partner $partner): RedirectResponse
@@ -105,6 +105,6 @@ class PartnerController extends Controller
             Storage::disk('public')->delete($partner->logo);
         }
         $partner->delete();
-        return redirect()->route('admin.partners.index')->with('success', 'Partner removed.');
+        return redirect()->route('admin.partners.index')->with('success', __('Partner removed.'));
     }
 }

@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Bundle')
-@section('header', 'Edit: ' . $bundle->title)
+@section('title', __('Edit Bundle'))
+@section('header', __('Edit: :title', ['title' => $bundle->title]))
 
 @section('content')
     @if(session('success'))
@@ -16,55 +16,62 @@
             @csrf
             @method('PUT')
             <div>
-                <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
+                <label for="title" class="block text-sm font-medium text-gray-700">{{ __('Title') }}</label>
                 <input type="text" name="title" id="title" value="{{ old('title', $bundle->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="slug" class="block text-sm font-medium text-gray-700">Slug</label>
+                <label for="slug" class="block text-sm font-medium text-gray-700">{{ __('Slug') }}</label>
                 <input type="text" name="slug" id="slug" value="{{ old('slug', $bundle->slug) }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('slug')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <label for="description" class="block text-sm font-medium text-gray-700">{{ __('Description') }}</label>
                 <textarea name="description" id="description" rows="4" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('description', $bundle->description) }}</textarea>
             </div>
             <div class="p-4 bg-accent-light/50 rounded-xl border border-accent-muted">
-                <label for="thumbnail" class="block text-sm font-medium text-gray-700">Thumbnail</label>
+                <label for="thumbnail" class="block text-sm font-medium text-gray-700">{{ __('Thumbnail') }}</label>
                 @if($bundle->thumbnail_url)
                     <div class="mt-2 mb-3">
                         <img src="{{ $bundle->thumbnail_url }}" alt="" class="rounded-lg border border-gray-200 max-h-32 object-cover">
-                        <p class="mt-1 text-xs text-gray-500">Upload new to replace.</p>
+                        <p class="mt-1 text-xs text-gray-500">{{ __('Upload new to replace.') }}</p>
                     </div>
                 @endif
                 <input type="file" name="thumbnail" id="thumbnail" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent file:text-white file:font-medium hover:file:bg-accent-dark">
             </div>
             <div>
-                <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                <label for="status" class="block text-sm font-medium text-gray-700">{{ __('Status') }}</label>
                 <select name="status" id="status" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
-                    <option value="draft" {{ old('status', $bundle->status) === 'draft' ? 'selected' : '' }}>Draft</option>
-                    <option value="published" {{ old('status', $bundle->status) === 'published' ? 'selected' : '' }}>Published</option>
-                    <option value="archived" {{ old('status', $bundle->status) === 'archived' ? 'selected' : '' }}>Archived</option>
+                    <option value="draft" {{ old('status', $bundle->status) === 'draft' ? 'selected' : '' }}>{{ __('Draft') }}</option>
+                    <option value="published" {{ old('status', $bundle->status) === 'published' ? 'selected' : '' }}>{{ __('Published') }}</option>
+                    <option value="archived" {{ old('status', $bundle->status) === 'archived' ? 'selected' : '' }}>{{ __('Archived') }}</option>
                 </select>
             </div>
+            @include('admin.partials.translation-fields', [
+                'model' => $bundle,
+                'fields' => [
+                    'title' => ['label' => __('Title'), 'type' => 'input'],
+                    'description' => ['label' => __('Description'), 'type' => 'textarea', 'rows' => 4],
+                ],
+            ])
             <div class="flex gap-3">
-                <button type="submit" class="admin-btn-accent">Save bundle</button>
-                <a href="{{ route('admin.bundles.index') }}" class="admin-btn-secondary">Back to bundles</a>
+                <button type="submit" class="admin-btn-accent">{{ __('Save bundle') }}</button>
+                <a href="{{ route('admin.bundles.index') }}" class="admin-btn-secondary">{{ __('Back to bundles') }}</a>
             </div>
         </form>
     </div>
 
-    <h2 class="text-lg font-semibold text-gray-800 mb-3">Courses in this bundle (learning sequence)</h2>
+    <h2 class="text-lg font-semibold text-gray-800 mb-3">{{ __('Courses in this bundle (learning sequence)') }}</h2>
     @if($bundle->courses->isEmpty())
-        <p class="text-gray-500 mb-4">No courses yet. Add one below.</p>
+        <p class="text-gray-500 mb-4">{{ __('No courses yet. Add one below.') }}</p>
     @else
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden mb-6">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Course</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Remove</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Order') }}</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Course') }}</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">{{ __('Remove') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
@@ -73,10 +80,10 @@
                         <td class="px-6 py-4 text-gray-600">{{ $index + 1 }}</td>
                         <td class="px-6 py-4 font-medium text-gray-900">{{ $course->title }}</td>
                         <td class="px-6 py-4 text-right">
-                            <form action="{{ route('admin.bundles.courses.remove', [$bundle, $course]) }}" method="post" class="inline" onsubmit="return confirm('Remove this course from the bundle?');">
+                            <form action="{{ route('admin.bundles.courses.remove', [$bundle, $course]) }}" method="post" class="inline" onsubmit="return confirm({{ Js::from(__('Remove this course from the bundle?')) }});">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="admin-btn-danger">Remove</button>
+                                <button type="submit" class="admin-btn-danger">{{ __('Remove') }}</button>
                             </form>
                         </td>
                     </tr>
@@ -94,19 +101,19 @@
     @endif
 
     <div class="p-4 bg-gray-50 rounded-xl border border-gray-200 max-w-md">
-        <h3 class="text-sm font-medium text-gray-700 mb-2">Add course to bundle</h3>
+        <h3 class="text-sm font-medium text-gray-700 mb-2">{{ __('Add course to bundle') }}</h3>
         <form action="{{ route('admin.bundles.courses.add', $bundle) }}" method="post" class="flex gap-2">
             @csrf
             <select name="course_id" required class="flex-1 rounded-lg border-gray-300 text-sm">
-                <option value="">Select course</option>
+                <option value="">{{ __('Select course') }}</option>
                 @foreach($coursesNotInBundle as $c)
                     <option value="{{ $c->id }}">{{ $c->title }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="admin-btn-accent">Add</button>
+            <button type="submit" class="admin-btn-accent">{{ __('Add') }}</button>
         </form>
         @if($coursesNotInBundle->isEmpty())
-            <p class="mt-2 text-sm text-gray-500">All courses are already in this bundle.</p>
+            <p class="mt-2 text-sm text-gray-500">{{ __('All courses are already in this bundle.') }}</p>
         @endif
     </div>
 @endsection

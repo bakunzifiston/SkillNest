@@ -32,30 +32,30 @@ class CategoryController extends Controller
 
         $kpis = [
             [
-                'label' => 'Categories',
+                'label' => __('Categories'),
                 'value' => $totalCategories,
-                'hint' => $withCourses.' with courses',
+                'hint' => __(':count with courses', ['count' => $withCourses]),
                 'icon' => 'folder',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'With courses',
+                'label' => __('With courses'),
                 'value' => $withCourses,
-                'hint' => ($totalCategories - $withCourses).' empty',
+                'hint' => __(':count empty', ['count' => $totalCategories - $withCourses]),
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Courses linked',
+                'label' => __('Courses linked'),
                 'value' => $totalCourses,
-                'hint' => 'Across all categories',
+                'hint' => __('Across all categories'),
                 'icon' => 'book',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Avg. per category',
+                'label' => __('Avg. per category'),
                 'value' => $avgCourses,
-                'hint' => 'Courses per category',
+                'hint' => __('Courses per category'),
                 'icon' => 'chart',
                 'tone' => 'slate',
             ],
@@ -71,14 +71,16 @@ class CategoryController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'name' => 'required|string|max:255',
             'icon' => 'nullable|string|max:50',
-        ]);
+        ], Category::translationRules()));
+        unset($validated['tr']);
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
         $validated['courses_count'] = 0;
-        Category::create($validated);
-        return redirect()->route('admin.categories.index')->with('success', 'Category created.');
+        $category = Category::create($validated);
+        $category->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.categories.index')->with('success', __('Category created.'));
     }
 
     public function edit(Category $category): View
@@ -88,18 +90,20 @@ class CategoryController extends Controller
 
     public function update(Request $request, Category $category): RedirectResponse
     {
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'name' => 'required|string|max:255',
             'icon' => 'nullable|string|max:50',
-        ]);
+        ], Category::translationRules()));
+        unset($validated['tr']);
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['name']);
         $category->update($validated);
-        return redirect()->route('admin.categories.index')->with('success', 'Category updated.');
+        $category->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.categories.index')->with('success', __('Category updated.'));
     }
 
     public function destroy(Category $category): RedirectResponse
     {
         $category->delete();
-        return redirect()->route('admin.categories.index')->with('success', 'Category deleted.');
+        return redirect()->route('admin.categories.index')->with('success', __('Category deleted.'));
     }
 }

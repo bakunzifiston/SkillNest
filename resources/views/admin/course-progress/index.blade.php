@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Student progress')
-@section('header', 'Student progress')
+@section('title', __('Student progress'))
+@section('header', __('Student progress'))
 
 @section('content')
     <section class="mb-5" aria-labelledby="progress-kpi-heading">
-        <h2 id="progress-kpi-heading" class="sr-only">Progress overview</h2>
+        <h2 id="progress-kpi-heading" class="sr-only">{{ __('Progress overview') }}</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @foreach($kpis as $kpi)
                 @php
@@ -59,12 +59,12 @@
                 type="text"
                 name="search"
                 value="{{ $search ?? '' }}"
-                placeholder="Search by course or category..."
+                placeholder="{{ __('Search by course or category...') }}"
                 class="flex-1 rounded-xl border-slate-300 text-sm min-w-[12rem]"
             >
-            <button type="submit" class="admin-btn-secondary">Search</button>
+            <button type="submit" class="admin-btn-secondary">{{ __('Search') }}</button>
             @if(!empty($search))
-                <a href="{{ route('admin.course-progress.index') }}" class="admin-btn-secondary">Clear</a>
+                <a href="{{ route('admin.course-progress.index') }}" class="admin-btn-secondary">{{ __('Clear') }}</a>
             @endif
         </form>
     </div>
@@ -74,10 +74,10 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Category</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Students</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Actions</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Category') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Students') }}</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -109,7 +109,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end">
-                                    <a href="{{ route('admin.course-progress.show', $course) }}" class="admin-btn-secondary">View students</a>
+                                    <a href="{{ route('admin.course-progress.show', $course) }}" class="admin-btn-secondary">{{ __('View students') }}</a>
                                 </div>
                             </td>
                         </tr>
@@ -117,9 +117,9 @@
                         <tr>
                             <td colspan="4" class="px-4 py-10 text-center text-sm text-slate-500">
                                 @if(!empty($search))
-                                    No courses match “{{ $search }}”.
+                                    {{ __('No courses match “:search”.', ['search' => $search]) }}
                                 @else
-                                    No courses yet.
+                                    {{ __('No courses yet.') }}
                                 @endif
                             </td>
                         </tr>

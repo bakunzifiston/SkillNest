@@ -1,8 +1,8 @@
 <x-guest-layout>
     <div class="mb-8">
-        <h1 class="font-display font-bold text-2xl text-navy tracking-tight">Forgot your password?</h1>
+        <h1 class="font-display font-bold text-2xl text-navy tracking-tight">{{ __('Forgot your password?') }}</h1>
         <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Enter the email address associated with your account and we’ll send you a link to reset your password.
+            {{ __('Enter the email address associated with your account and we’ll send you a link to reset your password.') }}
         </p>
     </div>
 
@@ -31,13 +31,13 @@
             type="submit"
             class="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
         >
-            Send Reset Link
+            {{ __('Send Reset Link') }}
         </button>
     </form>
 
     <p class="mt-6 text-center text-sm text-slate-600">
         <a href="{{ route('login') }}" class="font-semibold text-primary hover:text-accent-dark transition">
-            ← Back to Login
+            {{ __('← Back to Login') }}
         </a>
     </p>
 </x-guest-layout>

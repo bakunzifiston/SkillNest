@@ -20,14 +20,14 @@ class SettingsController extends Controller
 
         $kpis = [
             [
-                'label' => 'Platform logo',
+                'label' => __('Platform logo'),
                 'value' => $logoUrl ? 1 : 0,
-                'display' => $logoUrl ? 'Set' : 'Missing',
+                'display' => $logoUrl ? __('Set') : __('Missing'),
                 'icon' => $logoUrl ? 'check' : 'pulse',
                 'tone' => $logoUrl ? 'success' : 'accent',
             ],
             [
-                'label' => 'Partner logos',
+                'label' => __('Partner logos'),
                 'value' => $partnersCount,
                 'icon' => 'users',
                 'tone' => 'primary',
@@ -60,6 +60,6 @@ class SettingsController extends Controller
             Setting::set(Setting::KEY_SITE_LOGO, null);
         }
 
-        return redirect()->route('admin.settings.edit')->with('success', 'Settings saved.');
+        return redirect()->route('admin.settings.edit')->with('success', __('Settings saved.'));
     }
 }

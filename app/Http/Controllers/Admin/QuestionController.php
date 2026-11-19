@@ -31,8 +31,11 @@ class QuestionController extends Controller
             'question_text' => 'required|string|max:2000',
             'points' => 'required|integer|min:1|max:100',
             'true_false_correct' => 'required_if:type,true_false|nullable|in:true,false',
-        ]);
-        unset($validated['true_false_correct']);
+            'tr_new_options' => 'nullable|array',
+            'tr_new_options.*' => 'nullable|string|max:1000',
+        ] + Question::translationRules());
+        $trNewOptions = $validated['tr_new_options'] ?? [];
+        unset($validated['true_false_correct'], $validated['tr'], $validated['tr_new_options']);
         $validated['quiz_id'] = $quiz->id;
         $validated['sort_order'] = $quiz->questions()->max('sort_order') + 1;
 
@@ -41,34 +44,40 @@ class QuestionController extends Controller
             // radio still points at the right text after blank options are dropped.
             $rawOptions = array_map(fn ($t) => trim((string) $t), $request->input('options', []));
             $options = array_values(array_filter($rawOptions, fn ($t) => $t !== ''));
+            // Optional translations stay aligned with their option (same form position).
+            $trOptions = array_values(array_intersect_key($trNewOptions, array_filter($rawOptions, fn ($t) => $t !== '')));
             if (count($options) < 2) {
-                return redirect()->back()->withInput()->withErrors(['options' => 'MCQ must have at least 2 options.']);
+                return redirect()->back()->withInput()->withErrors(['options' => __('MCQ must have at least 2 options.')]);
             }
             $chosen = (int) $request->input('correct_option', 0);
             if (($rawOptions[$chosen] ?? '') === '') {
-                return redirect()->back()->withInput()->withErrors(['options' => 'The correct option must not be blank.']);
+                return redirect()->back()->withInput()->withErrors(['options' => __('The correct option must not be blank.')]);
             }
             $correctIndex = array_search($chosen, array_keys(array_filter($rawOptions, fn ($t) => $t !== '')), true);
         }
 
         $question = Question::create($validated);
+        $question->saveTranslations($request->input('tr', []));
 
         if ($validated['type'] === 'true_false') {
             $correct = $request->input('true_false_correct') === 'true';
-            QuestionOption::create(['question_id' => $question->id, 'option_text' => 'True', 'is_correct' => $correct, 'sort_order' => 0]);
-            QuestionOption::create(['question_id' => $question->id, 'option_text' => 'False', 'is_correct' => !$correct, 'sort_order' => 1]);
+            $trueOption = QuestionOption::create(['question_id' => $question->id, 'option_text' => 'True', 'is_correct' => $correct, 'sort_order' => 0]);
+            $falseOption = QuestionOption::create(['question_id' => $question->id, 'option_text' => 'False', 'is_correct' => !$correct, 'sort_order' => 1]);
+            $trueOption->saveTranslations(['rw' => ['option_text' => 'Ukuri']]);
+            $falseOption->saveTranslations(['rw' => ['option_text' => 'Ikinyoma']]);
         } else {
             foreach ($options as $i => $text) {
-                QuestionOption::create([
+                $option = QuestionOption::create([
                     'question_id' => $question->id,
                     'option_text' => $text,
                     'is_correct' => $i === $correctIndex,
                     'sort_order' => $i,
                 ]);
+                $option->saveTranslations(['rw' => ['option_text' => $trOptions[$i] ?? null]]);
             }
         }
 
-        return redirect()->route('admin.quizzes.questions.index', $quiz)->with('success', 'Question added.');
+        return redirect()->route('admin.quizzes.questions.index', $quiz)->with('success', __('Question added.'));
     }
 
     public function edit(Question $question): View
@@ -82,8 +91,16 @@ class QuestionController extends Controller
         $validated = $request->validate([
             'question_text' => 'required|string|max:2000',
             'points' => 'required|integer|min:1|max:100',
-        ]);
+            'tr_options' => 'nullable|array',
+            'tr_options.*' => 'nullable|string|max:1000',
+            'tr_new_options' => 'nullable|array',
+            'tr_new_options.*' => 'nullable|string|max:1000',
+        ] + Question::translationRules());
+        $trOptions = $validated['tr_options'] ?? [];
+        $trNewOptions = $validated['tr_new_options'] ?? [];
+        unset($validated['tr'], $validated['tr_options'], $validated['tr_new_options']);
         $question->update($validated);
+        $question->saveTranslations($request->input('tr', []));
 
         if ($question->type === 'true_false') {
             $correct = $request->input('true_false_correct') === 'true';
@@ -103,29 +120,35 @@ class QuestionController extends Controller
                         'option_text' => $optionTexts[$i] ?? $opt->option_text,
                         'is_correct' => $i === $correctIndex,
                     ]);
+                    if (array_key_exists($id, $trOptions)) {
+                        $opt->saveTranslations(['rw' => ['option_text' => $trOptions[$id]]]);
+                    }
                 }
             }
             // New options (no id)
             $newTexts = $request->input('new_options', []);
             foreach ($newTexts as $i => $text) {
                 if (trim((string) $text) !== '') {
-                    QuestionOption::create([
+                    $newOption = QuestionOption::create([
                         'question_id' => $question->id,
                         'option_text' => $text,
                         'is_correct' => false,
                         'sort_order' => $question->options()->max('sort_order') + 1 + $i,
                     ]);
+                    if (filled($trNewOptions[$i] ?? null)) {
+                        $newOption->saveTranslations(['rw' => ['option_text' => $trNewOptions[$i]]]);
+                    }
                 }
             }
         }
 
-        return redirect()->route('admin.quizzes.questions.index', $question->quiz)->with('success', 'Question updated.');
+        return redirect()->route('admin.quizzes.questions.index', $question->quiz)->with('success', __('Question updated.'));
     }
 
     public function destroy(Question $question): RedirectResponse
     {
         $quiz = $question->quiz;
         $question->delete();
-        return redirect()->route('admin.quizzes.questions.index', $quiz)->with('success', 'Question deleted.');
+        return redirect()->route('admin.quizzes.questions.index', $quiz)->with('success', __('Question deleted.'));
     }
 }

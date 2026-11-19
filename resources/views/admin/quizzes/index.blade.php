@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Quizzes')
-@section('header', 'Quizzes')
+@section('title', __('Quizzes'))
+@section('header', __('Quizzes'))
 
 @section('content')
     <section class="mb-5" aria-labelledby="quizzes-kpi-heading">
-        <h2 id="quizzes-kpi-heading" class="sr-only">Quizzes overview</h2>
+        <h2 id="quizzes-kpi-heading" class="sr-only">{{ __('Quizzes overview') }}</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @foreach($kpis as $kpi)
                 @php
@@ -59,27 +59,27 @@
                 type="text"
                 name="search"
                 value="{{ $search ?? '' }}"
-                placeholder="Search by quiz or course..."
+                placeholder="{{ __('Search by quiz or course...') }}"
                 class="flex-1 rounded-xl border-slate-300 text-sm min-w-[12rem]"
             >
             <select name="course_id" class="rounded-xl border-slate-300 text-sm min-w-[10rem]">
-                <option value="">All courses</option>
+                <option value="">{{ __('All courses') }}</option>
                 @foreach($courses as $c)
                     <option value="{{ $c->id }}" @selected((int) ($courseId ?? 0) === (int) $c->id)>{{ $c->title }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="admin-btn-secondary">Filter</button>
+            <button type="submit" class="admin-btn-secondary">{{ __('Filter') }}</button>
             @if(!empty($search) || !empty($courseId))
-                <a href="{{ route('admin.quizzes.index') }}" class="admin-btn-secondary">Clear</a>
+                <a href="{{ route('admin.quizzes.index') }}" class="admin-btn-secondary">{{ __('Clear') }}</a>
             @endif
         </form>
         <div class="flex flex-wrap items-center gap-2 shrink-0">
             @adminCan('quiz_results', 'view')
-                <a href="{{ route('admin.quiz-results.index') }}" class="admin-btn-secondary">View results</a>
-                <a href="{{ route('admin.quiz-results.export') }}" class="admin-btn-secondary">Export CSV</a>
+                <a href="{{ route('admin.quiz-results.index') }}" class="admin-btn-secondary">{{ __('View results') }}</a>
+                <a href="{{ route('admin.quiz-results.export') }}" class="admin-btn-secondary">{{ __('Export CSV') }}</a>
             @endadminCan
             @adminCan('quizzes', 'create')
-                <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">Create quiz</a>
+                <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">{{ __('Create quiz') }}</a>
             @endadminCan
         </div>
     </div>
@@ -93,12 +93,12 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Quiz</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Passing</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Questions</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Actions</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Quiz') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Status') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Passing') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Questions') }}</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -108,7 +108,7 @@
                                 <div class="min-w-0">
                                     <p class="font-medium text-navy truncate max-w-[18rem]" title="{{ $quiz->title }}">{{ $quiz->title }}</p>
                                     @if($quiz->time_limit_minutes)
-                                        <p class="text-xs text-slate-400 mt-0.5">{{ $quiz->time_limit_minutes }} min limit</p>
+                                        <p class="text-xs text-slate-400 mt-0.5">{{ __(':minutes min limit', ['minutes' => $quiz->time_limit_minutes]) }}</p>
                                     @endif
                                 </div>
                             </td>
@@ -123,9 +123,9 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($quiz->is_published)
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Published</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">{{ __('Published') }}</span>
                                 @else
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Draft</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">{{ __('Draft') }}</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 whitespace-nowrap">
@@ -142,15 +142,15 @@
                             </td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end items-center gap-2">
-                                    <a href="{{ route('admin.quizzes.questions.index', $quiz) }}" class="admin-btn-secondary">Questions</a>
+                                    <a href="{{ route('admin.quizzes.questions.index', $quiz) }}" class="admin-btn-secondary">{{ __('Questions') }}</a>
                                     @adminCan('quizzes', 'edit')
-                                        <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="admin-btn-secondary">Edit</a>
+                                        <a href="{{ route('admin.quizzes.edit', $quiz) }}" class="admin-btn-secondary">{{ __('Edit') }}</a>
                                     @endadminCan
                                     @adminCan('quizzes', 'delete')
-                                        <form action="{{ route('admin.quizzes.destroy', $quiz) }}" method="post" onsubmit="return confirm('Delete this quiz and all its questions?');">
+                                        <form action="{{ route('admin.quizzes.destroy', $quiz) }}" method="post" onsubmit="return confirm({{ Js::from(__('Delete this quiz and all its questions?')) }});">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="admin-btn-danger">Delete</button>
+                                            <button type="submit" class="admin-btn-danger">{{ __('Delete') }}</button>
                                         </form>
                                     @endadminCan
                                 </div>
@@ -160,11 +160,11 @@
                         <tr>
                             <td colspan="6" class="px-4 py-10 text-center">
                                 @if(!empty($search) || !empty($courseId))
-                                    <p class="text-sm text-slate-500">No quizzes match your filters.</p>
+                                    <p class="text-sm text-slate-500">{{ __('No quizzes match your filters.') }}</p>
                                 @else
-                                    <p class="text-sm text-slate-500 mb-3">No quizzes yet.</p>
+                                    <p class="text-sm text-slate-500 mb-3">{{ __('No quizzes yet.') }}</p>
                                     @adminCan('quizzes', 'create')
-                                        <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">Create quiz</a>
+                                        <a href="{{ route('admin.quizzes.create') }}" class="admin-btn-accent">{{ __('Create quiz') }}</a>
                                     @endadminCan
                                 @endif
                             </td>

@@ -41,25 +41,25 @@ class LiveSessionController extends Controller
 
         $kpis = [
             [
-                'label' => 'Sessions',
+                'label' => __('Sessions'),
                 'value' => $totalSessions,
                 'icon' => 'live',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Upcoming',
+                'label' => __('Upcoming'),
                 'value' => $upcoming,
                 'icon' => 'pulse',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Past',
+                'label' => __('Past'),
                 'value' => $past,
                 'icon' => 'check',
                 'tone' => 'slate',
             ],
             [
-                'label' => 'Invitees',
+                'label' => __('Invitees'),
                 'value' => $totalInvitees,
                 'icon' => 'users',
                 'tone' => 'accent',
@@ -98,14 +98,15 @@ class LiveSessionController extends Controller
             'meeting_password' => 'nullable|string|max:100',
             'invited_user_ids' => 'nullable|array',
             'invited_user_ids.*' => 'integer|exists:users,id',
-        ]);
+        ] + LiveSession::translationRules());
 
         $course = Course::findOrFail($validated['course_id']);
         $enrolledUserIds = $course->enrollments()->pluck('user_id')->map(fn ($id) => (int) $id)->all();
         $invitedUserIds = array_values(array_intersect($validated['invited_user_ids'] ?? [], $enrolledUserIds));
 
-        unset($validated['invited_user_ids']);
+        unset($validated['invited_user_ids'], $validated['tr']);
         $liveSession = LiveSession::create($validated);
+        $liveSession->saveTranslations($request->input('tr', []));
         $liveSession->invitedAttendees()->sync($invitedUserIds);
 
         $sent = 0;
@@ -119,11 +120,11 @@ class LiveSessionController extends Controller
         }
 
         $message = $sent > 0
-            ? "Live session created. Invitation emails sent to {$sent} attendee(s)."
+            ? __("Live session created. Invitation emails sent to :count attendee(s).", ['count' => $sent])
             : (
                 count($invitedUserIds) > 0
-                    ? 'Live session created, but invitation emails could not be sent. Check mail settings.'
-                    : 'Live session created.'
+                    ? __('Live session created, but invitation emails could not be sent. Check mail settings.')
+                    : __('Live session created.')
             );
 
         return redirect()->route('admin.live-sessions.index')->with('success', $message);
@@ -139,21 +140,21 @@ class LiveSessionController extends Controller
 
         $kpis = [
             [
-                'label' => 'Invitees',
+                'label' => __('Invitees'),
                 'value' => $liveSession->invitedAttendees->count(),
                 'icon' => 'users',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Duration',
+                'label' => __('Duration'),
                 'value' => $liveSession->duration_minutes,
-                'suffix' => ' min',
+                'suffix' => ' '.__('min'),
                 'icon' => 'live',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Status',
-                'display' => $isLive ? 'Live now' : ($isUpcoming ? 'Upcoming' : 'Past'),
+                'label' => __('Status'),
+                'display' => $isLive ? __('Live now') : ($isUpcoming ? __('Upcoming') : __('Past')),
                 'value' => 0,
                 'icon' => $isLive ? 'pulse' : ($isUpcoming ? 'check' : 'folder'),
                 'tone' => $isLive ? 'accent' : ($isUpcoming ? 'success' : 'slate'),
@@ -185,13 +186,14 @@ class LiveSessionController extends Controller
             'meeting_password' => 'nullable|string|max:100',
             'invited_user_ids' => 'nullable|array',
             'invited_user_ids.*' => 'integer|exists:users,id',
-        ]);
+        ] + LiveSession::translationRules());
 
         $enrolledUserIds = $liveSession->course->enrollments()->pluck('user_id')->map(fn ($id) => (int) $id)->all();
         $invitedUserIds = array_values(array_intersect($validated['invited_user_ids'] ?? [], $enrolledUserIds));
 
-        unset($validated['invited_user_ids']);
+        unset($validated['invited_user_ids'], $validated['tr']);
         $liveSession->update($validated);
+        $liveSession->saveTranslations($request->input('tr', []));
         $previousIds = $liveSession->invitedAttendees->pluck('id')->map(fn ($id) => (int) $id)->all();
         $liveSession->invitedAttendees()->sync($invitedUserIds);
 
@@ -207,8 +209,8 @@ class LiveSessionController extends Controller
         }
 
         $message = $sent > 0
-            ? "Live session updated. Invitation emails sent to {$sent} new attendee(s)."
-            : 'Live session updated.';
+            ? __("Live session updated. Invitation emails sent to :count new attendee(s).", ['count' => $sent])
+            : __('Live session updated.');
 
         return redirect()->route('admin.live-sessions.index')->with('success', $message);
     }
@@ -216,7 +218,7 @@ class LiveSessionController extends Controller
     public function destroy(LiveSession $liveSession): RedirectResponse
     {
         $liveSession->delete();
-        return redirect()->route('admin.live-sessions.index')->with('success', 'Live session deleted.');
+        return redirect()->route('admin.live-sessions.index')->with('success', __('Live session deleted.'));
     }
 
     /**

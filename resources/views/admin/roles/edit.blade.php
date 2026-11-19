@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Role')
-@section('header', $role->isSuperAdmin() ? 'Super Admin' : 'Edit role')
+@section('title', __('Edit Role'))
+@section('header', $role->isSuperAdmin() ? __('Super Admin') : __('Edit role'))
 
 @section('content')
     <div class="mb-4">
         <a href="{{ route('admin.roles.index') }}" class="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1">
-            <span aria-hidden="true">←</span> All roles
+            <span aria-hidden="true">←</span> {{ __('All roles') }}
         </a>
     </div>
 
@@ -15,8 +15,8 @@
         @method('PUT')
         @include('admin.roles._form', ['role' => $role])
         <div class="flex gap-3 pt-2">
-            <button type="submit" class="admin-btn-accent">{{ $locked ? 'Save name' : 'Save role' }}</button>
-            <a href="{{ route('admin.roles.index') }}" class="admin-btn-secondary">Cancel</a>
+            <button type="submit" class="admin-btn-accent">{{ $locked ? __('Save name') : __('Save role') }}</button>
+            <a href="{{ route('admin.roles.index') }}" class="admin-btn-secondary">{{ __('Cancel') }}</a>
         </div>
     </form>
 @endsection

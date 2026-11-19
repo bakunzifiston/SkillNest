@@ -108,6 +108,6 @@ class PageController extends Controller
             }
         }
 
-        return redirect()->route('contact')->with('success', 'Thanks! We\'ve received your message and will get back to you soon.');
+        return redirect()->route('contact')->with('success', __('Thanks! We\'ve received your message and will get back to you soon.'));
     }
 }

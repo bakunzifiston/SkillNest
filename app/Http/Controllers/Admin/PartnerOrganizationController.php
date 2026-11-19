@@ -40,7 +40,7 @@ class PartnerOrganizationController extends Controller
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        return redirect()->route('admin.partner-organizations.index')->with('success', 'Partner organization added.');
+        return redirect()->route('admin.partner-organizations.index')->with('success', __('Partner organization added.'));
     }
 
     public function edit(PartnerOrganization $partner_organization): View
@@ -59,7 +59,7 @@ class PartnerOrganizationController extends Controller
             'is_active' => $request->boolean('is_active'),
         ]);
 
-        return redirect()->route('admin.partner-organizations.index')->with('success', 'Partner organization updated.');
+        return redirect()->route('admin.partner-organizations.index')->with('success', __('Partner organization updated.'));
     }
 
     public function regenerateCode(PartnerOrganization $partner_organization): RedirectResponse
@@ -67,19 +67,19 @@ class PartnerOrganizationController extends Controller
         $partner_organization->update(['registration_code' => PartnerOrganization::generateCode()]);
 
         return redirect()->route('admin.partner-organizations.index')
-            ->with('success', 'New registration code for '.$partner_organization->name.': '.$partner_organization->registration_code.'. The old code no longer works.');
+            ->with('success', __('New registration code for :name: :code. The old code no longer works.', ['name' => $partner_organization->name, 'code' => $partner_organization->registration_code]));
     }
 
     public function destroy(PartnerOrganization $partner_organization): RedirectResponse
     {
         if ($partner_organization->users()->exists() || $partner_organization->courses()->exists()) {
             return redirect()->route('admin.partner-organizations.index')
-                ->with('error', 'This organization has learners or courses assigned to it and cannot be deleted. Deactivate it instead.');
+                ->with('error', __('This organization has learners or courses assigned to it and cannot be deleted. Deactivate it instead.'));
         }
 
         $partner_organization->delete();
 
-        return redirect()->route('admin.partner-organizations.index')->with('success', 'Partner organization deleted.');
+        return redirect()->route('admin.partner-organizations.index')->with('success', __('Partner organization deleted.'));
     }
 
     private function uniqueSlug(string $name): string

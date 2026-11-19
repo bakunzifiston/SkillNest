@@ -32,25 +32,25 @@ class InstructorController extends Controller
 
         $kpis = [
             [
-                'label' => 'Instructors',
+                'label' => __('Instructors'),
                 'value' => $totalInstructors,
                 'icon' => 'instructor',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'With courses',
+                'label' => __('With courses'),
                 'value' => $withCourses,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Courses assigned',
+                'label' => __('Courses assigned'),
                 'value' => $totalCourses,
                 'icon' => 'book',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Avg. per instructor',
+                'label' => __('Avg. per instructor'),
                 'value' => $avgCourses,
                 'icon' => 'chart',
                 'tone' => 'slate',
@@ -67,13 +67,15 @@ class InstructorController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'bio' => 'nullable|string|max:5000',
-        ]);
-        Instructor::create($validated);
-        return redirect()->route('admin.instructors.index')->with('success', 'Instructor created.');
+        ], Instructor::translationRules()));
+        unset($validated['tr']);
+        $instructor = Instructor::create($validated);
+        $instructor->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.instructors.index')->with('success', __('Instructor created.'));
     }
 
     public function edit(Instructor $instructor): View
@@ -83,19 +85,21 @@ class InstructorController extends Controller
 
     public function update(Request $request, Instructor $instructor): RedirectResponse
     {
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'name' => 'required|string|max:255',
             'email' => 'nullable|email|max:255',
             'bio' => 'nullable|string|max:5000',
-        ]);
+        ], Instructor::translationRules()));
+        unset($validated['tr']);
         $instructor->update($validated);
-        return redirect()->route('admin.instructors.index')->with('success', 'Instructor updated.');
+        $instructor->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.instructors.index')->with('success', __('Instructor updated.'));
     }
 
     public function destroy(Instructor $instructor): RedirectResponse
     {
         $instructor->courses()->update(['instructor_id' => null]);
         $instructor->delete();
-        return redirect()->route('admin.instructors.index')->with('success', 'Instructor deleted.');
+        return redirect()->route('admin.instructors.index')->with('success', __('Instructor deleted.'));
     }
 }

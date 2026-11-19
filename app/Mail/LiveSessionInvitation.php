@@ -22,7 +22,7 @@ class LiveSessionInvitation extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'You\'re invited: ' . $this->liveSession->title,
+            subject: __('You\'re invited: :title', ['title' => $this->liveSession->title]),
         );
     }
 

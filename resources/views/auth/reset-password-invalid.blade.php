@@ -6,10 +6,10 @@
             </svg>
         </div>
         <h1 class="font-display font-bold text-2xl text-navy tracking-tight">
-            This password reset link is invalid or has expired.
+            {{ __('This password reset link is invalid or has expired.') }}
         </h1>
         <p class="mt-3 text-sm text-slate-600 leading-relaxed">
-            Please request a new password reset link to continue.
+            {{ __('Please request a new password reset link to continue.') }}
         </p>
     </div>
 
@@ -17,12 +17,12 @@
         href="{{ route('password.request') }}"
         class="w-full inline-flex items-center justify-center px-5 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
     >
-        Request New Reset Link
+        {{ __('Request New Reset Link') }}
     </a>
 
     <p class="mt-6 text-center text-sm text-slate-600">
         <a href="{{ route('login') }}" class="font-semibold text-primary hover:text-accent-dark transition">
-            ← Back to Login
+            {{ __('← Back to Login') }}
         </a>
     </p>
 </x-guest-layout>

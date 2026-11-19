@@ -1,23 +1,23 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Lesson')
-@section('header', 'Edit lesson')
+@section('title', __('Edit Lesson'))
+@section('header', __('Edit lesson'))
 
 @section('content')
     <div class="mb-4">
-        <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="admin-btn-secondary">Back to curriculum</a>
+        <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="admin-btn-secondary">{{ __('Back to curriculum') }}</a>
     </div>
     <div class="max-w-2xl">
         <form action="{{ route('admin.lessons.update', $lesson) }}" method="post" enctype="multipart/form-data" class="space-y-5" id="lesson-form">
             @csrf
             @method('PUT')
             <div>
-                <label for="title" class="block text-sm font-medium text-gray-700">Lesson title</label>
+                <label for="title" class="block text-sm font-medium text-gray-700">{{ __('Lesson title') }}</label>
                 <input type="text" name="title" id="title" value="{{ old('title', $lesson->title) }}" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="type" class="block text-sm font-medium text-gray-700">Content type</label>
+                <label for="type" class="block text-sm font-medium text-gray-700">{{ __('Content type') }}</label>
                 <select name="type" id="type" required class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                     @foreach(\App\Models\Lesson::types() as $value => $label)
                         <option value="{{ $value }}" {{ old('type', $lesson->type) == $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -27,37 +27,44 @@
             </div>
 
             <div id="field-text" class="lesson-type-fields {{ $lesson->type === 'text' ? '' : 'hidden' }}">
-                <label for="content" class="block text-sm font-medium text-gray-700">Text content</label>
+                <label for="content" class="block text-sm font-medium text-gray-700">{{ __('Text content') }}</label>
                 <textarea name="content" id="content" rows="6" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">{{ old('content', $lesson->content) }}</textarea>
                 @error('content')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div id="field-youtube" class="lesson-type-fields {{ $lesson->type === 'youtube' ? '' : 'hidden' }}">
-                <label for="source_url" class="block text-sm font-medium text-gray-700">YouTube (or video) URL</label>
+                <label for="source_url" class="block text-sm font-medium text-gray-700">{{ __('YouTube (or video) URL') }}</label>
                 <input type="url" name="source_url" id="source_url" value="{{ old('source_url', $lesson->source_url) }}" placeholder="https://www.youtube.com/watch?v=..." class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('source_url')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div id="field-pdf" class="lesson-type-fields {{ $lesson->type === 'pdf' ? '' : 'hidden' }}">
-                <label for="pdf_file" class="block text-sm font-medium text-gray-700">Upload PDF</label>
+                <label for="pdf_file" class="block text-sm font-medium text-gray-700">{{ __('Upload PDF') }}</label>
                 @if($lesson->file_path)
-                    <p class="mt-1 text-sm text-gray-500 mb-1">Current file: {{ basename($lesson->file_path) }}. Upload a new file to replace.</p>
+                    <p class="mt-1 text-sm text-gray-500 mb-1">{{ __('Current file: :name. Upload a new file to replace.', ['name' => basename($lesson->file_path)]) }}</p>
                 @endif
                 <input type="file" name="pdf_file" id="pdf_file" accept=".pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent-light file:text-accent-dark">
-                <p class="mt-1 text-xs text-gray-500">Max 50MB. Leave empty to keep current.</p>
+                <p class="mt-1 text-xs text-gray-500">{{ __('Max 50MB. Leave empty to keep current.') }}</p>
                 @error('pdf_file')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div id="field-video" class="lesson-type-fields {{ $lesson->type === 'video' ? '' : 'hidden' }}">
-                <label for="video_file" class="block text-sm font-medium text-gray-700">Upload video</label>
+                <label for="video_file" class="block text-sm font-medium text-gray-700">{{ __('Upload video') }}</label>
                 @if($lesson->file_path)
-                    <p class="mt-1 text-sm text-gray-500 mb-1">Current file: {{ basename($lesson->file_path) }}. Upload a new file to replace.</p>
+                    <p class="mt-1 text-sm text-gray-500 mb-1">{{ __('Current file: :name. Upload a new file to replace.', ['name' => basename($lesson->file_path)]) }}</p>
                 @endif
                 <input type="file" name="video_file" id="video_file" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-accent-light file:text-accent-dark">
-                <p class="mt-1 text-xs text-gray-500">MP4, MOV, AVI or WebM. Max 100MB.</p>
+                <p class="mt-1 text-xs text-gray-500">{{ __('MP4, MOV, AVI or WebM. Max 100MB.') }}</p>
                 @error('video_file')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
+            @include('admin.partials.translation-fields', [
+                'model' => $lesson,
+                'fields' => [
+                    'title' => ['label' => __('Lesson title'), 'type' => 'input'],
+                    'content' => ['label' => __('Text content'), 'type' => 'textarea', 'rows' => 6],
+                ],
+            ])
             <div class="flex gap-3">
-                <button type="submit" class="admin-btn-accent">Update lesson</button>
-                <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="admin-btn-secondary">Cancel</a>
+                <button type="submit" class="admin-btn-accent">{{ __('Update lesson') }}</button>
+                <a href="{{ route('admin.courses.edit', $lesson->chapter->course) }}?tab=curriculum" class="admin-btn-secondary">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>

@@ -22,10 +22,10 @@ class QuizController extends Controller
             abort(404);
         }
         if (! auth()->user()->hasEnrolled($course)) {
-            return redirect()->route('courses.show', $course)->with('error', 'Enroll in the course to take this quiz.');
+            return redirect()->route('courses.show', $course)->with('error', __('Enroll in the course to take this quiz.'));
         }
         if (! $quiz->is_published) {
-            return redirect()->route('courses.show', $course)->with('error', 'This quiz is not available.');
+            return redirect()->route('courses.show', $course)->with('error', __('This quiz is not available.'));
         }
         $quiz->load('questions.options');
         return view('quizzes.show', compact('course', 'quiz'));
@@ -34,7 +34,7 @@ class QuizController extends Controller
     public function start(Course $course, Quiz $quiz): RedirectResponse
     {
         if (! auth()->check() || ! auth()->user()->hasEnrolled($course)) {
-            return redirect()->route('courses.show', $course)->with('error', 'Enroll in the course first.');
+            return redirect()->route('courses.show', $course)->with('error', __('Enroll in the course first.'));
         }
         if ($quiz->course_id !== $course->id || ! $quiz->is_published) {
             abort(404);
@@ -54,7 +54,7 @@ class QuizController extends Controller
             abort(403);
         }
         if ($quizAttempt->submitted_at !== null) {
-            return redirect()->route('quizzes.result', $quizAttempt)->with('info', 'You already submitted this attempt.');
+            return redirect()->route('quizzes.result', $quizAttempt)->with('info', __('You already submitted this attempt.'));
         }
         $quizAttempt->load(['quiz.course', 'quiz.questions.options']);
         return view('quizzes.take', compact('quizAttempt'));
@@ -95,7 +95,7 @@ class QuizController extends Controller
             'passed' => $passed,
             'submitted_at' => now(),
         ]);
-        return redirect()->route('quizzes.result', $quizAttempt)->with('success', 'Quiz submitted.');
+        return redirect()->route('quizzes.result', $quizAttempt)->with('success', __('Quiz submitted.'));
     }
 
     public function result(QuizAttempt $quizAttempt): View|RedirectResponse

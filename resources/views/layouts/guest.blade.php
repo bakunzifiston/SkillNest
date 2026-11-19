@@ -14,10 +14,11 @@
         <div class="min-h-screen grid lg:grid-cols-2">
             <aside class="relative hidden lg:flex flex-col justify-between overflow-hidden bg-navy text-white p-10 xl:p-14">
                 <div class="absolute inset-0 opacity-[0.12]" aria-hidden="true" style="background-image: radial-gradient(circle at 20% 20%, #F16029 0, transparent 42%), radial-gradient(circle at 80% 80%, #19499B 0, transparent 40%);"></div>
-                <div class="relative">
+                <div class="relative flex items-start justify-between gap-4">
                     <a href="{{ route('home') }}" class="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg">
                         <x-brand-logo size="lg" variant="dark" />
                     </a>
+                    <x-language-switcher variant="dark" />
                 </div>
                 <div class="relative flex-1 flex items-center justify-center" style="padding: 1.5rem 0; min-height: 0;">
                     <div style="width: 100%; max-width: 26rem;">
@@ -27,10 +28,10 @@
                 <div class="relative max-w-md">
                     <p class="text-xs font-semibold uppercase tracking-[0.18em] text-accent">Digital Jobs for Youth in Health</p>
                     <h1 class="mt-4 font-display font-bold text-3xl xl:text-4xl tracking-tight leading-tight">
-                        Learn practical skills as a Digital Community Champion
+                        {{ __('Learn practical skills as a Digital Community Champion') }}
                     </h1>
                     <p class="mt-4 text-slate-300 leading-relaxed">
-                        Access courses, track your progress, and grow your impact through the KoraLink Agents Academy.
+                        {{ __('Access courses, track your progress, and grow your impact through the KoraLink Agents Academy.') }}
                     </p>
                 </div>
                 <p class="relative text-sm text-slate-400" style="margin-top: 1.5rem;">
@@ -39,10 +40,11 @@
             </aside>
 
             <div class="flex flex-col justify-center px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
-                <div class="lg:hidden mb-8 flex justify-center">
+                <div class="lg:hidden mb-8 flex flex-col items-center gap-4">
                     <a href="{{ route('home') }}" class="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg">
                         <x-brand-logo size="lg" />
                     </a>
+                    <x-language-switcher />
                 </div>
 
                 <div class="w-full max-w-md mx-auto">
@@ -50,7 +52,7 @@
                         {{ $slot }}
                     </div>
                     <p class="mt-6 text-center text-sm text-slate-500">
-                        <a href="{{ route('home') }}" class="font-medium text-primary hover:text-accent-dark transition">← Back to home</a>
+                        <a href="{{ route('home') }}" class="font-medium text-primary hover:text-accent-dark transition">{{ __('← Back to home') }}</a>
                     </p>
                 </div>
             </div>

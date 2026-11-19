@@ -2,7 +2,7 @@
     <div class="mb-8">
         <h1 class="font-display font-bold text-2xl text-navy tracking-tight">{{ __('Create an account') }}</h1>
         <p class="mt-2 text-sm text-slate-600 leading-relaxed">
-            Join as a learner and start building practical digital skills.
+            {{ __('Join as a learner and start building practical digital skills.') }}
         </p>
     </div>
 
@@ -77,7 +77,7 @@
         </div>
 
         <div class="pt-1">
-            <p class="text-sm font-semibold text-navy mb-3">Location</p>
+            <p class="text-sm font-semibold text-navy mb-3">{{ __('Location') }}</p>
             @include('partials.location-fields')
         </div>
 

@@ -110,7 +110,7 @@ class CourseProgressCsvImporter
                         'last_sign_in' => null,
                         'content_progress' => [],
                         'raw' => $assoc,
-                        'error' => $email === '' ? 'Missing email' : 'Invalid email',
+                        'error' => $email === '' ? __('Missing email') : __('Invalid email'),
                         'line' => $line,
                     ];
                     continue;
@@ -182,7 +182,7 @@ class CourseProgressCsvImporter
                 $preview[] = [
                     ...$row,
                     'action' => 'skip',
-                    'action_label' => 'Skip (invalid)',
+                    'action_label' => __('Skip (invalid)'),
                     'progress_note' => '—',
                     'lessons_to_complete' => 0,
                 ];
@@ -194,7 +194,7 @@ class CourseProgressCsvImporter
                 $preview[] = [
                     ...$row,
                     'action' => 'skip',
-                    'action_label' => 'Skip (not in this course\'s audience)',
+                    'action_label' => __('Skip (not in this course\'s audience)'),
                     'progress_note' => '—',
                     'lessons_to_complete' => 0,
                 ];
@@ -205,27 +205,26 @@ class CourseProgressCsvImporter
 
             if (! $user) {
                 $action = 'create';
-                $actionLabel = 'Create user + enroll';
+                $actionLabel = __('Create user + enroll');
             } elseif (in_array($user->id, $enrolledUserIds, true)) {
                 $action = 'already_enrolled';
-                $actionLabel = 'Already enrolled (update progress)';
+                $actionLabel = __('Already enrolled (update progress)');
             } else {
                 $action = 'enroll_existing';
-                $actionLabel = 'Enroll existing user';
+                $actionLabel = __('Enroll existing user');
             }
 
             $progressNote = $totalLessons === 0
-                ? 'Target course has no lessons — enroll only'
-                : sprintf(
-                    'Mark %d of %d lessons complete (%d%%)',
-                    $lessonsToComplete,
-                    $totalLessons,
-                    (int) $row['percent_completed']
-                );
+                ? __('Target course has no lessons — enroll only')
+                : __('Mark :done of :total lessons complete (:percent%)', [
+                    'done' => $lessonsToComplete,
+                    'total' => $totalLessons,
+                    'percent' => (int) $row['percent_completed'],
+                ]);
 
             if ($contentColumns !== [] && ! empty($row['content_progress'])) {
                 $done = collect($row['content_progress'])->filter(fn ($v) => (int) $v >= 100)->count();
-                $progressNote .= sprintf(' · %d/%d content items at 100%%', $done, count($contentColumns));
+                $progressNote .= ' · '.__(':done/:total content items at 100%', ['done' => $done, 'total' => count($contentColumns)]);
             }
 
             $preview[] = [
@@ -276,7 +275,7 @@ class CourseProgressCsvImporter
             if (! empty($row['error']) || empty($row['email'])) {
                 $summary['skipped_rows']++;
                 if (! empty($row['error'])) {
-                    $summary['errors'][] = 'Line '.($row['line'] ?? '?').': '.$row['error'];
+                    $summary['errors'][] = __('Line :line: :message', ['line' => $row['line'] ?? '?', 'message' => $row['error']]);
                 }
                 continue;
             }
@@ -287,7 +286,7 @@ class CourseProgressCsvImporter
 
                     if ($user && ! $course->isAvailableTo($user) && ! $user->hasEnrolled($course)) {
                         $summary['skipped_rows']++;
-                        $summary['errors'][] = 'Line '.($row['line'] ?? '?').': '.$row['email'].' is not in this course\'s audience ('.$course->accessLabel().').';
+                        $summary['errors'][] = __('Line :line: :email is not in this course\'s audience (:audience).', ['line' => $row['line'] ?? '?', 'email' => $row['email'], 'audience' => $course->accessLabel()]);
 
                         return;
                     }
@@ -359,7 +358,7 @@ class CourseProgressCsvImporter
                     }
                 });
             } catch (\Throwable $e) {
-                $summary['errors'][] = 'Line '.($row['line'] ?? '?').' ('.$row['email'].'): '.$e->getMessage();
+                $summary['errors'][] = __('Line :line (:email): :message', ['line' => $row['line'] ?? '?', 'email' => $row['email'], 'message' => $e->getMessage()]);
             }
         }
 

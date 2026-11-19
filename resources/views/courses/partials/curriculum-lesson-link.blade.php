@@ -10,5 +10,5 @@
         {{ $lessonNumber }}
     </span>
     <span class="min-w-0 flex-1 truncate">{{ $label }}</span>
-    <span data-lesson-id="{{ $lesson->id }}" data-role="checkmark" class="shrink-0 text-white {{ $isCompleted ? '' : 'hidden' }}" aria-label="Completed">✓</span>
+    <span data-lesson-id="{{ $lesson->id }}" data-role="checkmark" class="shrink-0 text-white {{ $isCompleted ? '' : 'hidden' }}" aria-label="{{ __('Completed') }}">✓</span>
 </a>

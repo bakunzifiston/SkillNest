@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasLocalePreference
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -31,6 +32,7 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'locale',
         'phone',
         'national_id',
         'date_of_birth',
@@ -84,9 +86,17 @@ class User extends Authenticatable
     public static function learnerTypes(): array
     {
         return [
-            self::TYPE_AGENT => 'Agent',
-            self::TYPE_PARTNER => 'Partner',
+            self::TYPE_AGENT => __('Agent'),
+            self::TYPE_PARTNER => __('Partner'),
         ];
+    }
+
+    /** Emails and notifications to this user are written in their language. */
+    public function preferredLocale(): string
+    {
+        return in_array($this->locale, array_keys(config('localization.locales')), true)
+            ? $this->locale
+            : config('localization.default');
     }
 
     public function partnerOrganization(): BelongsTo
@@ -110,10 +120,10 @@ class User extends Authenticatable
         if ($this->isPartner()) {
             $org = $this->partnerOrganization?->name;
 
-            return $org ? 'Partner ('.$org.')' : 'Partner';
+            return $org ? __('Partner (:org)', ['org' => $org]) : __('Partner');
         }
 
-        return 'Agent';
+        return __('Agent');
     }
 
     /**
@@ -266,18 +276,18 @@ class User extends Authenticatable
     public function accessLevelLabel(): string
     {
         if (! $this->is_active) {
-            return $this->role?->name ? $this->role->name.' (inactive)' : 'Inactive';
+            return $this->role?->name ? __(':role (inactive)', ['role' => $this->role->name]) : __('Inactive');
         }
 
         if ($this->isSuperAdmin()) {
-            return 'Super Admin';
+            return __('Super Admin');
         }
 
         if ($this->role) {
             return $this->role->name;
         }
 
-        return 'Student';
+        return __('Student');
     }
 
     public static function activeSuperAdminCount(?int $exceptId = null): int

@@ -42,25 +42,25 @@ class QuizController extends Controller
 
         $kpis = [
             [
-                'label' => 'Quizzes',
+                'label' => __('Quizzes'),
                 'value' => $totalQuizzes,
                 'icon' => 'quiz',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Published',
+                'label' => __('Published'),
                 'value' => $published,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Questions',
+                'label' => __('Questions'),
                 'value' => $totalQuestions,
                 'icon' => 'book',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Attempts',
+                'label' => __('Attempts'),
                 'value' => $totalAttempts,
                 'icon' => 'users',
                 'tone' => 'slate',
@@ -95,12 +95,14 @@ class QuizController extends Controller
             'is_published' => 'nullable|boolean',
             'chapter_id' => 'nullable|integer|exists:chapters,id',
             'lesson_id' => 'nullable|integer|exists:lessons,id',
-        ]);
+        ] + Quiz::translationRules());
+        unset($validated['tr']);
         $validated = $this->resolvePlacement($validated, (int) ($validated['course_id'] ?? $courseIdForPlacement ?? 0));
         $validated['sort_order'] = Quiz::where('course_id', $validated['course_id'])->max('sort_order') + 1;
         $validated['is_published'] = $request->boolean('is_published');
-        Quiz::create($validated);
-        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz created.');
+        $quiz = Quiz::create($validated);
+        $quiz->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.quizzes.index')->with('success', __('Quiz created.'));
     }
 
     public function edit(Quiz $quiz): View
@@ -121,17 +123,19 @@ class QuizController extends Controller
             'is_published' => 'nullable|boolean',
             'chapter_id' => 'nullable|integer|exists:chapters,id',
             'lesson_id' => 'nullable|integer|exists:lessons,id',
-        ]);
+        ] + Quiz::translationRules());
+        unset($validated['tr']);
         $validated = $this->resolvePlacement($validated, (int) ($validated['course_id'] ?? $courseIdForPlacement ?? 0));
         $validated['is_published'] = $request->boolean('is_published');
         $quiz->update($validated);
-        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz updated.');
+        $quiz->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.quizzes.index')->with('success', __('Quiz updated.'));
     }
 
     public function destroy(Quiz $quiz): RedirectResponse
     {
         $quiz->delete();
-        return redirect()->route('admin.quizzes.index')->with('success', 'Quiz deleted.');
+        return redirect()->route('admin.quizzes.index')->with('success', __('Quiz deleted.'));
     }
 
     /**
@@ -146,10 +150,10 @@ class QuizController extends Controller
             $chapterId = Lesson::whereKey($lessonId)->value('chapter_id');
         }
         if ($chapterId && ! Chapter::whereKey($chapterId)->where('course_id', $courseId)->exists()) {
-            throw ValidationException::withMessages(['chapter_id' => 'The selected section does not belong to this course.']);
+            throw ValidationException::withMessages(['chapter_id' => __('The selected section does not belong to this course.')]);
         }
         if ($lessonId && ! Lesson::whereKey($lessonId)->where('chapter_id', $chapterId)->exists()) {
-            throw ValidationException::withMessages(['lesson_id' => 'The selected lesson does not belong to the selected section.']);
+            throw ValidationException::withMessages(['lesson_id' => __('The selected lesson does not belong to the selected section.')]);
         }
 
         $validated['chapter_id'] = $chapterId ?: null;

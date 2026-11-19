@@ -1,21 +1,21 @@
 @extends('layouts.site')
 
-@section('title', 'Profile')
+@section('title', __('Profile'))
 
 @section('content')
     <section class="relative overflow-hidden bg-navy text-white">
         <div class="absolute inset-0 opacity-[0.08]" aria-hidden="true" style="background-image: radial-gradient(circle at 15% 20%, #F16029 0, transparent 38%), radial-gradient(circle at 85% 10%, #19499B 0, transparent 32%);"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-            <nav class="text-sm text-slate-300 mb-4" aria-label="Breadcrumb">
+            <nav class="text-sm text-slate-300 mb-4" aria-label="{{ __('Breadcrumb') }}">
                 <ol class="flex flex-wrap items-center gap-2">
-                    <li><a href="{{ route('home') }}" class="hover:text-white transition">Home</a></li>
+                    <li><a href="{{ route('home') }}" class="hover:text-white transition">{{ __('Home') }}</a></li>
                     <li aria-hidden="true">/</li>
-                    <li class="text-white font-medium">Profile</li>
+                    <li class="text-white font-medium">{{ __('Profile') }}</li>
                 </ol>
             </nav>
-            <h1 class="font-display font-bold text-3xl sm:text-4xl tracking-tight">Profile</h1>
+            <h1 class="font-display font-bold text-3xl sm:text-4xl tracking-tight">{{ __('Profile') }}</h1>
             <p class="mt-3 max-w-2xl text-slate-300 leading-relaxed">
-                Manage your account details, password, and security settings.
+                {{ __('Manage your account details, password, and security settings.') }}
             </p>
             <p class="mt-5 text-sm text-slate-400 truncate max-w-xl">
                 {{ trim(($user->displayFirstName() ?: '').' '.($user->displayLastName() ?: '')) ?: $user->email }}

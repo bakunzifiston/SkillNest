@@ -55,25 +55,25 @@ class QuizResultsController extends Controller
 
         $kpis = [
             [
-                'label' => 'Attempts',
+                'label' => __('Attempts'),
                 'value' => $totalAttempts,
                 'icon' => 'quiz',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Passed',
+                'label' => __('Passed'),
                 'value' => $passedCount,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Failed',
+                'label' => __('Failed'),
                 'value' => $failedCount,
                 'icon' => 'pulse',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Avg score',
+                'label' => __('Avg score'),
                 'value' => $avgPercent !== null ? (int) round($avgPercent) : 0,
                 'suffix' => '%',
                 'icon' => 'chart',

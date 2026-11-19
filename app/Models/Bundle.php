@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Bundle extends Model
 {
+    use HasTranslations;
+
+    /** Fields that can be translated (see HasTranslations). */
+    protected array $translatable = ['title', 'description'];
+
     public const STATUS_DRAFT = 'draft';
     public const STATUS_PUBLISHED = 'published';
     public const STATUS_ARCHIVED = 'archived';

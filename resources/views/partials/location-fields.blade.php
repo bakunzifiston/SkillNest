@@ -20,6 +20,7 @@
         district: @js($defaultDistrict ?? ''),
         sector: @js($defaultSector ?? ''),
         tree: @js($tree),
+        provinceLabels: @js(collect(array_keys($tree))->mapWithKeys(fn ($p) => [$p => __($p)])->all()),
         get provinces() { return Object.keys(this.tree); },
         get districts() { return this.province && this.tree[this.province] ? Object.keys(this.tree[this.province]) : []; },
         get sectors() { return (this.province && this.district && this.tree[this.province] && this.tree[this.province][this.district]) ? this.tree[this.province][this.district] : []; },
@@ -41,7 +42,7 @@
     }"
 >
     <div>
-        <label for="country" class="{{ $labelClass }}">Country</label>
+        <label for="country" class="{{ $labelClass }}">{{ __('Country') }}</label>
         <select
             name="country"
             id="country"
@@ -59,7 +60,7 @@
 
     <div class="grid sm:grid-cols-3 gap-5" x-show="isRwanda" x-cloak>
         <div>
-            <label for="province" class="{{ $labelClass }}">Province</label>
+            <label for="province" class="{{ $labelClass }}">{{ __('Province') }}</label>
             <select
                 name="province"
                 id="province"
@@ -68,15 +69,15 @@
                 :required="isRwanda"
                 class="{{ $selectClass }}"
             >
-                <option value="">Select province</option>
+                <option value="">{{ __('Select province') }}</option>
                 <template x-for="name in provinces" :key="name">
-                    <option :value="name" x-text="name" :selected="province === name"></option>
+                    <option :value="name" x-text="provinceLabels[name] || name" :selected="province === name"></option>
                 </template>
             </select>
             @error('province')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
         </div>
         <div>
-            <label for="district" class="{{ $labelClass }}">District</label>
+            <label for="district" class="{{ $labelClass }}">{{ __('District') }}</label>
             <select
                 name="district"
                 id="district"
@@ -86,7 +87,7 @@
                 :disabled="!province"
                 class="{{ $selectClass }}"
             >
-                <option value="">Select district</option>
+                <option value="">{{ __('Select district') }}</option>
                 <template x-for="name in districts" :key="name">
                     <option :value="name" x-text="name" :selected="district === name"></option>
                 </template>
@@ -94,7 +95,7 @@
             @error('district')<p class="mt-1.5 text-sm text-red-600">{{ $message }}</p>@enderror
         </div>
         <div>
-            <label for="sector" class="{{ $labelClass }}">Sector</label>
+            <label for="sector" class="{{ $labelClass }}">{{ __('Sector') }}</label>
             <select
                 name="sector"
                 id="sector"
@@ -103,7 +104,7 @@
                 :disabled="!district"
                 class="{{ $selectClass }}"
             >
-                <option value="">Select sector</option>
+                <option value="">{{ __('Select sector') }}</option>
                 <template x-for="name in sectors" :key="name">
                     <option :value="name" x-text="name" :selected="sector === name"></option>
                 </template>

@@ -42,25 +42,25 @@ class CourseProgressController extends Controller
 
         $kpis = [
             [
-                'label' => 'Courses',
+                'label' => __('Courses'),
                 'value' => $totalCourses,
                 'icon' => 'book',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Enrollments',
+                'label' => __('Enrollments'),
                 'value' => $totalEnrollments,
                 'icon' => 'enroll',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Students',
+                'label' => __('Students'),
                 'value' => $uniqueStudents,
                 'icon' => 'users',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Avg. per course',
+                'label' => __('Avg. per course'),
                 'value' => $avgPerCourse,
                 'icon' => 'chart',
                 'tone' => 'slate',
@@ -136,25 +136,25 @@ class CourseProgressController extends Controller
 
         $kpis = [
             [
-                'label' => 'Enrolled',
+                'label' => __('Enrolled'),
                 'value' => $totalEnrolled,
                 'icon' => 'users',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Completed',
+                'label' => __('Completed'),
                 'value' => $completedStudents,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'In progress',
+                'label' => __('In progress'),
                 'value' => $inProgressStudents,
                 'icon' => 'pulse',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Avg. progress',
+                'label' => __('Avg. progress'),
                 'value' => $avgProgress,
                 'suffix' => '%',
                 'icon' => 'chart',

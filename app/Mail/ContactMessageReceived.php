@@ -20,7 +20,7 @@ class ContactMessageReceived extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New contact message from '.$this->contactMessage->name,
+            subject: __('New contact message from :name', ['name' => $this->contactMessage->name]),
         );
     }
 

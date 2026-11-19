@@ -1,17 +1,17 @@
 @extends('layouts.admin')
 
-@section('title', 'Progress — ' . ($user->displayFirstName() ?: $user->name))
-@section('header', 'User progress')
+@section('title', __('Progress — :name', ['name' => $user->displayFirstName() ?: $user->name]))
+@section('header', __('User progress'))
 
 @section('content')
     @php
         $studentName = trim(($user->displayFirstName() ?: '').' '.($user->displayLastName() ?: ''))
-            ?: ($user->name ?? 'User');
+            ?: ($user->name ?? __('User'));
     @endphp
 
     <div class="mb-4">
         <a href="{{ route('admin.users.index') }}" class="text-sm text-slate-500 hover:text-primary inline-flex items-center gap-1">
-            <span aria-hidden="true">←</span> All users
+            <span aria-hidden="true">←</span> {{ __('All users') }}
         </a>
         <div class="mt-2 flex flex-wrap items-center gap-3">
             <span class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl {{ $user->isStaff() ? 'bg-navy text-white' : 'bg-primary-light text-primary' }} text-sm font-semibold uppercase">
@@ -22,50 +22,50 @@
                 <p class="text-xs text-slate-400 truncate">{{ $user->email }}</p>
             </div>
             @if($user->isSuperAdmin())
-                <span class="inline-flex px-2 py-0.5 rounded-md bg-navy text-white text-xs font-medium">Super Admin</span>
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-navy text-white text-xs font-medium">{{ __('Super Admin') }}</span>
             @elseif($user->role)
                 <span class="inline-flex px-2 py-0.5 rounded-md bg-primary-light text-primary text-xs font-medium">{{ $user->role->name }}</span>
             @else
-                <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Student</span>
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">{{ __('Student') }}</span>
                 <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">{{ $user->learnerCategoryLabel() }}</span>
             @endif
             @if($user->is_active)
-                <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Active</span>
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">{{ __('Active') }}</span>
             @else
-                <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Inactive</span>
+                <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">{{ __('Inactive') }}</span>
             @endif
             <div class="flex flex-wrap gap-2 ml-auto">
                 @adminCan('users', 'edit')
-                    <a href="{{ route('admin.users.edit', $user) }}" class="admin-btn-secondary">Edit</a>
+                    <a href="{{ route('admin.users.edit', $user) }}" class="admin-btn-secondary">{{ __('Edit') }}</a>
                     <form action="{{ route('admin.users.status', $user) }}" method="post">
                         @csrf
                         @method('PATCH')
-                        <button type="submit" class="admin-btn-secondary">{{ $user->is_active ? 'Deactivate' : 'Activate' }}</button>
+                        <button type="submit" class="admin-btn-secondary">{{ $user->is_active ? __('Deactivate') : __('Activate') }}</button>
                     </form>
                 @endadminCan
             </div>
         </div>
         <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400">
-            <span>Joined {{ $user->created_at->format('M j, Y') }}</span>
-            <span>Last sign in {{ $user->last_login_at ? $user->last_login_at->format('M j, Y') : '—' }}</span>
+            <span>{{ __('Joined :date', ['date' => $user->created_at->translatedFormat('M j, Y')]) }}</span>
+            <span>{{ __('Last sign in :date', ['date' => $user->last_login_at ? $user->last_login_at->translatedFormat('M j, Y') : '—']) }}</span>
             @if($user->displayLocation())
                 <span>{{ $user->displayLocation() }}</span>
             @endif
             @if($user->hasCustomPermissions())
-                <span>Custom module access</span>
+                <span>{{ __('Custom module access') }}</span>
             @endif
         </div>
         @if($user->isStudent() && $user->isAgent())
             @php
                 $kyc = [
-                    'Phone' => $user->phone,
-                    'National ID' => $user->national_id,
-                    'Date of birth' => $user->date_of_birth?->format('M j, Y'),
-                    'Gender' => \App\Support\AgentKyc::genders()[$user->gender] ?? null,
+                    __('Phone') => $user->phone,
+                    __('National ID') => $user->national_id,
+                    __('Date of birth') => $user->date_of_birth?->translatedFormat('M j, Y'),
+                    __('Gender') => \App\Support\AgentKyc::genders()[$user->gender] ?? null,
                 ];
             @endphp
             <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                <h3 class="text-sm font-semibold text-navy mb-3">KYC details <span class="font-normal text-slate-400">(optional, provided by the learner)</span></h3>
+                <h3 class="text-sm font-semibold text-navy mb-3">{{ __('KYC details') }} <span class="font-normal text-slate-400">({{ __('optional, provided by the learner') }})</span></h3>
                 <dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-3 text-sm">
                     @foreach($kyc as $label => $value)
                         <div>
@@ -78,17 +78,17 @@
         @endif
         @if($user->canAccessAdmin() || $user->role)
             <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-                <h3 class="text-sm font-semibold text-navy mb-3">Module access</h3>
+                <h3 class="text-sm font-semibold text-navy mb-3">{{ __('Module access') }}</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     @foreach(config('admin-modules.modules') as $moduleKey => $module)
                         @php $actions = $user->permissionMap()[$moduleKey] ?? []; @endphp
                         <div class="rounded-xl border border-slate-100 px-3 py-2">
-                            <p class="text-sm font-medium text-navy">{{ $module['label'] }}</p>
+                            <p class="text-sm font-medium text-navy">{{ __($module['label']) }}</p>
                             <p class="text-[11px] text-slate-500 mt-0.5">
                                 @if($actions)
-                                    {{ collect($actions)->map(fn ($action) => config('admin-modules.actions.'.$action, ucfirst($action)))->join(', ') }}
+                                    {{ collect($actions)->map(fn ($action) => __(config('admin-modules.actions.'.$action, ucfirst($action))))->join(', ') }}
                                 @else
-                                    No access
+                                    {{ __('No access') }}
                                 @endif
                             </p>
                         </div>
@@ -99,7 +99,7 @@
     </div>
 
     <section class="mb-5" aria-labelledby="user-progress-kpi-heading">
-        <h2 id="user-progress-kpi-heading" class="sr-only">Progress overview</h2>
+        <h2 id="user-progress-kpi-heading" class="sr-only">{{ __('Progress overview') }}</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @foreach($kpis as $kpi)
                 @php
@@ -153,16 +153,16 @@
                 type="text"
                 name="search"
                 value="{{ $search ?? '' }}"
-                placeholder="Search by course or category..."
+                placeholder="{{ __('Search by course or category...') }}"
                 class="flex-1 rounded-xl border-slate-300 text-sm min-w-[12rem]"
             >
             <select name="filter" class="rounded-xl border-slate-300 text-sm min-w-[9rem]">
-                <option value="all" @selected(($filter ?? 'all') === 'all')>All courses</option>
-                <option value="enrolled" @selected(($filter ?? 'all') === 'enrolled')>Enrolled only</option>
+                <option value="all" @selected(($filter ?? 'all') === 'all')>{{ __('All courses') }}</option>
+                <option value="enrolled" @selected(($filter ?? 'all') === 'enrolled')>{{ __('Enrolled only') }}</option>
             </select>
-            <button type="submit" class="admin-btn-secondary">Filter</button>
+            <button type="submit" class="admin-btn-secondary">{{ __('Filter') }}</button>
             @if(!empty($search) || ($filter ?? 'all') !== 'all')
-                <a href="{{ route('admin.users.show', $user) }}" class="admin-btn-secondary">Clear</a>
+                <a href="{{ route('admin.users.show', $user) }}" class="admin-btn-secondary">{{ __('Clear') }}</a>
             @endif
         </form>
     </div>
@@ -172,10 +172,10 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Category</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider min-w-[12rem]">Progress</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Category') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Status') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider min-w-[12rem]">{{ __('Progress') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -193,13 +193,13 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($row->status === 'completed')
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Completed</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">{{ __('Completed') }}</span>
                                 @elseif($row->status === 'in_progress')
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-accent-light text-accent-darker text-xs font-medium">In progress</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-accent-light text-accent-darker text-xs font-medium">{{ __('In progress') }}</span>
                                 @elseif($row->status === 'not_started')
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">Not started</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium">{{ __('Not started') }}</span>
                                 @else
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs font-medium">Not enrolled</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-xs font-medium">{{ __('Not enrolled') }}</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3">
@@ -213,7 +213,7 @@
                                         </div>
                                         <span class="text-xs tabular-nums text-slate-600 whitespace-nowrap w-10 text-right">{{ $row->percent }}%</span>
                                     </div>
-                                    <p class="mt-1 text-[11px] text-slate-400 tabular-nums">{{ $row->completed }}/{{ $row->total_lessons }} lessons</p>
+                                    <p class="mt-1 text-[11px] text-slate-400 tabular-nums">{{ __(':completed/:total lessons', ['completed' => $row->completed, 'total' => $row->total_lessons]) }}</p>
                                 @else
                                     <span class="text-slate-300">—</span>
                                 @endif
@@ -223,9 +223,9 @@
                         <tr>
                             <td colspan="4" class="px-4 py-10 text-center text-sm text-slate-500">
                                 @if(!empty($search) || ($filter ?? 'all') !== 'all')
-                                    No courses match your filters.
+                                    {{ __('No courses match your filters.') }}
                                 @else
-                                    No courses on the platform yet.
+                                    {{ __('No courses on the platform yet.') }}
                                 @endif
                             </td>
                         </tr>

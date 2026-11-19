@@ -14,6 +14,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Trust reverse proxies so HTTPS/host are detected correctly (prevents redirect loops).
         $middleware->trustProxies(at: '*');
 
+        // Language (English default / Kinyarwanda): after the session has started.
+        $middleware->appendToGroup('web', \App\Http\Middleware\SetLocale::class);
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);

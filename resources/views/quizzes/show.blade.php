@@ -1,27 +1,27 @@
 @extends('layouts.site')
 
-@section('title', $quiz->title)
+@section('title', $quiz->tr('title'))
 
 @section('content')
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <a href="{{ route('courses.show', $course) }}" class="text-primary hover:underline text-sm font-medium">← Back to course</a>
+        <a href="{{ route('courses.show', $course) }}" class="text-primary hover:underline text-sm font-medium">← {{ __('Back to course') }}</a>
         <div class="mt-6 bg-white rounded-2xl border border-slate-200 p-8">
-            <h1 class="font-display font-bold text-2xl text-slate-900">{{ $quiz->title }}</h1>
-            <p class="text-slate-600 mt-2">{{ $course->title }}</p>
-            @if($quiz->description)
-                <div class="mt-4 text-slate-600">{{ $quiz->description }}</div>
+            <h1 class="font-display font-bold text-2xl text-slate-900">{{ $quiz->tr('title') }}</h1>
+            <p class="text-slate-600 mt-2">{{ $course->tr('title') }}</p>
+            @if($quiz->tr('description'))
+                <div class="mt-4 text-slate-600">{{ $quiz->tr('description') }}</div>
             @endif
             <ul class="mt-6 space-y-2 text-sm text-slate-600">
-                <li>Questions: {{ $quiz->questions->count() }}</li>
-                <li>Passing grade: {{ $quiz->passing_grade }}%</li>
+                <li>{{ __('Questions: :count', ['count' => $quiz->questions->count()]) }}</li>
+                <li>{{ __('Passing grade: :grade%', ['grade' => $quiz->passing_grade]) }}</li>
                 @if($quiz->time_limit_minutes)
-                    <li>Time limit: {{ $quiz->time_limit_minutes }} minutes</li>
+                    <li>{{ __('Time limit: :count minutes', ['count' => $quiz->time_limit_minutes]) }}</li>
                 @endif
             </ul>
             <form action="{{ route('courses.quizzes.start', [$course, $quiz]) }}" method="post" class="mt-8">
                 @csrf
                 <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
-                    Start quiz
+                    {{ __('Start quiz') }}
                 </button>
             </form>
         </div>

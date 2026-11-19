@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit User')
-@section('header', 'Edit user')
+@section('title', __('Edit User'))
+@section('header', __('Edit user'))
 
 @section('content')
     <div class="mb-4">
@@ -15,8 +15,8 @@
         @method('PUT')
         @include('admin.users._form', ['user' => $user])
         <div class="flex gap-3 pt-2">
-            <button type="submit" class="admin-btn-accent">Save user</button>
-            <a href="{{ route('admin.users.show', $user) }}" class="admin-btn-secondary">Cancel</a>
+            <button type="submit" class="admin-btn-accent">{{ __('Save user') }}</button>
+            <a href="{{ route('admin.users.show', $user) }}" class="admin-btn-secondary">{{ __('Cancel') }}</a>
         </div>
     </form>
 @endsection

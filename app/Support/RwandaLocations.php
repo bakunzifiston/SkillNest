@@ -183,15 +183,15 @@ class RwandaLocations
         $sector = trim((string) ($data['sector'] ?? ''));
 
         if ($province === '' || ! self::isValidProvince($province)) {
-            $errors['province'] = ['Please select a valid province.'];
+            $errors['province'] = [__('Please select a valid province.')];
         }
 
         if ($district === '' || ! self::isValidDistrict($province, $district)) {
-            $errors['district'] = ['Please select a valid district for the chosen province.'];
+            $errors['district'] = [__('Please select a valid district for the chosen province.')];
         }
 
         if ($sector === '' || ! self::isValidSector($province, $district, $sector)) {
-            $errors['sector'] = ['Please select a valid sector for the chosen district.'];
+            $errors['sector'] = [__('Please select a valid sector for the chosen district.')];
         }
 
         return $errors;

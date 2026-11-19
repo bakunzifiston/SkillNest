@@ -125,13 +125,13 @@ class ReportsController extends Controller
 
         $kpis = [
             [
-                'label' => 'Students',
+                'label' => __('Students'),
                 'value' => $totalStudents,
                 'icon' => 'users',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Est. revenue',
+                'label' => __('Est. revenue'),
                 'value' => $totalRevenue,
                 'prefix' => '$',
                 'decimals' => 0,
@@ -139,13 +139,13 @@ class ReportsController extends Controller
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Enrollments',
+                'label' => __('Enrollments'),
                 'value' => $totalEnrollmentsInPeriod,
                 'icon' => 'enroll',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Active learners',
+                'label' => __('Active learners'),
                 'value' => $studentsWithCompletions,
                 'icon' => 'pulse',
                 'tone' => 'slate',
@@ -154,44 +154,44 @@ class ReportsController extends Controller
 
         $engagementKpis = [
             [
-                'label' => 'Lesson activity',
+                'label' => __('Lesson activity'),
                 'value' => $studentsWithCompletions,
-                'hint' => 'Students with completions',
+                'hint' => __('Students with completions'),
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Quiz takers',
+                'label' => __('Quiz takers'),
                 'value' => $studentsWithQuizAttempts,
-                'hint' => 'Students with attempts',
+                'hint' => __('Students with attempts'),
                 'icon' => 'quiz',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'New enrollments',
+                'label' => __('New enrollments'),
                 'value' => $recentEnrollmentsCount,
-                'hint' => 'Last 7 days',
+                'hint' => __('Last 7 days'),
                 'icon' => 'enroll',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Completions',
+                'label' => __('Completions'),
                 'value' => $recentCompletionsCount,
-                'hint' => 'Last 7 days',
+                'hint' => __('Last 7 days'),
                 'icon' => 'book',
                 'tone' => 'slate',
             ],
             [
-                'label' => 'Quiz submits',
+                'label' => __('Quiz submits'),
                 'value' => $recentQuizAttemptsCount,
-                'hint' => 'Last 7 days',
+                'hint' => __('Last 7 days'),
                 'icon' => 'quiz',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'All-time enrollments',
+                'label' => __('All-time enrollments'),
                 'value' => $totalEnrollmentsAllTime,
-                'hint' => 'Across all courses',
+                'hint' => __('Across all courses'),
                 'icon' => 'users',
                 'tone' => 'primary',
             ],

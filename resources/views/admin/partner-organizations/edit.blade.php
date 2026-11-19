@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Partner Organization')
-@section('header', 'Edit Partner Organization')
+@section('title', __('Edit Partner Organization'))
+@section('header', __('Edit Partner Organization'))
 
 @section('content')
     <div class="max-w-xl">
@@ -11,8 +11,8 @@
                 @method('PUT')
                 @include('admin.partner-organizations._form', ['organization' => $organization])
                 <div class="flex flex-wrap gap-2 pt-1">
-                    <button type="submit" class="admin-btn-accent">Save changes</button>
-                    <a href="{{ route('admin.partner-organizations.index') }}" class="admin-btn-secondary">Cancel</a>
+                    <button type="submit" class="admin-btn-accent">{{ __('Save changes') }}</button>
+                    <a href="{{ route('admin.partner-organizations.index') }}" class="admin-btn-secondary">{{ __('Cancel') }}</a>
                 </div>
             </form>
         </div>

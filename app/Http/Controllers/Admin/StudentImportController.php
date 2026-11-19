@@ -84,7 +84,7 @@ class StudentImportController extends Controller
 
         if (! $storedPath || ! Storage::exists($storedPath)) {
             throw ValidationException::withMessages([
-                'csv' => 'Please upload a CSV and run Preview before importing, or upload the CSV again.',
+                'csv' => __('Please upload a CSV and run Preview before importing, or upload the CSV again.'),
             ]);
         }
 
@@ -122,15 +122,14 @@ class StudentImportController extends Controller
      */
     protected function formatSuccessMessage(array $summary, Course $course): string
     {
-        return sprintf(
-            'Imported into “%s”: %d new users, %d existing users, %d enrollments created, %d already enrolled, %d lesson completions added, %d rows skipped.',
-            $course->title,
-            $summary['created_users'],
-            $summary['existing_users'],
-            $summary['enrollments_created'],
-            $summary['enrollments_skipped'],
-            $summary['lessons_completed'],
-            $summary['skipped_rows']
-        );
+        return __('Imported into “:course”: :created new users, :existing existing users, :enrollments enrollments created, :skipped already enrolled, :lessons lesson completions added, :rows rows skipped.', [
+            'course' => $course->title,
+            'created' => $summary['created_users'],
+            'existing' => $summary['existing_users'],
+            'enrollments' => $summary['enrollments_created'],
+            'skipped' => $summary['enrollments_skipped'],
+            'lessons' => $summary['lessons_completed'],
+            'rows' => $summary['skipped_rows'],
+        ]);
     }
 }

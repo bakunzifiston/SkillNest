@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Chapter extends Model
 {
+    use HasTranslations;
+
+    /** Fields that can be translated (see HasTranslations). */
+    protected array $translatable = ['title'];
+
     protected $fillable = ['course_id', 'title', 'sort_order'];
 
     public function course()

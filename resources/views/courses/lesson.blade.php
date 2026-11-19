@@ -1,6 +1,6 @@
 @extends('layouts.site')
 
-@section('title', $lesson->title . ' — ' . $course->title)
+@section('title', $lesson->tr('title') . ' — ' . $course->tr('title'))
 
 @section('content')
     @php
@@ -12,7 +12,7 @@
         $nextLesson = $currentIndex !== false && $currentIndex < $allLessons->count() - 1 ? $allLessons[$currentIndex + 1] : null;
         $lessonPosition = $currentIndex === false ? null : $currentIndex + 1;
         $progressPct = $totalLessons > 0 ? min(100, (int) round(($completedCount / $totalLessons) * 100)) : 0;
-        $chapterTitle = $lesson->chapter->title ?? null;
+        $chapterTitle = $lesson->chapter?->tr('title');
     @endphp
 
     <div class="flex flex-col lg:flex-row min-h-[calc(100vh-5rem)] bg-slate-50">
@@ -27,32 +27,32 @@
         <div class="flex-1 min-w-0">
             <div class="border-b border-slate-200 bg-white">
                 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
-                    <nav class="text-sm text-slate-500 mb-3" aria-label="Breadcrumb">
+                    <nav class="text-sm text-slate-500 mb-3" aria-label="{{ __('Breadcrumb') }}">
                         <ol class="flex flex-wrap items-center gap-2">
-                            <li><a href="{{ route('courses.index') }}" class="hover:text-primary transition">Courses</a></li>
+                            <li><a href="{{ route('courses.index') }}" class="hover:text-primary transition">{{ __('Courses') }}</a></li>
                             <li aria-hidden="true">/</li>
-                            <li><a href="{{ route('courses.show', $course) }}" class="hover:text-primary transition truncate max-w-[10rem] sm:max-w-[16rem]">{{ $course->title }}</a></li>
+                            <li><a href="{{ route('courses.show', $course) }}" class="hover:text-primary transition truncate max-w-[10rem] sm:max-w-[16rem]">{{ $course->tr('title') }}</a></li>
                             <li aria-hidden="true">/</li>
-                            <li class="text-navy font-medium truncate max-w-[10rem] sm:max-w-[16rem]">{{ $lesson->title }}</li>
+                            <li class="text-navy font-medium truncate max-w-[10rem] sm:max-w-[16rem]">{{ $lesson->tr('title') }}</li>
                         </ol>
                     </nav>
                     <div class="flex flex-wrap items-end justify-between gap-3">
                         <div class="min-w-0">
-                            @if($chapterTitle && strcasecmp(trim($chapterTitle), trim($lesson->title)) !== 0)
+                            @if($chapterTitle && strcasecmp(trim($chapterTitle), trim($lesson->tr('title'))) !== 0)
                                 <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ $chapterTitle }}</p>
                             @endif
-                            <h1 class="mt-1 font-display font-bold text-2xl sm:text-3xl text-navy tracking-tight">{{ $lesson->title }}</h1>
+                            <h1 class="mt-1 font-display font-bold text-2xl sm:text-3xl text-navy tracking-tight">{{ $lesson->tr('title') }}</h1>
                             @if($lessonPosition && $totalLessons > 0)
                                 <p class="mt-2 text-sm text-slate-500 tabular-nums">
-                                    Lesson {{ $lessonPosition }} of {{ $totalLessons }}
+                                    {{ __('Lesson :position of :total', ['position' => $lessonPosition, 'total' => $totalLessons]) }}
                                     <span class="text-slate-300 mx-1.5" aria-hidden="true">·</span>
-                                    {{ $progressPct }}% course progress
+                                    {{ __(':percent% course progress', ['percent' => $progressPct]) }}
                                 </p>
                             @endif
                         </div>
                         <a href="{{ route('courses.show', $course) }}" class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-accent-dark transition shrink-0">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                            Course overview
+                            {{ __('Course overview') }}
                         </a>
                     </div>
                 </div>
@@ -74,15 +74,18 @@
                     data-complete-url="{{ route('lessons.complete', $lesson) }}"
                     data-already-completed="{{ $completed ? '1' : '0' }}"
                     @if($youtubeId) data-youtube-id="{{ $youtubeId }}" @endif
+                    data-msg-completed="{{ __('Completed') }}"
+                    data-msg-save-error="{{ __('Could not save your progress. Please reload the page.') }}"
+                    data-msg-video-title="{{ __('Lesson video') }}"
                 >
                     <div class="p-5 sm:p-7 lg:p-8">
                         <div class="prose prose-slate max-w-none" data-lesson-content>
                             @switch($lesson->type)
                                 @case(\App\Models\Lesson::TYPE_TEXT)
-                                    @if(filled(trim((string) $lesson->content)))
-                                        <div class="whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->content }}</div>
+                                    @if(filled(trim((string) $lesson->tr('content'))))
+                                        <div class="whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->tr('content') }}</div>
                                     @else
-                                        <p class="text-slate-500">Lesson content will be added soon.</p>
+                                        <p class="text-slate-500">{{ __('Lesson content will be added soon.') }}</p>
                                     @endif
                                     @break
                                 @case(\App\Models\Lesson::TYPE_YOUTUBE)
@@ -97,7 +100,7 @@
                                                     type="button"
                                                     data-youtube-play
                                                     class="group absolute inset-0 z-10 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
-                                                    aria-label="Play video"
+                                                    aria-label="{{ __('Play video') }}"
                                                 >
                                                     <img
                                                         src="https://i.ytimg.com/vi/{{ $youtubeId }}/hqdefault.jpg"
@@ -114,51 +117,51 @@
                                             </div>
                                         </div>
                                     @else
-                                        <p class="text-slate-500 not-prose">No playable YouTube video was found for this lesson.</p>
+                                        <p class="text-slate-500 not-prose">{{ __('No playable YouTube video was found for this lesson.') }}</p>
                                     @endif
-                                    @if(filled(trim((string) $lesson->content)))
-                                        <div class="mt-6 whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->content }}</div>
+                                    @if(filled(trim((string) $lesson->tr('content'))))
+                                        <div class="mt-6 whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->tr('content') }}</div>
                                     @endif
                                     @break
                                 @case(\App\Models\Lesson::TYPE_PDF)
                                     @if(!empty($lesson->file_path))
                                         <a href="{{ $lesson->fileUrl() }}" target="_blank" rel="noopener" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
-                                            Download / View PDF
+                                            {{ __('Download / View PDF') }}
                                         </a>
                                     @elseif(!empty($lesson->source_url))
                                         <a href="{{ $lesson->source_url }}" target="_blank" rel="noopener" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:bg-accent-dark transition">
-                                            Open PDF
+                                            {{ __('Open PDF') }}
                                         </a>
                                     @else
-                                        <p class="text-slate-500">No PDF file available.</p>
+                                        <p class="text-slate-500">{{ __('No PDF file available.') }}</p>
                                     @endif
-                                    @if(filled(trim((string) $lesson->content)))
-                                        <div class="mt-6 whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->content }}</div>
+                                    @if(filled(trim((string) $lesson->tr('content'))))
+                                        <div class="mt-6 whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->tr('content') }}</div>
                                     @endif
                                     @break
                                 @case(\App\Models\Lesson::TYPE_VIDEO)
                                     @if(!empty($lesson->file_path))
                                         <video data-lesson-video class="w-full rounded-xl border border-slate-200 bg-slate-900" controls>
                                             <source src="{{ $lesson->fileUrl() }}" type="video/mp4">
-                                            Your browser does not support the video tag.
+                                            {{ __('Your browser does not support the video tag.') }}
                                         </video>
                                     @elseif(!empty($lesson->source_url))
                                         <video data-lesson-video class="w-full rounded-xl border border-slate-200 bg-slate-900" controls>
                                             <source src="{{ $lesson->source_url }}" type="video/mp4">
-                                            Your browser does not support the video tag.
+                                            {{ __('Your browser does not support the video tag.') }}
                                         </video>
                                     @else
-                                        <p class="text-slate-500">No video file available.</p>
+                                        <p class="text-slate-500">{{ __('No video file available.') }}</p>
                                     @endif
-                                    @if(filled(trim((string) $lesson->content)))
-                                        <div class="mt-6 whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->content }}</div>
+                                    @if(filled(trim((string) $lesson->tr('content'))))
+                                        <div class="mt-6 whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->tr('content') }}</div>
                                     @endif
                                     @break
                                 @default
-                                    @if(filled(trim((string) $lesson->content)))
-                                        <div class="whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->content }}</div>
+                                    @if(filled(trim((string) $lesson->tr('content'))))
+                                        <div class="whitespace-pre-wrap text-slate-700 leading-relaxed">{{ $lesson->tr('content') }}</div>
                                     @else
-                                        <p class="text-slate-500">Lesson content will be added soon.</p>
+                                        <p class="text-slate-500">{{ __('Lesson content will be added soon.') }}</p>
                                     @endif
                             @endswitch
                             <div data-lesson-scroll-marker class="h-1 w-full" aria-hidden="true"></div>
@@ -168,7 +171,7 @@
                             <div id="lesson-complete-control" class="flex flex-col gap-2" data-completed="{{ $completed ? '1' : '0' }}">
                                 @if($completed)
                                     <span data-lesson-complete-done class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-success-light text-success-darker text-sm font-semibold w-fit">
-                                        ✓ Completed
+                                        ✓ {{ __('Completed') }}
                                     </span>
                                 @else
                                     <div data-lesson-complete-incomplete>
@@ -176,15 +179,15 @@
                                             @switch($lesson->type)
                                                 @case('youtube')
                                                 @case('video')
-                                                    This lesson is marked complete automatically when you finish watching the video.
+                                                    {{ __('This lesson is marked complete automatically when you finish watching the video.') }}
                                                     @break
                                                 @default
-                                                    This lesson is marked complete automatically once you have read it.
+                                                    {{ __('This lesson is marked complete automatically once you have read it.') }}
                                             @endswitch
                                         </p>
                                     </div>
                                     <span data-lesson-complete-done class="hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-success-light text-success-darker text-sm font-semibold w-fit">
-                                        ✓ Completed
+                                        ✓ {{ __('Completed') }}
                                     </span>
                                 @endif
                             </div>
@@ -196,7 +199,7 @@
                     @if($previousLesson)
                         <a href="{{ route('courses.lessons.show', [$course, $previousLesson]) }}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-navy font-medium hover:border-primary-muted hover:text-primary transition">
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                            Previous
+                            {{ __('Previous') }}
                         </a>
                     @else
                         <span></span>
@@ -204,12 +207,12 @@
 
                     @if($nextLesson)
                         <a href="{{ route('courses.lessons.show', [$course, $nextLesson]) }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
-                            Next lesson
+                            {{ __('Next lesson') }}
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
                     @else
                         <a href="{{ route('courses.show', $course) }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
-                            Back to course
+                            {{ __('Back to course') }}
                         </a>
                     @endif
                 </div>

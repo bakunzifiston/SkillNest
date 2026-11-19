@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'Add Live Session')
-@section('header', 'Add Live Session')
+@section('title', __('Add Live Session'))
+@section('header', __('Add Live Session'))
 
 @section('content')
     <div class="max-w-xl">
         @if($errors->any())
             <div class="mb-4 p-3 rounded-xl bg-red-50 text-red-700 border border-red-100 text-sm">
-                <p class="font-medium">Please fix the following:</p>
+                <p class="font-medium">{{ __('Please fix the following:') }}</p>
                 <ul class="mt-1 list-disc list-inside space-y-0.5">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -15,13 +15,13 @@
                 </ul>
             </div>
         @endif
-        <p class="text-sm text-slate-500 mb-4">Create the meeting in Zoom, Google Meet, or another tool, then paste the join link here.</p>
+        <p class="text-sm text-slate-500 mb-4">{{ __('Create the meeting in Zoom, Google Meet, or another tool, then paste the join link here.') }}</p>
         <form action="{{ route('admin.live-sessions.store') }}" method="post" class="space-y-5">
             @csrf
             <div>
-                <label for="course_id" class="block text-sm font-medium text-navy">Course</label>
+                <label for="course_id" class="block text-sm font-medium text-navy">{{ __('Course') }}</label>
                 <select name="course_id" id="course_id" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
-                    <option value="">Select course</option>
+                    <option value="">{{ __('Select course') }}</option>
                     @foreach($courses as $c)
                         <option value="{{ $c->id }}" {{ old('course_id', $selectedCourseId ?? '') == $c->id ? 'selected' : '' }}>{{ $c->title }}</option>
                     @endforeach
@@ -29,48 +29,48 @@
                 @error('course_id')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="title" class="block text-sm font-medium text-navy">Title</label>
-                <input type="text" name="title" id="title" value="{{ old('title') }}" required placeholder="e.g. Week 1 Q&A" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
+                <label for="title" class="block text-sm font-medium text-navy">{{ __('Title') }}</label>
+                <input type="text" name="title" id="title" value="{{ old('title') }}" required placeholder="{{ __('e.g. Week 1 Q&A') }}" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                 @error('title')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="description" class="block text-sm font-medium text-navy">Description (optional)</label>
+                <label for="description" class="block text-sm font-medium text-navy">{{ __('Description (optional)') }}</label>
                 <textarea name="description" id="description" rows="2" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">{{ old('description') }}</textarea>
                 @error('description')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label for="scheduled_at" class="block text-sm font-medium text-navy">Date & time</label>
+                    <label for="scheduled_at" class="block text-sm font-medium text-navy">{{ __('Date & time') }}</label>
                     <input type="datetime-local" name="scheduled_at" id="scheduled_at" value="{{ old('scheduled_at') }}" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                     @error('scheduled_at')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
                 <div>
-                    <label for="duration_minutes" class="block text-sm font-medium text-navy">Duration (minutes)</label>
+                    <label for="duration_minutes" class="block text-sm font-medium text-navy">{{ __('Duration (minutes)') }}</label>
                     <input type="number" name="duration_minutes" id="duration_minutes" value="{{ old('duration_minutes', 60) }}" min="5" max="480" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                     @error('duration_minutes')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 </div>
             </div>
             <div>
-                <label for="meeting_url" class="block text-sm font-medium text-navy">Meeting URL</label>
+                <label for="meeting_url" class="block text-sm font-medium text-navy">{{ __('Meeting URL') }}</label>
                 <input type="url" name="meeting_url" id="meeting_url" value="{{ old('meeting_url') }}" required placeholder="https://zoom.us/j/..." class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
-                <p class="mt-1 text-xs text-slate-400">Must include https://</p>
+                <p class="mt-1 text-xs text-slate-400">{{ __('Must include https://') }}</p>
                 @error('meeting_url')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div>
-                <label for="meeting_password" class="block text-sm font-medium text-navy">Meeting password (optional)</label>
-                <input type="text" name="meeting_password" id="meeting_password" value="{{ old('meeting_password') }}" placeholder="e.g. 123456" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
+                <label for="meeting_password" class="block text-sm font-medium text-navy">{{ __('Meeting password (optional)') }}</label>
+                <input type="text" name="meeting_password" id="meeting_password" value="{{ old('meeting_password') }}" placeholder="{{ __('e.g. 123456') }}" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary">
                 @error('meeting_password')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
             <div id="invitees-wrap">
-                <p class="text-sm font-medium text-navy mb-2">Invite students (optional)</p>
+                <p class="text-sm font-medium text-navy mb-2">{{ __('Invite students (optional)') }}</p>
                 <div class="flex flex-wrap gap-2 mb-2" id="invited-tags"></div>
                 <div class="relative" id="invitee-wrap">
-                    <input type="text" id="invitee-search" placeholder="Search or click to see list…" autocomplete="off" class="block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary" disabled data-url="{{ url('admin/courses') }}">
+                    <input type="text" id="invitee-search" placeholder="{{ __('Search or click to see list…') }}" autocomplete="off" class="block w-full rounded-xl border-slate-300 text-sm focus:border-primary focus:ring-primary" disabled data-url="{{ url('admin/courses') }}">
                     <div id="invitee-dropdown" class="absolute z-20 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-56 overflow-y-auto hidden"></div>
                 </div>
                 <p class="mt-1.5 text-sm text-slate-500">
-                    <button type="button" id="invitee-show-list" class="text-primary hover:text-accent font-medium hidden">Show dropdown list</button>
-                    <span id="invitee-hint" class="text-slate-500">Select a course first.</span>
+                    <button type="button" id="invitee-show-list" class="text-primary hover:text-accent font-medium hidden">{{ __('Show dropdown list') }}</button>
+                    <span id="invitee-hint" class="text-slate-500">{{ __('Select a course first.') }}</span>
                 </p>
                 @error('invited_user_ids')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                 @error('invited_user_ids.*')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
@@ -82,9 +82,16 @@
                 @endphp
                 <input type="hidden" name="invited_user_ids" id="invited_user_ids_input" value="{{ $oldInvitees }}">
             </div>
+            @include('admin.partials.translation-fields', [
+                'model' => null,
+                'fields' => [
+                    'title' => ['label' => __('Title'), 'type' => 'input'],
+                    'description' => ['label' => __('Description'), 'type' => 'textarea', 'rows' => 3],
+                ],
+            ])
             <div class="flex gap-3">
-                <button type="submit" class="admin-btn-accent">Create live session</button>
-                <a href="{{ route('admin.live-sessions.index') }}" class="admin-btn-secondary">Cancel</a>
+                <button type="submit" class="admin-btn-accent">{{ __('Create live session') }}</button>
+                <a href="{{ route('admin.live-sessions.index') }}" class="admin-btn-secondary">{{ __('Cancel') }}</a>
             </div>
         </form>
     </div>
@@ -106,7 +113,7 @@
                     var tag = document.createElement('span');
                     tag.className = 'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-sm bg-accent-muted text-accent-darker';
                     tag.dataset.id = id;
-                    tag.innerHTML = ((window._invitedNames && window._invitedNames[id]) || 'ID ' + id) + ' <button type="button" class="hover:text-accent-darker">&times;</button>';
+                    tag.innerHTML = ((window._invitedNames && window._invitedNames[id]) || {{ Js::from(__('ID')) }} + ' ' + id) + ' <button type="button" class="hover:text-accent-darker">&times;</button>';
                     tag.querySelector('button').onclick = function () {
                         selected = selected.filter(function (i) { return i !== id; });
                         delete (window._invitedNames || {})[id];
@@ -122,7 +129,7 @@
                 var el = document.getElementById('invitee-dropdown');
                 el.innerHTML = '';
                 if (!users.length) {
-                    el.innerHTML = '<div class="p-3 text-sm text-gray-500">No students found. Try a different search or check that the course has enrollments.</div>';
+                    el.innerHTML = '<div class="p-3 text-sm text-gray-500">' + {{ Js::from(__('No students found. Try a different search or check that the course has enrollments.')) }} + '</div>';
                 } else {
                     users.forEach(function (u) {
                         if (selected.indexOf(String(u.id)) !== -1) return;
@@ -148,7 +155,7 @@
                 if (!courseId) return;
                 var dropdown = document.getElementById('invitee-dropdown');
                 dropdown.classList.remove('hidden');
-                dropdown.innerHTML = '<div class="p-3 text-sm text-gray-500">Loading…</div>';
+                dropdown.innerHTML = '<div class="p-3 text-sm text-gray-500">' + {{ Js::from(__('Loading…')) }} + '</div>';
                 var url = baseUrl + '/' + courseId + '/enrolled-users';
                 if (searchTerm && searchTerm.length >= 2) {
                     url += '?search=' + encodeURIComponent(searchTerm);
@@ -171,10 +178,10 @@
                 var hint = document.getElementById('invitee-hint');
                 if (courseId) {
                     showBtn.classList.remove('hidden');
-                    hint.textContent = 'Click the field above or "Show dropdown list" to see enrolled students. Type to search.';
+                    hint.textContent = {{ Js::from(__('Click the field above or "Show dropdown list" to see enrolled students. Type to search.')) }};
                 } else {
                     showBtn.classList.add('hidden');
-                    hint.textContent = 'Select a course first.';
+                    hint.textContent = {{ Js::from(__('Select a course first.')) }};
                 }
                 renderTags();
             });
@@ -219,7 +226,7 @@
                 courseId = initialCourse;
                 document.getElementById('invitee-search').disabled = false;
                 document.getElementById('invitee-show-list').classList.remove('hidden');
-                document.getElementById('invitee-hint').textContent = 'Click the field above or "Show dropdown list" to see enrolled students. Type to search.';
+                document.getElementById('invitee-hint').textContent = {{ Js::from(__('Click the field above or "Show dropdown list" to see enrolled students. Type to search.')) }};
             }
         })();
     </script>

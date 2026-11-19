@@ -2,10 +2,16 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Model;
 
 class Quiz extends Model
 {
+    use HasTranslations;
+
+    /** Fields that can be translated (see HasTranslations). */
+    protected array $translatable = ['title', 'description'];
+
     protected $fillable = [
         'course_id', 'chapter_id', 'lesson_id', 'title', 'description', 'passing_grade',
         'time_limit_minutes', 'sort_order', 'is_published',

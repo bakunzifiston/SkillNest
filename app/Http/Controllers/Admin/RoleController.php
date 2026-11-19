@@ -24,25 +24,25 @@ class RoleController extends Controller
 
         $kpis = [
             [
-                'label' => 'Roles',
+                'label' => __('Roles'),
                 'value' => $roles->count(),
                 'icon' => 'shield',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Custom',
+                'label' => __('Custom'),
                 'value' => $roles->where('is_system', false)->count(),
                 'icon' => 'users',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Assigned users',
+                'label' => __('Assigned users'),
                 'value' => $roles->sum('users_count'),
                 'icon' => 'user',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Modules',
+                'label' => __('Modules'),
                 'value' => count(AdminAccess::modules()),
                 'icon' => 'settings',
                 'tone' => 'slate',
@@ -72,7 +72,7 @@ class RoleController extends Controller
 
         return redirect()
             ->route('admin.roles.edit', $role)
-            ->with('success', 'Role created.');
+            ->with('success', __('Role created.'));
     }
 
     public function edit(Role $role): View
@@ -87,7 +87,7 @@ class RoleController extends Controller
         $data = $this->validated($request, $role);
 
         if ($role->isSuperAdmin() && ! $request->user()?->isSuperAdmin()) {
-            abort(403, 'Only a Super Admin can edit this role.');
+            abort(403, __('Only a Super Admin can edit this role.'));
         }
 
         $role->name = $data['name'];
@@ -102,13 +102,13 @@ class RoleController extends Controller
 
         return redirect()
             ->route('admin.roles.edit', $role)
-            ->with('success', 'Role updated.');
+            ->with('success', __('Role updated.'));
     }
 
     public function destroy(Role $role): RedirectResponse
     {
         if ($role->is_system) {
-            return back()->with('error', 'System roles cannot be deleted.');
+            return back()->with('error', __('System roles cannot be deleted.'));
         }
 
         $role->users()->update(['role_id' => null, 'is_admin' => false]);
@@ -116,7 +116,7 @@ class RoleController extends Controller
 
         return redirect()
             ->route('admin.roles.index')
-            ->with('success', 'Role deleted.');
+            ->with('success', __('Role deleted.'));
     }
 
     /**

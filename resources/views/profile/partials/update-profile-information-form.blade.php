@@ -62,7 +62,7 @@
         @endif
 
         <div class="pt-1">
-            <p class="text-sm font-semibold text-navy mb-3">Location</p>
+            <p class="text-sm font-semibold text-navy mb-3">{{ __('Location') }}</p>
             @include('partials.location-fields', ['user' => $user])
         </div>
 

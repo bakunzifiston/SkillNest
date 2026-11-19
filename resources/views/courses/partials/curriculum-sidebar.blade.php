@@ -12,12 +12,12 @@
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
-            <span>Course overview</span>
+            <span>{{ __('Course overview') }}</span>
         </a>
         @if($completedCount !== null && $totalLessons !== null && $totalLessons > 0)
             <div class="mt-3">
                 <div class="flex justify-between text-xs text-white/80 mb-1">
-                    <span>Progress</span>
+                    <span>{{ __('Progress') }}</span>
                     <span data-course-progress-label>{{ $completedCount }} / {{ $totalLessons }}</span>
                 </div>
                 <div class="h-1.5 rounded-full bg-white/25 overflow-hidden">
@@ -27,13 +27,13 @@
         @endif
     </div>
 
-    <nav class="py-2 overflow-y-auto max-h-[50vh] lg:max-h-[calc(100vh-10rem)]" aria-label="Course curriculum">
+    <nav class="py-2 overflow-y-auto max-h-[50vh] lg:max-h-[calc(100vh-10rem)]" aria-label="{{ __('Course curriculum') }}">
         @forelse($course->chapters as $chapter)
             @php
                 $chapterLessons = $chapter->lessons;
                 $isActiveChapter = $currentLesson && $chapterLessons->contains('id', $currentLesson->id);
                 $singleLessonMatchesChapter = $chapterLessons->count() === 1
-                    && strcasecmp(trim($chapter->title), trim($chapterLessons->first()->title)) === 0;
+                    && strcasecmp(trim($chapter->tr('title')), trim($chapterLessons->first()->tr('title'))) === 0;
             @endphp
 
             @if($singleLessonMatchesChapter)
@@ -46,7 +46,7 @@
                             'currentLesson' => $currentLesson,
                             'completedLessonIds' => $completedLessonIds,
                             'lessonNumber' => $lessonNumber,
-                            'label' => $chapter->title,
+                            'label' => $chapter->tr('title'),
                         ])
                     </li>
                     @foreach($quizzes->where('chapter_id', $chapter->id) as $quiz)
@@ -59,16 +59,16 @@
                         <svg class="w-4 h-4 shrink-0 text-white/70 transition group-open:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                         </svg>
-                        <span class="min-w-0 flex-1 line-clamp-2">{{ $chapter->title }}</span>
+                        <span class="min-w-0 flex-1 line-clamp-2">{{ $chapter->tr('title') }}</span>
                         <span class="shrink-0 text-xs text-white/70">{{ $chapterLessons->count() }}</span>
                     </summary>
                     <ul class="space-y-0.5 pb-2 pl-2 pr-2">
                         @foreach($chapterLessons as $l)
                             @php
                                 $lessonNumber++;
-                                $label = strcasecmp(trim($l->title), trim($chapter->title)) === 0
-                                    ? 'Overview'
-                                    : $l->title;
+                                $label = strcasecmp(trim($l->tr('title')), trim($chapter->tr('title'))) === 0
+                                    ? __('Overview')
+                                    : $l->tr('title');
                             @endphp
                             <li>
                                 @include('courses.partials.curriculum-lesson-link', [
@@ -91,7 +91,7 @@
                 </details>
             @endif
         @empty
-            <p class="px-3 py-4 text-sm text-white/80">No lessons yet.</p>
+            <p class="px-3 py-4 text-sm text-white/80">{{ __('No lessons yet.') }}</p>
         @endforelse
     </nav>
 </aside>

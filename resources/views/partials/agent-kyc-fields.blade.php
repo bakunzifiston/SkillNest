@@ -25,7 +25,7 @@
             <select id="gender" name="gender" class="block mt-1.5 w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 <option value="">{{ __('Select') }}</option>
                 @foreach(\App\Support\AgentKyc::genders() as $value => $label)
-                    <option value="{{ $value }}" @selected(old('gender', $user?->gender) === $value)>{{ $label }}</option>
+                    <option value="{{ $value }}" @selected(old('gender', $user?->gender) === $value)>{{ __($label) }}</option>
                 @endforeach
             </select>
             <x-input-error class="mt-1.5" :messages="$errors->get('gender')" />

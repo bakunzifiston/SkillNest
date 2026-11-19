@@ -139,7 +139,7 @@ class DashboardController extends Controller
         $kpis = [
             [
                 'key' => 'users',
-                'label' => $selectedCourseId ? 'Unique users' : 'Total Users',
+                'label' => $selectedCourseId ? __('Unique users') : __('Total Users'),
                 'value' => $usersTotal,
                 'change' => $this->percentChange($usersTotal, $usersPrevEnd),
                 'href' => route('admin.users.index'),
@@ -148,7 +148,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'students',
-                'label' => $selectedCourseId ? 'Students enrolled' : 'Total Students',
+                'label' => $selectedCourseId ? __('Students enrolled') : __('Total Students'),
                 'value' => $studentsTotal,
                 'change' => $this->percentChange($studentsTotal, $studentsPrevEnd),
                 'href' => route('admin.users.index'),
@@ -157,7 +157,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'active',
-                'label' => 'Active Students',
+                'label' => __('Active Students'),
                 'value' => $activeStudents,
                 'change' => $this->percentChange($activeStudents, $activeStudentsPrev),
                 'href' => route('admin.users.index'),
@@ -166,7 +166,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'courses',
-                'label' => $selectedCourseId ? 'Selected course' : 'Total Courses',
+                'label' => $selectedCourseId ? __('Selected course') : __('Total Courses'),
                 'value' => $courses->count(),
                 'change' => null,
                 'href' => $selectedCourseId
@@ -177,7 +177,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'enrollments',
-                'label' => 'Total Enrollments',
+                'label' => __('Total Enrollments'),
                 'value' => $enrollmentsThis,
                 'change' => $this->percentChange($enrollmentsThis, $enrollmentsPrev),
                 'href' => $selectedCourseId
@@ -188,7 +188,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'completion',
-                'label' => 'Completion Rate',
+                'label' => __('Completion Rate'),
                 'value' => $completionRate,
                 'suffix' => $completionRate !== null ? '%' : null,
                 'change' => null,
@@ -200,7 +200,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'quiz',
-                'label' => 'Average Quiz Score',
+                'label' => __('Average Quiz Score'),
                 'value' => $avgQuizScore,
                 'suffix' => $avgQuizScore !== null ? '%' : null,
                 'change' => null,
@@ -210,7 +210,7 @@ class DashboardController extends Controller
             ],
             [
                 'key' => 'instructors',
-                'label' => 'Instructors',
+                'label' => __('Instructors'),
                 'value' => $instructorsTotal,
                 'change' => null,
                 'href' => route('admin.instructors.index'),
@@ -346,22 +346,22 @@ class DashboardController extends Controller
             case 'today':
                 $from = now()->startOfDay();
                 $to = $now;
-                $label = 'Today';
+                $label = __('Today');
                 break;
             case '7d':
                 $from = now()->subDays(6)->startOfDay();
                 $to = $now;
-                $label = 'Last 7 days';
+                $label = __('Last 7 days');
                 break;
             case '90d':
                 $from = now()->subDays(89)->startOfDay();
                 $to = $now;
-                $label = 'Last 90 days';
+                $label = __('Last 90 days');
                 break;
             case 'year':
                 $from = now()->startOfYear();
                 $to = $now;
-                $label = 'This year';
+                $label = __('This year');
                 break;
             case 'all':
                 $earliest = User::query()->min('created_at')
@@ -369,7 +369,7 @@ class DashboardController extends Controller
                     ?? now()->subYears(10)->toDateTimeString();
                 $from = Carbon::parse($earliest)->startOfDay();
                 $to = $now;
-                $label = 'All time';
+                $label = __('All time');
                 break;
             case 'custom':
                 try {
@@ -382,18 +382,18 @@ class DashboardController extends Controller
                 if ($from->gt($to)) {
                     [$from, $to] = [$to->copy()->startOfDay(), $from->copy()->endOfDay()];
                 }
-                $label = $from->toFormattedDateString().' – '.$to->toFormattedDateString();
+                $label = $from->translatedFormat('M j, Y').' – '.$to->translatedFormat('M j, Y');
                 break;
             case '30d':
                 $from = now()->subDays(29)->startOfDay();
                 $to = $now;
-                $label = 'Last 30 days';
+                $label = __('Last 30 days');
                 break;
             default:
                 $preset = 'year';
                 $from = now()->startOfYear();
                 $to = $now;
-                $label = 'This year';
+                $label = __('This year');
         }
 
         $seconds = max(1, $from->diffInSeconds($to));
@@ -576,9 +576,9 @@ class DashboardController extends Controller
     private function bucketLabel(Carbon $dt, string $granularity): string
     {
         return match ($granularity) {
-            'weekly' => 'W'.$dt->isoWeek.' '.$dt->format('M'),
+            'weekly' => 'W'.$dt->isoWeek.' '.$dt->translatedFormat('M'),
             'yearly' => $dt->format('Y'),
-            default => $dt->format('M Y'),
+            default => $dt->translatedFormat('M Y'),
         };
     }
 
@@ -657,24 +657,24 @@ class DashboardController extends Controller
         return $courseRows->map(function (array $row) use ($coursesWithActivity) {
             $reasons = [];
             if ($row['enrollments'] === 0) {
-                $reasons[] = 'No enrollments';
+                $reasons[] = __('No enrollments');
             }
             if (
                 $row['enrollments'] >= self::MIN_ENROLLMENTS_FOR_RATE
                 && $row['completion_rate'] !== null
                 && $row['completion_rate'] < self::LOW_COMPLETION_RATE
             ) {
-                $reasons[] = 'Completion rate below '.self::LOW_COMPLETION_RATE.'%';
+                $reasons[] = __('Completion rate below :percent%', ['percent' => self::LOW_COMPLETION_RATE]);
             }
             if (
                 $row['quiz_attempts'] >= self::MIN_ATTEMPTS_FOR_QUIZ
                 && $row['avg_quiz'] !== null
                 && $row['avg_quiz'] < self::LOW_QUIZ_AVG
             ) {
-                $reasons[] = 'Average quiz score below '.self::LOW_QUIZ_AVG.'%';
+                $reasons[] = __('Average quiz score below :percent%', ['percent' => self::LOW_QUIZ_AVG]);
             }
             if ($row['enrollments'] > 0 && ! $coursesWithActivity->contains($row['course']->id)) {
-                $reasons[] = 'No learner activity in selected period';
+                $reasons[] = __('No learner activity in selected period');
             }
 
             $row['reasons'] = $reasons;
@@ -758,7 +758,7 @@ class DashboardController extends Controller
             $items->push([
                 'at' => $enrollment->created_at,
                 'icon' => 'enroll',
-                'text' => ($enrollment->user->name ?? 'A student').' enrolled in '.($enrollment->course->title ?? 'a course'),
+                'text' => __(':name enrolled in :course', ['name' => $enrollment->user->name ?? __('A student'), 'course' => $enrollment->course->title ?? __('a course')]),
             ]);
         }
 
@@ -795,7 +795,7 @@ class DashboardController extends Controller
             $items->push([
                 'at' => $at,
                 'icon' => 'check',
-                'text' => ($enrollment->user->name ?? 'A student').' completed '.($enrollment->course->title ?? 'a course'),
+                'text' => __(':name completed :course', ['name' => $enrollment->user->name ?? __('A student'), 'course' => $enrollment->course->title ?? __('a course')]),
             ]);
         }
 
@@ -808,7 +808,7 @@ class DashboardController extends Controller
             $items->push([
                 'at' => $attempt->submitted_at,
                 'icon' => 'quiz',
-                'text' => ($attempt->user->name ?? 'A student').' submitted '.($attempt->quiz->title ?? 'a quiz'),
+                'text' => __(':name submitted :quiz', ['name' => $attempt->user->name ?? __('A student'), 'quiz' => $attempt->quiz->title ?? __('a quiz')]),
             ]);
         }
 
@@ -819,7 +819,7 @@ class DashboardController extends Controller
             $items->push([
                 'at' => $course->created_at,
                 'icon' => 'book',
-                'text' => 'Course created: '.$course->title,
+                'text' => __('Course created: :title', ['title' => $course->title]),
             ]);
         }
 
@@ -831,7 +831,7 @@ class DashboardController extends Controller
             $items->push([
                 'at' => $session->created_at,
                 'icon' => 'live',
-                'text' => 'Live session created: '.$session->title,
+                'text' => __('Live session created: :title', ['title' => $session->title]),
             ]);
         }
 
@@ -840,7 +840,7 @@ class DashboardController extends Controller
                 $items->push([
                     'at' => $instructor->created_at,
                     'icon' => 'instructor',
-                    'text' => 'Instructor added: '.$instructor->name,
+                    'text' => __('Instructor added: :name', ['name' => $instructor->name]),
                 ]);
             }
         }

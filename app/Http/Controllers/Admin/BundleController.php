@@ -38,25 +38,25 @@ class BundleController extends Controller
 
         $kpis = [
             [
-                'label' => 'Bundles',
+                'label' => __('Bundles'),
                 'value' => $totalBundles,
                 'icon' => 'folder',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Published',
+                'label' => __('Published'),
                 'value' => $published,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Draft',
+                'label' => __('Draft'),
                 'value' => $draft,
                 'icon' => 'quiz',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Courses in bundles',
+                'label' => __('Courses in bundles'),
                 'value' => $coursesInBundles,
                 'icon' => 'book',
                 'tone' => 'slate',
@@ -79,7 +79,8 @@ class BundleController extends Controller
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => 'required|in:draft,published,archived',
-        ]);
+        ] + Bundle::translationRules());
+        unset($validated['tr']);
         $validated['slug'] = $validated['slug'] ?: \Illuminate\Support\Str::slug($validated['title']) . '-' . uniqid();
         if ($request->hasFile('thumbnail')) {
             $validated['thumbnail'] = $request->file('thumbnail')->store('bundles', 'public');
@@ -87,7 +88,8 @@ class BundleController extends Controller
             $validated['thumbnail'] = null;
         }
         $bundle = Bundle::create($validated);
-        return redirect()->route('admin.bundles.edit', $bundle)->with('success', 'Bundle created. Add courses below.');
+        $bundle->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.bundles.edit', $bundle)->with('success', __('Bundle created. Add courses below.'));
     }
 
     public function edit(Bundle $bundle): View
@@ -105,7 +107,8 @@ class BundleController extends Controller
             'description' => 'nullable|string',
             'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'status' => 'required|in:draft,published,archived',
-        ]);
+        ] + Bundle::translationRules());
+        unset($validated['tr']);
         if (empty($validated['slug'])) {
             $validated['slug'] = $bundle->slug;
         }
@@ -116,7 +119,8 @@ class BundleController extends Controller
             $validated['thumbnail'] = $request->file('thumbnail')->store('bundles', 'public');
         }
         $bundle->update($validated);
-        return redirect()->route('admin.bundles.edit', $bundle)->with('success', 'Bundle updated.');
+        $bundle->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.bundles.edit', $bundle)->with('success', __('Bundle updated.'));
     }
 
     public function destroy(Bundle $bundle): RedirectResponse
@@ -125,7 +129,7 @@ class BundleController extends Controller
             Storage::disk('public')->delete($bundle->thumbnail);
         }
         $bundle->delete();
-        return redirect()->route('admin.bundles.index')->with('success', 'Bundle deleted.');
+        return redirect()->route('admin.bundles.index')->with('success', __('Bundle deleted.'));
     }
 
     public function addCourse(Request $request, Bundle $bundle): RedirectResponse
@@ -133,17 +137,17 @@ class BundleController extends Controller
         $request->validate(['course_id' => 'required|exists:courses,id']);
         $courseId = (int) $request->course_id;
         if ($bundle->courses()->where('course_id', $courseId)->exists()) {
-            return back()->with('info', 'Course already in bundle.');
+            return back()->with('info', __('Course already in bundle.'));
         }
         $maxOrder = $bundle->courses()->max('order') ?? -1;
         $bundle->courses()->attach($courseId, ['order' => $maxOrder + 1]);
-        return back()->with('success', 'Course added to bundle.');
+        return back()->with('success', __('Course added to bundle.'));
     }
 
     public function removeCourse(Bundle $bundle, Course $course): RedirectResponse
     {
         $bundle->courses()->detach($course->id);
-        return back()->with('success', 'Course removed from bundle.');
+        return back()->with('success', __('Course removed from bundle.'));
     }
 
     public function updateCourseOrder(Request $request, Bundle $bundle): RedirectResponse
@@ -155,6 +159,6 @@ class BundleController extends Controller
         foreach ($order as $i => $courseId) {
             $bundle->courses()->updateExistingPivot($courseId, ['order' => $i]);
         }
-        return back()->with('success', 'Order updated.');
+        return back()->with('success', __('Order updated.'));
     }
 }

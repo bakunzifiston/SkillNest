@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Quiz Results')
-@section('header', 'Quiz Results')
+@section('title', __('Quiz Results'))
+@section('header', __('Quiz Results'))
 
 @section('content')
     <section class="mb-5" aria-labelledby="quiz-results-kpi-heading">
-        <h2 id="quiz-results-kpi-heading" class="sr-only">Quiz results overview</h2>
+        <h2 id="quiz-results-kpi-heading" class="sr-only">{{ __('Quiz results overview') }}</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @foreach($kpis as $kpi)
                 @php
@@ -59,11 +59,11 @@
                 type="text"
                 name="search"
                 value="{{ $search ?? '' }}"
-                placeholder="Search student, email, quiz..."
+                placeholder="{{ __('Search student, email, quiz...') }}"
                 class="flex-1 rounded-xl border-slate-300 text-sm min-w-[12rem]"
             >
             <select name="quiz_id" class="rounded-xl border-slate-300 text-sm min-w-[10rem]">
-                <option value="">All quizzes</option>
+                <option value="">{{ __('All quizzes') }}</option>
                 @foreach($quizzes as $q)
                     <option value="{{ $q->id }}" @selected((int) ($quizId ?? 0) === (int) $q->id)>
                         {{ $q->title }}@if($q->course) ({{ $q->course->title }})@endif
@@ -71,19 +71,19 @@
                 @endforeach
             </select>
             <select name="passed" class="rounded-xl border-slate-300 text-sm min-w-[8rem]">
-                <option value="">All results</option>
-                <option value="1" @selected(($passedFilter ?? null) === '1')>Passed</option>
-                <option value="0" @selected(($passedFilter ?? null) === '0')>Failed</option>
+                <option value="">{{ __('All results') }}</option>
+                <option value="1" @selected(($passedFilter ?? null) === '1')>{{ __('Passed') }}</option>
+                <option value="0" @selected(($passedFilter ?? null) === '0')>{{ __('Failed') }}</option>
             </select>
-            <button type="submit" class="admin-btn-secondary">Filter</button>
+            <button type="submit" class="admin-btn-secondary">{{ __('Filter') }}</button>
             @if(!empty($search) || !empty($quizId) || $passedFilter !== null)
-                <a href="{{ route('admin.quiz-results.index') }}" class="admin-btn-secondary">Clear</a>
+                <a href="{{ route('admin.quiz-results.index') }}" class="admin-btn-secondary">{{ __('Clear') }}</a>
             @endif
         </form>
         <a
             href="{{ route('admin.quiz-results.export', array_filter(['quiz_id' => $quizId, 'passed' => $passedFilter, 'search' => $search ?: null])) }}"
             class="admin-btn-accent shrink-0"
-        >Export CSV</a>
+        >{{ __('Export CSV') }}</a>
     </div>
 
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -91,12 +91,12 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Student</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Quiz</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Score</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Result</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Submitted</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Actions</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Student') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Quiz') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Score') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Result') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Submitted') }}</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -128,15 +128,15 @@
                             </td>
                             <td class="px-4 py-3">
                                 @if($a->passed)
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Passed</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">{{ __('Passed') }}</span>
                                 @else
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-red-50 text-red-700 text-xs font-medium">Failed</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-red-50 text-red-700 text-xs font-medium">{{ __('Failed') }}</span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-slate-500 whitespace-nowrap">{{ $a->submitted_at?->format('M j, Y') ?? '—' }}</td>
+                            <td class="px-4 py-3 text-slate-500 whitespace-nowrap">{{ $a->submitted_at?->translatedFormat('M j, Y') ?? '—' }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex justify-end">
-                                    <a href="{{ route('admin.quiz-results.show', $a) }}" class="admin-btn-secondary">View</a>
+                                    <a href="{{ route('admin.quiz-results.show', $a) }}" class="admin-btn-secondary">{{ __('View') }}</a>
                                 </div>
                             </td>
                         </tr>
@@ -144,9 +144,9 @@
                         <tr>
                             <td colspan="6" class="px-4 py-10 text-center text-sm text-slate-500">
                                 @if(!empty($search) || !empty($quizId) || $passedFilter !== null)
-                                    No results match your filters.
+                                    {{ __('No results match your filters.') }}
                                 @else
-                                    No submitted attempts yet.
+                                    {{ __('No submitted attempts yet.') }}
                                 @endif
                             </td>
                         </tr>

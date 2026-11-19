@@ -19,7 +19,7 @@ class ResetPassword extends BaseResetPassword
         $expire = (int) config('auth.passwords.'.config('auth.defaults.passwords').'.expire', 60);
 
         return (new MailMessage)
-            ->subject('Reset Your Password — '.config('app.name'))
+            ->subject(__('Reset Your Password — :app', ['app' => config('app.name')]))
             ->view('emails.password-reset', [
                 'url' => $this->resetUrl($notifiable),
                 'expire' => $expire,

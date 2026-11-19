@@ -55,8 +55,8 @@ class NewPasswordController extends Controller
             'email' => ['required', 'string', 'email', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ], [
-            'password.confirmed' => 'The passwords do not match.',
-            'password.min' => 'The password must be at least :min characters.',
+            'password.confirmed' => __('The passwords do not match.'),
+            'password.min' => __('The password must be at least :min characters.'),
         ]);
 
         $status = Password::reset(
@@ -75,14 +75,14 @@ class NewPasswordController extends Controller
         if ($status === Password::PASSWORD_RESET) {
             return redirect()
                 ->route('login')
-                ->with('status', 'Password reset successfully. You can now sign in using your new password.');
+                ->with('status', __('Password reset successfully. You can now sign in using your new password.'));
         }
 
         if ($status === Password::INVALID_TOKEN) {
             return redirect()
                 ->route('password.request')
                 ->withErrors([
-                    'email' => 'This password reset link is invalid or has expired. Please request a new password reset link.',
+                    'email' => __('This password reset link is invalid or has expired. Please request a new password reset link.'),
                 ]);
         }
 

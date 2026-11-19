@@ -1,5 +1,5 @@
 {{-- Decorative illustration for the sign-in / register side panel. Brand colours: navy, blue, orange. --}}
-<svg viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration: a learner follows a course on a phone, supported by a community of health champions" style="width: 100%; height: auto; max-height: min(300px, 30vh); display: block; margin: 0 auto;">
+<svg viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="{{ __('Illustration: a learner follows a course on a phone, supported by a community of health champions') }}" style="width: 100%; height: auto; max-height: min(300px, 30vh); display: block; margin: 0 auto;">
     {{-- soft glow behind the phone --}}
     <circle cx="240" cy="160" r="150" fill="#19499B" opacity="0.28"/>
     <circle cx="240" cy="160" r="104" fill="#19499B" opacity="0.30"/>

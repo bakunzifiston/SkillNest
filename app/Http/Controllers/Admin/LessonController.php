@@ -33,7 +33,8 @@ class LessonController extends Controller
             'source_url' => 'nullable|url|max:500',
             'pdf_file' => 'nullable|file|mimes:pdf|max:51200', // 50MB
             'video_file' => 'nullable|file|mimes:mp4,mov,avi,webm|max:102400', // 100MB
-        ]);
+        ] + Lesson::translationRules());
+        unset($validated['tr']);
 
         $validated['chapter_id'] = $chapter->id;
         $validated['sort_order'] = $chapter->lessons()->max('sort_order') + 1;
@@ -47,8 +48,9 @@ class LessonController extends Controller
         }
 
         unset($validated['pdf_file'], $validated['video_file']);
-        Lesson::create($validated);
-        return redirect()->route('admin.courses.edit', $chapter->course)->with('success', 'Lesson added.')->with('tab', 'curriculum');
+        $lesson = Lesson::create($validated);
+        $lesson->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.courses.edit', $chapter->course)->with('success', __('Lesson added.'))->with('tab', 'curriculum');
     }
 
     public function edit(Lesson $lesson): View
@@ -66,7 +68,8 @@ class LessonController extends Controller
             'source_url' => 'nullable|url|max:500',
             'pdf_file' => 'nullable|file|mimes:pdf|max:51200',
             'video_file' => 'nullable|file|mimes:mp4,mov,avi,webm|max:102400',
-        ]);
+        ] + Lesson::translationRules());
+        unset($validated['tr']);
 
         $validated['content'] = $request->input('content');
         $validated['source_url'] = $request->input('source_url');
@@ -85,7 +88,8 @@ class LessonController extends Controller
 
         unset($validated['pdf_file'], $validated['video_file']);
         $lesson->update($validated);
-        return redirect()->route('admin.courses.edit', $lesson->chapter->course)->with('success', 'Lesson updated.')->with('tab', 'curriculum');
+        $lesson->saveTranslations($request->input('tr', []));
+        return redirect()->route('admin.courses.edit', $lesson->chapter->course)->with('success', __('Lesson updated.'))->with('tab', 'curriculum');
     }
 
     public function destroy(Lesson $lesson): RedirectResponse
@@ -95,6 +99,6 @@ class LessonController extends Controller
         }
         $course = $lesson->chapter->course;
         $lesson->delete();
-        return redirect()->route('admin.courses.edit', $course)->with('success', 'Lesson deleted.')->with('tab', 'curriculum');
+        return redirect()->route('admin.courses.edit', $course)->with('success', __('Lesson deleted.'))->with('tab', 'curriculum');
     }
 }

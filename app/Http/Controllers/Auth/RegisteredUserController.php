@@ -78,7 +78,7 @@ class RegisteredUserController extends Controller
 
             if (! $organization || ! $organization->acceptsRegistrationCode($request->input('partner_code'))) {
                 throw ValidationException::withMessages([
-                    'partner_code' => 'The access code is missing or incorrect for the selected organization.',
+                    'partner_code' => __('The access code is missing or incorrect for the selected organization.'),
                 ]);
             }
         }
@@ -114,6 +114,7 @@ class RegisteredUserController extends Controller
             'province' => $validated['province'] ?? null,
             'district' => $validated['district'] ?? null,
             'sector' => $validated['sector'] ?? null,
+            'locale' => app()->getLocale(),
             'learner_type' => $learnerType,
             'partner_organization_id' => $partnerOrganizationId,
         ]);

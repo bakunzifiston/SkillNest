@@ -19,6 +19,7 @@ function youtubeEmbedSrc(videoId, origin) {
 }
 
 function initYouTubePlayer(root, onEnded) {
+    const videoTitle = root.dataset.msgVideoTitle || 'Lesson video';
     const mount = root.querySelector('[data-youtube-player]');
     if (!mount) {
         return;
@@ -69,7 +70,7 @@ function initYouTubePlayer(root, onEnded) {
         iframe.id = 'lesson-youtube-player';
         iframe.className = 'h-full w-full';
         iframe.src = youtubeEmbedSrc(videoId, window.location.origin);
-        iframe.title = 'Lesson video';
+        iframe.title = videoTitle;
         iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
         iframe.allowFullscreen = true;
         iframe.setAttribute('referrerpolicy', 'strict-origin-when-cross-origin');
@@ -101,6 +102,8 @@ function initLessonProgress(root) {
     let recorded = alreadyCompleted;
     const pageOpenedAt = Date.now();
     const minDwellMs = 5000;
+    const msgCompleted = root.dataset.msgCompleted || 'Completed';
+    const msgSaveError = root.dataset.msgSaveError || 'Could not save your progress. Please reload the page.';
 
     const control = document.getElementById('lesson-complete-control');
     const incompleteBlock = control?.querySelector('[data-lesson-complete-incomplete]');
@@ -115,12 +118,12 @@ function initLessonProgress(root) {
         incompleteBlock?.remove();
         if (doneBlock) {
             doneBlock.classList.remove('hidden');
-            doneBlock.textContent = `✓ ${message ?? 'Completed'}`;
+            doneBlock.textContent = `✓ ${message ?? msgCompleted}`;
         } else {
             const span = document.createElement('span');
             span.dataset.lessonCompleteDone = '';
             span.className = 'inline-flex items-center gap-2 text-success-dark font-medium';
-            span.textContent = `✓ ${message ?? 'Completed'}`;
+            span.textContent = `✓ ${message ?? msgCompleted}`;
             control?.appendChild(span);
         }
     }
@@ -157,13 +160,13 @@ function initLessonProgress(root) {
 
             if (!response.ok) {
                 recorded = false;
-                setStatus('Could not save your progress. Please reload the page.');
+                setStatus(msgSaveError);
                 return;
             }
 
             const data = await response.json();
             recorded = true;
-            showCompletedUI('Completed');
+            showCompletedUI(msgCompleted);
 
             document.querySelectorAll(`[data-lesson-id="${root.dataset.lessonId}"]`).forEach((el) => {
                 if (el.dataset.role === 'checkmark') {
@@ -182,7 +185,7 @@ function initLessonProgress(root) {
             }
         } catch {
             recorded = false;
-            setStatus('Could not save your progress. Please reload the page.');
+            setStatus(msgSaveError);
         }
     }
 

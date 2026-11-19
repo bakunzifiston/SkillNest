@@ -38,7 +38,7 @@ class ContactMessageController extends Controller
 
         return redirect()
             ->route('admin.contact-messages.index')
-            ->with('success', 'Message deleted.');
+            ->with('success', __('Message deleted.'));
     }
 
     public function destroyAll(): RedirectResponse
@@ -47,6 +47,6 @@ class ContactMessageController extends Controller
 
         return redirect()
             ->route('admin.contact-messages.index')
-            ->with('success', 'All read messages deleted.');
+            ->with('success', __('All read messages deleted.'));
     }
 }

@@ -1,20 +1,20 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard')
-@section('header', 'Dashboard')
+@section('title', __('Dashboard'))
+@section('header', __('Dashboard'))
 
 @section('content')
     @php
         $filterParams = request()->only(['range', 'from', 'to', 'chart_period', 'course_id']);
         $dashUrl = fn (array $extra = []) => route('admin.dashboard', array_filter(array_merge($filterParams, $extra), fn ($v) => $v !== null && $v !== ''));
         $rangePresets = [
-            'today' => 'Today',
-            '7d' => '7 days',
-            '30d' => '30 days',
-            '90d' => '90 days',
-            'year' => 'This year',
-            'all' => 'All time',
-            'custom' => 'Custom',
+            'today' => __('Today'),
+            '7d' => __('7 days'),
+            '30d' => __('30 days'),
+            '90d' => __('90 days'),
+            'year' => __('This year'),
+            'all' => __('All time'),
+            'custom' => __('Custom'),
         ];
     @endphp
 
@@ -25,14 +25,14 @@
 
         <div class="flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4">
             <div class="flex items-center gap-2 min-w-0 lg:w-64">
-                <label for="course_id" class="sr-only">Course</label>
+                <label for="course_id" class="sr-only">{{ __('Course') }}</label>
                 <select
                     name="course_id"
                     id="course_id"
                     class="w-full rounded-xl border-slate-200 text-sm text-navy focus:border-primary focus:ring-primary"
                     onchange="this.form.submit()"
                 >
-                    <option value="">All courses</option>
+                    <option value="">{{ __('All courses') }}</option>
                     @foreach($courseOptions as $courseOption)
                         <option value="{{ $courseOption->id }}" @selected((int) ($selectedCourseId ?? 0) === (int) $courseOption->id)>
                             {{ $courseOption->title }}
@@ -56,15 +56,15 @@
         @if($range['preset'] === 'custom')
             <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-end gap-3">
                 <div>
-                    <label for="from" class="block text-xs text-slate-500 mb-1">From</label>
+                    <label for="from" class="block text-xs text-slate-500 mb-1">{{ __('From') }}</label>
                     <input type="date" name="from" id="from" value="{{ $range['from']->toDateString() }}" class="rounded-xl border-slate-200 text-sm">
                 </div>
                 <div>
-                    <label for="to" class="block text-xs text-slate-500 mb-1">To</label>
+                    <label for="to" class="block text-xs text-slate-500 mb-1">{{ __('To') }}</label>
                     <input type="date" name="to" id="to" value="{{ $range['to']->toDateString() }}" class="rounded-xl border-slate-200 text-sm">
                 </div>
                 <input type="hidden" name="range" value="custom">
-                <button type="submit" class="px-3.5 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark">Apply</button>
+                <button type="submit" class="px-3.5 py-2 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark">{{ __('Apply') }}</button>
             </div>
         @endif
     </form>
@@ -78,23 +78,23 @@
                 @include('admin.partials.dashboard-icon', ['icon' => 'mail', 'class' => 'h-5 w-5'])
             </span>
             <div class="min-w-0">
-                <p class="font-display font-semibold text-navy">Contact messages</p>
+                <p class="font-display font-semibold text-navy">{{ __('Contact messages') }}</p>
                 <p class="text-sm text-slate-600">
                     @if(($unreadContactMessages ?? 0) > 0)
-                        {{ number_format($unreadContactMessages) }} unread · {{ number_format($contactMessagesTotal) }} total
+                        {{ __(':unread unread · :total total', ['unread' => number_format($unreadContactMessages), 'total' => number_format($contactMessagesTotal)]) }}
                     @elseif(($contactMessagesTotal ?? 0) > 0)
-                        {{ number_format($contactMessagesTotal) }} message{{ $contactMessagesTotal === 1 ? '' : 's' }}
+                        {{ trans_choice('{1} :count message|[2,*] :count messages', $contactMessagesTotal, ['count' => number_format($contactMessagesTotal)]) }}
                     @else
-                        View messages from the contact form
+                        {{ __('View messages from the contact form') }}
                     @endif
                 </p>
             </div>
         </div>
-        <span class="text-sm font-medium text-primary shrink-0">Open →</span>
+        <span class="text-sm font-medium text-primary shrink-0">{{ __('Open') }} →</span>
     </a>
 
     <section class="mb-5" aria-labelledby="kpi-heading">
-        <h2 id="kpi-heading" class="sr-only">Key metrics</h2>
+        <h2 id="kpi-heading" class="sr-only">{{ __('Key metrics') }}</h2>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
             @foreach($kpis as $kpi)
                 @php
@@ -153,57 +153,57 @@
         <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 p-4">
             <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
                 <div>
-                    <h2 id="analytics-heading" class="font-display font-semibold text-sm text-navy">Enrollment Trends</h2>
-                    <p class="text-[11px] text-slate-400">{{ array_sum($enrollmentTrend['counts']) }} enrollments in {{ $range['label'] }}</p>
+                    <h2 id="analytics-heading" class="font-display font-semibold text-sm text-navy">{{ __('Enrollment Trends') }}</h2>
+                    <p class="text-[11px] text-slate-400">{{ __(':count enrollments in :range', ['count' => array_sum($enrollmentTrend['counts']), 'range' => $range['label']]) }}</p>
                 </div>
                 <div class="inline-flex rounded-lg bg-slate-100 p-0.5">
-                    @foreach(['weekly' => 'Weekly', 'monthly' => 'Monthly', 'yearly' => 'Yearly'] as $g => $gLabel)
+                    @foreach(['weekly' => __('Weekly'), 'monthly' => __('Monthly'), 'yearly' => __('Yearly')] as $g => $gLabel)
                         <a href="{{ $dashUrl(['chart_period' => $g]) }}" class="px-2 py-1 rounded-md text-[11px] font-medium {{ $chartGranularity === $g ? 'bg-white text-navy shadow-sm' : 'text-slate-500 hover:text-navy' }}">{{ $gLabel }}</a>
                     @endforeach
                 </div>
             </div>
             @if(array_sum($enrollmentTrend['counts']) > 0)
-                <div class="h-40"><canvas id="enrollmentTrendChart" aria-label="Enrollment trends"></canvas></div>
+                <div class="h-40"><canvas id="enrollmentTrendChart" aria-label="{{ __('Enrollment trends') }}"></canvas></div>
             @else
-                <div class="h-40 flex items-center justify-center text-xs text-slate-500">No enrollments in this period.</div>
+                <div class="h-40 flex items-center justify-center text-xs text-slate-500">{{ __('No enrollments in this period.') }}</div>
             @endif
         </div>
         <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4">
-            <h2 class="font-display font-semibold text-sm text-navy">Learner Engagement</h2>
-            <p class="text-[11px] text-slate-400 mb-3">Course starts, lesson completions, and quiz submissions</p>
+            <h2 class="font-display font-semibold text-sm text-navy">{{ __('Learner Engagement') }}</h2>
+            <p class="text-[11px] text-slate-400 mb-3">{{ __('Course starts, lesson completions, and quiz submissions') }}</p>
             @if(array_sum($engagement['starts']) + array_sum($engagement['completions']) + array_sum($engagement['quizzes']) > 0)
-                <div class="h-40"><canvas id="engagementChart" aria-label="Learner engagement"></canvas></div>
+                <div class="h-40"><canvas id="engagementChart" aria-label="{{ __('Learner engagement') }}"></canvas></div>
             @else
-                <div class="h-40 flex items-center justify-center text-xs text-slate-500">No learner activity in this period.</div>
+                <div class="h-40 flex items-center justify-center text-xs text-slate-500">{{ __('No learner activity in this period.') }}</div>
             @endif
         </div>
     </section>
 
     <section class="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div class="bg-white rounded-xl border border-slate-200 p-4">
-            <h2 class="font-display font-semibold text-sm text-navy">Student Progress</h2>
-            <p class="text-[11px] text-slate-400 mb-3">All enrollments: not started, in progress, completed</p>
+            <h2 class="font-display font-semibold text-sm text-navy">{{ __('Student Progress') }}</h2>
+            <p class="text-[11px] text-slate-400 mb-3">{{ __('All enrollments: not started, in progress, completed') }}</p>
             @if(array_sum($progressDistribution) > 0)
-                <div class="h-40"><canvas id="progressChart" aria-label="Student progress distribution"></canvas></div>
+                <div class="h-40"><canvas id="progressChart" aria-label="{{ __('Student progress distribution') }}"></canvas></div>
             @else
-                <div class="h-40 flex items-center justify-center text-xs text-slate-500">No enrollment progress yet.</div>
+                <div class="h-40 flex items-center justify-center text-xs text-slate-500">{{ __('No enrollment progress yet.') }}</div>
             @endif
         </div>
         <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                <h2 class="font-display font-semibold text-sm text-navy">Course Performance</h2>
-                <a href="{{ route('admin.courses.index') }}" class="text-xs font-medium text-primary hover:text-accent">View all</a>
+                <h2 class="font-display font-semibold text-sm text-navy">{{ __('Course Performance') }}</h2>
+                <a href="{{ route('admin.courses.index') }}" class="text-xs font-medium text-primary hover:text-accent">{{ __('View all') }}</a>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="bg-slate-50 text-slate-500">
                         <tr>
-                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Enrolled</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">In progress</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Done</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Rate</th>
-                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider whitespace-nowrap">Avg quiz</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Enrolled') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('In progress') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Done') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Rate') }}</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Avg quiz') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -238,7 +238,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">No courses yet.</td></tr>
+                            <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No courses yet.') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -248,31 +248,31 @@
 
     <section class="mb-8 grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-4">
-            <h2 class="font-display font-semibold text-sm text-navy">Quiz Performance</h2>
-            <p class="text-[11px] text-slate-400 mb-2">Average score by quiz (submitted attempts)</p>
+            <h2 class="font-display font-semibold text-sm text-navy">{{ __('Quiz Performance') }}</h2>
+            <p class="text-[11px] text-slate-400 mb-2">{{ __('Average score by quiz (submitted attempts)') }}</p>
             @if(count($quizChart['scores']) > 0)
-                <div class="h-32 mb-3"><canvas id="quizChart" aria-label="Average quiz scores"></canvas></div>
+                <div class="h-32 mb-3"><canvas id="quizChart" aria-label="{{ __('Average quiz scores') }}"></canvas></div>
             @endif
             <div class="mt-3 grid grid-cols-2 gap-2 text-center">
                 <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2.5">
                     <p class="font-display font-bold text-lg text-navy tabular-nums">{{ $quizOverview['total'] }}</p>
-                    <p class="text-[11px] text-slate-500">Quizzes</p>
+                    <p class="text-[11px] text-slate-500">{{ __('Quizzes') }}</p>
                 </div>
                 <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2.5">
                     <p class="font-display font-bold text-lg text-navy tabular-nums">{{ $quizOverview['attempts'] }}</p>
-                    <p class="text-[11px] text-slate-500">Attempts</p>
+                    <p class="text-[11px] text-slate-500">{{ __('Attempts') }}</p>
                 </div>
                 <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2.5">
                     <p class="font-display font-bold text-lg text-navy tabular-nums">{{ $quizOverview['avg'] === null ? '—' : $quizOverview['avg'].'%' }}</p>
-                    <p class="text-[11px] text-slate-500">Avg. score</p>
+                    <p class="text-[11px] text-slate-500">{{ __('Avg. score') }}</p>
                 </div>
                 <div class="rounded-xl border border-slate-100 bg-slate-50/80 p-2.5">
                     <p class="font-display font-bold text-lg text-navy tabular-nums">{{ $quizOverview['passRate'] === null ? '—' : $quizOverview['passRate'].'%' }}</p>
-                    <p class="text-[11px] text-slate-500">Pass rate</p>
+                    <p class="text-[11px] text-slate-500">{{ __('Pass rate') }}</p>
                 </div>
             </div>
             @if($lowestQuizzes->isNotEmpty())
-                <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Lowest-performing ({{ $thresholds['min_attempts'] }}+ attempts)</p>
+                <p class="mt-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">{{ __('Lowest-performing (:count+ attempts)', ['count' => $thresholds['min_attempts']]) }}</p>
                 <ul class="mt-1.5 space-y-1.5">
                     @foreach($lowestQuizzes as $q)
                         <li class="flex items-center justify-between gap-2 text-xs">
@@ -285,18 +285,18 @@
         </div>
         <div class="lg:col-span-3 bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                <h2 class="font-display font-semibold text-sm text-navy">Assessments</h2>
-                <a href="{{ route('admin.quiz-results.index') }}" class="text-xs font-medium text-primary hover:text-accent">Quiz results</a>
+                <h2 class="font-display font-semibold text-sm text-navy">{{ __('Assessments') }}</h2>
+                <a href="{{ route('admin.quiz-results.index') }}" class="text-xs font-medium text-primary hover:text-accent">{{ __('Quiz results') }}</a>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="bg-slate-50 text-slate-500">
                         <tr>
-                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Quiz</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Attempts</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Avg score</th>
-                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider whitespace-nowrap">Pass rate</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Quiz') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Attempts') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Avg score') }}</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Pass rate') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -332,7 +332,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">No quizzes yet.</td></tr>
+                            <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No quizzes yet.') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -342,12 +342,12 @@
 
     <section class="mb-8 bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <h2 class="font-display font-semibold text-sm text-navy">Live Sessions</h2>
-            <a href="{{ route('admin.live-sessions.index') }}" class="text-xs font-medium text-primary hover:text-accent">View all</a>
+            <h2 class="font-display font-semibold text-sm text-navy">{{ __('Live Sessions') }}</h2>
+            <a href="{{ route('admin.live-sessions.index') }}" class="text-xs font-medium text-primary hover:text-accent">{{ __('View all') }}</a>
         </div>
         <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
             <div class="p-4">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-accent mb-3">Upcoming</p>
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-accent mb-3">{{ __('Upcoming') }}</p>
                 @forelse($upcomingSessions as $session)
                     <div class="flex items-start gap-3 py-2.5 border-b border-slate-50 last:border-0">
                         <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent-light text-accent">
@@ -356,15 +356,15 @@
                         <div class="min-w-0">
                             <p class="text-sm font-medium text-navy truncate">{{ $session->title }}</p>
                             <p class="text-[11px] text-slate-500 truncate">{{ $session->course->title ?? '—' }} · {{ $session->course->instructor->name ?? '—' }}</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">{{ $session->scheduled_at->format('M j, Y · g:i A') }} · {{ $session->duration_minutes }} min</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">{{ $session->scheduled_at->translatedFormat('M j, Y · g:i A') }} · {{ __(':count min', ['count' => $session->duration_minutes]) }}</p>
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm text-slate-500 py-4">No upcoming sessions.</p>
+                    <p class="text-sm text-slate-500 py-4">{{ __('No upcoming sessions.') }}</p>
                 @endforelse
             </div>
             <div class="p-4">
-                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-3">Recently held</p>
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-3">{{ __('Recently held') }}</p>
                 @forelse($recentPastSessions as $session)
                     <div class="flex items-start gap-3 py-2.5 border-b border-slate-50 last:border-0">
                         <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
@@ -373,11 +373,11 @@
                         <div class="min-w-0">
                             <p class="text-sm font-medium text-navy truncate">{{ $session->title }}</p>
                             <p class="text-[11px] text-slate-500 truncate">{{ $session->course->title ?? '—' }}</p>
-                            <p class="text-[11px] text-slate-400 mt-0.5">{{ $session->scheduled_at->format('M j, Y · g:i A') }}</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">{{ $session->scheduled_at->translatedFormat('M j, Y · g:i A') }}</p>
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm text-slate-500 py-4">No completed sessions yet.</p>
+                    <p class="text-sm text-slate-500 py-4">{{ __('No completed sessions yet.') }}</p>
                 @endforelse
             </div>
         </div>
@@ -386,7 +386,7 @@
     <section class="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div class="px-4 py-3 border-b border-slate-100">
-                <h2 class="font-display font-semibold text-sm text-navy">Recent Activity</h2>
+                <h2 class="font-display font-semibold text-sm text-navy">{{ __('Recent Activity') }}</h2>
             </div>
             <ul class="divide-y divide-slate-100 max-h-80 overflow-y-auto">
                 @forelse($recentActivity as $item)
@@ -400,30 +400,30 @@
                         </div>
                     </li>
                 @empty
-                    <li class="px-4 py-8 text-center text-sm text-slate-500">No recent activity.</li>
+                    <li class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No recent activity.') }}</li>
                 @endforelse
             </ul>
         </div>
         <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-                <h2 class="font-display font-semibold text-sm text-navy">Recent Enrollments</h2>
-                <a href="{{ route('admin.users.index') }}" class="text-xs font-medium text-primary hover:text-accent">View all</a>
+                <h2 class="font-display font-semibold text-sm text-navy">{{ __('Recent Enrollments') }}</h2>
+                <a href="{{ route('admin.users.index') }}" class="text-xs font-medium text-primary hover:text-accent">{{ __('View all') }}</a>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="bg-slate-50 text-slate-500">
                         <tr>
-                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Student</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Date</th>
-                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Progress</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Student') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                            <th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Date') }}</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Progress') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($recentEnrollments as $enrollment)
                             @php
                                 $status = $enrollment->progress_status ?? 'not_started';
-                                $statusLabel = ['not_started' => 'Not started', 'in_progress' => 'In progress', 'completed' => 'Completed'][$status];
+                                $statusLabel = ['not_started' => __('Not started'), 'in_progress' => __('In progress'), 'completed' => __('Completed')][$status];
                                 $student = $enrollment->user;
                                 $studentName = $student
                                     ? (trim(($student->displayFirstName() ?: '').' '.($student->displayLastName() ?: '')) ?: ($student->name ?? '—'))
@@ -441,7 +441,7 @@
                                 <td class="px-3 py-3 text-slate-600 truncate max-w-[9rem]" title="{{ $enrollment->course->title ?? '' }}">
                                     {{ $enrollment->course->title ?? '—' }}
                                 </td>
-                                <td class="px-3 py-3 text-slate-400 whitespace-nowrap text-xs">{{ $enrollment->created_at->format('M j, Y') }}</td>
+                                <td class="px-3 py-3 text-slate-400 whitespace-nowrap text-xs">{{ $enrollment->created_at->translatedFormat('M j, Y') }}</td>
                                 <td class="px-4 py-3 text-right">
                                     <span class="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium
                                         {{ $status === 'completed' ? 'bg-success-light text-success-darker' : ($status === 'in_progress' ? 'bg-accent-light text-accent-darker' : 'bg-slate-100 text-slate-500') }}">
@@ -450,7 +450,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">No enrollments yet.</td></tr>
+                            <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No enrollments yet.') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -460,13 +460,13 @@
 
     <section class="mb-4 bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="px-4 py-3 border-b border-slate-100">
-            <h2 class="font-display font-semibold text-sm text-navy">Courses Requiring Attention</h2>
+            <h2 class="font-display font-semibold text-sm text-navy">{{ __('Courses Requiring Attention') }}</h2>
             <p class="text-[11px] text-slate-400 mt-0.5">
-                Low completion, low quiz scores, or no recent activity in the selected period.
+                {{ __('Low completion, low quiz scores, or no recent activity in the selected period.') }}
             </p>
         </div>
         @if($attentionCourses->isEmpty())
-            <p class="px-4 py-8 text-center text-sm text-slate-500">No courses currently match these attention rules.</p>
+            <p class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No courses currently match these attention rules.') }}</p>
         @else
             <ul class="divide-y divide-slate-100">
                 @foreach($attentionCourses as $row)
@@ -481,7 +481,7 @@
                             </div>
                         </div>
                         <span class="inline-flex px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-xs font-medium tabular-nums shrink-0">
-                            {{ $row['enrollments'] }} enrolled
+                            {{ __(':count enrolled', ['count' => $row['enrollments']]) }}
                         </span>
                     </li>
                 @endforeach
@@ -506,7 +506,7 @@
                     data: {
                         labels: @json($enrollmentTrend['labels']),
                         datasets: [{
-                            label: 'Enrollments',
+                            label: {{ Js::from(__('Enrollments')) }},
                             data: @json($enrollmentTrend['counts']),
                             borderColor: primary,
                             backgroundColor: 'rgba(25, 73, 155, 0.12)',
@@ -535,9 +535,9 @@
                     data: {
                         labels: @json($engagement['labels']),
                         datasets: [
-                            { label: 'Course starts', data: @json($engagement['starts']), backgroundColor: primary },
-                            { label: 'Lesson completions', data: @json($engagement['completions']), backgroundColor: accent },
-                            { label: 'Quiz submissions', data: @json($engagement['quizzes']), backgroundColor: success },
+                            { label: {{ Js::from(__('Course starts')) }}, data: @json($engagement['starts']), backgroundColor: primary },
+                            { label: {{ Js::from(__('Lesson completions')) }}, data: @json($engagement['completions']), backgroundColor: accent },
+                            { label: {{ Js::from(__('Quiz submissions')) }}, data: @json($engagement['quizzes']), backgroundColor: success },
                         ]
                     },
                     options: {
@@ -559,7 +559,7 @@
                     data: {
                         labels: @json($quizChart['labels']),
                         datasets: [{
-                            label: 'Avg. score %',
+                            label: {{ Js::from(__('Avg. score %')) }},
                             data: @json($quizChart['scores']),
                             backgroundColor: primary,
                         }]
@@ -582,7 +582,7 @@
                 new Chart(progress, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Not started', 'In progress', 'Completed'],
+                        labels: [{{ Js::from(__('Not started')) }}, {{ Js::from(__('In progress')) }}, {{ Js::from(__('Completed')) }}],
                         datasets: [{
                             data: [
                                 {{ (int) $progressDistribution['not_started'] }},

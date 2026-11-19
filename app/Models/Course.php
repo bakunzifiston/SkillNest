@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
+    use HasTranslations;
+
+    /** Fields that can be translated (see HasTranslations). */
+    protected array $translatable = ['title', 'description', 'duration'];
+
     public const STATUS_DRAFT = 'draft';
 
     public const STATUS_PUBLISHED = 'published';
@@ -39,10 +45,10 @@ class Course extends Model
     public static function accessLevels(): array
     {
         return [
-            self::ACCESS_ALL => 'All learners (Agents and all Partners)',
-            self::ACCESS_AGENTS => 'Agents only',
-            self::ACCESS_PARTNERS => 'All Partners',
-            self::ACCESS_PARTNER => 'Specific Partner organization',
+            self::ACCESS_ALL => __('All learners (Agents and all Partners)'),
+            self::ACCESS_AGENTS => __('Agents only'),
+            self::ACCESS_PARTNERS => __('All Partners'),
+            self::ACCESS_PARTNER => __('Specific Partner organization'),
         ];
     }
 
@@ -104,10 +110,10 @@ class Course extends Model
     public function accessLabel(): string
     {
         return match ($this->accessLevelOrAll()) {
-            self::ACCESS_AGENTS => 'Agents only',
-            self::ACCESS_PARTNERS => 'All Partners',
-            self::ACCESS_PARTNER => ($this->partnerOrganization?->name ?? 'Partner').' only',
-            default => 'All learners',
+            self::ACCESS_AGENTS => __('Agents only'),
+            self::ACCESS_PARTNERS => __('All Partners'),
+            self::ACCESS_PARTNER => __(':name only', ['name' => $this->partnerOrganization?->name ?? __('Partner')]),
+            default => __('All learners'),
         };
     }
 
@@ -195,10 +201,10 @@ class Course extends Model
     public function audienceName(): string
     {
         return match ($this->accessLevelOrAll()) {
-            self::ACCESS_AGENTS => 'Agents',
-            self::ACCESS_PARTNERS => 'Partners',
-            self::ACCESS_PARTNER => $this->partnerOrganization?->name ?? 'Partners',
-            default => 'everyone',
+            self::ACCESS_AGENTS => __('Agents'),
+            self::ACCESS_PARTNERS => __('Partners'),
+            self::ACCESS_PARTNER => $this->partnerOrganization?->name ?? __('Partners'),
+            default => __('everyone'),
         };
     }
 
@@ -213,14 +219,14 @@ class Course extends Model
         }
 
         $for = $this->accessLevelOrAll() === self::ACCESS_PARTNER
-            ? $this->audienceName().' partner learners only'
-            : $this->audienceName().' only';
+            ? __(':audience partner learners only', ['audience' => $this->audienceName()])
+            : __(':audience only', ['audience' => $this->audienceName()]);
 
         if (! $user) {
-            return "This course is for {$for}. Log in with an eligible account to enroll.";
+            return __('This course is for :for. Log in with an eligible account to enroll.', ['for' => $for]);
         }
 
-        return "This course is for {$for}. Your account ({$user->learnerCategoryLabel()}) can't enroll in it.";
+        return __('This course is for :for. Your account (:account) can\'t enroll in it.', ['for' => $for, 'account' => $user->learnerCategoryLabel()]);
     }
 
     /**

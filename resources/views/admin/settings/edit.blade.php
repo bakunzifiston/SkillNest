@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Settings')
-@section('header', 'Settings')
+@section('title', __('Settings'))
+@section('header', __('Settings'))
 
 @section('content')
     <section class="mb-5" aria-labelledby="settings-kpi-heading">
-        <h2 id="settings-kpi-heading" class="sr-only">Settings overview</h2>
+        <h2 id="settings-kpi-heading" class="sr-only">{{ __('Settings overview') }}</h2>
         <div class="grid grid-cols-2 gap-3 max-w-xl">
             @foreach($kpis as $kpi)
                 @php
@@ -64,26 +64,26 @@
 
             <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
                 <div class="px-4 py-3 border-b border-slate-100">
-                    <h2 class="font-display font-semibold text-sm text-navy">Platform logo</h2>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Shown in the header and footer. Prefer a transparent PNG or SVG.</p>
+                    <h2 class="font-display font-semibold text-sm text-navy">{{ __('Platform logo') }}</h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">{{ __('Shown in the header and footer. Prefer a transparent PNG or SVG.') }}</p>
                 </div>
                 <div class="p-4 space-y-4">
                     @if($logoUrl)
                         <div class="flex flex-wrap items-center gap-4">
                             <div class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                                <img src="{{ $logoUrl }}" alt="Site logo" class="object-contain object-left" style="height: 48px; max-width: 280px;">
+                                <img src="{{ $logoUrl }}" alt="{{ __('Site logo') }}" class="object-contain object-left" style="height: 48px; max-width: 280px;">
                             </div>
                             <label class="inline-flex items-center gap-2 text-sm text-slate-600">
                                 <input type="checkbox" name="remove_logo" value="1" class="rounded border-slate-300 text-primary focus:ring-primary">
-                                Remove logo
+                                {{ __('Remove logo') }}
                             </label>
                         </div>
                     @else
-                        <p class="text-sm text-slate-500">No logo uploaded — the site name is shown instead.</p>
+                        <p class="text-sm text-slate-500">{{ __('No logo uploaded — the site name is shown instead.') }}</p>
                     @endif
 
                     <div>
-                        <label for="logo" class="block text-sm font-medium text-navy mb-1.5">Upload logo</label>
+                        <label for="logo" class="block text-sm font-medium text-navy mb-1.5">{{ __('Upload logo') }}</label>
                         <input
                             type="file"
                             name="logo"
@@ -91,7 +91,7 @@
                             accept="image/jpeg,image/png,image/jpg,image/gif,image/webp,image/svg+xml"
                             class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-accent file:text-white file:font-medium hover:file:bg-accent-dark"
                         >
-                        <p class="mt-1.5 text-xs text-slate-400">JPEG, PNG, GIF, WebP or SVG. Max 2MB.</p>
+                        <p class="mt-1.5 text-xs text-slate-400">{{ __('JPEG, PNG, GIF, WebP or SVG. Max 2MB.') }}</p>
                         @error('logo')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -99,10 +99,10 @@
 
             <div class="flex flex-wrap items-center gap-3">
                 @adminCan('settings', 'edit')
-                    <button type="submit" class="admin-btn-accent">Save settings</button>
+                    <button type="submit" class="admin-btn-accent">{{ __('Save settings') }}</button>
                 @endadminCan
                 @adminCan('partners', 'view')
-                    <a href="{{ route('admin.partners.index') }}" class="admin-btn-secondary">Manage partner logos</a>
+                    <a href="{{ route('admin.partners.index') }}" class="admin-btn-secondary">{{ __('Manage partner logos') }}</a>
                 @endadminCan
             </div>
         </form>

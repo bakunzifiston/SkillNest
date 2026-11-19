@@ -66,12 +66,12 @@ class CourseController extends Controller
 
         $user = auth()->user();
         if ($user->hasEnrolled($course)) {
-            return redirect()->route('courses.show', $course)->with('info', 'You are already enrolled.');
+            return redirect()->route('courses.show', $course)->with('info', __('You are already enrolled.'));
         }
 
         // Server-side audience check: never trust that the button was hidden.
         if (! $course->isAvailableTo($user)) {
-            abort(403, 'This course is not available for your learner category.');
+            abort(403, __('This course is not available for your learner category.'));
         }
 
         Enrollment::create(['user_id' => $user->id, 'course_id' => $course->id]);
@@ -86,12 +86,12 @@ class CourseController extends Controller
         if ($firstLesson) {
             return redirect()
                 ->route('courses.lessons.show', [$course, $firstLesson])
-                ->with('success', 'You are enrolled! Let us start with the first lesson.');
+                ->with('success', __('You are enrolled! Let us start with the first lesson.'));
         }
 
         return redirect()
             ->route('courses.show', $course)
-            ->with('info', 'You are enrolled! This course has no lessons yet.');
+            ->with('info', __('You are enrolled! This course has no lessons yet.'));
     }
 
     public function myCourses(): View
@@ -117,7 +117,7 @@ class CourseController extends Controller
         // Restricted courses stay visible, but their lessons are only for the audience (or those already enrolled).
         if (! auth()->user()->canAccessCourse($course)) {
             return redirect()->route('courses.show', $course)
-                ->with('error', $course->audienceWarning(auth()->user()) ?? 'This course is not available for your account.');
+                ->with('error', $course->audienceWarning(auth()->user()) ?? __('This course is not available for your account.'));
         }
         $lesson->loadMissing('chapter');
         if ((int) $lesson->chapter->course_id !== (int) $course->id) {
@@ -133,7 +133,7 @@ class CourseController extends Controller
 
             return redirect()
                 ->route('courses.show', $course)
-                ->with('error', 'That lesson does not belong to this course.');
+                ->with('error', __('That lesson does not belong to this course.'));
         }
 
         if (! auth()->user()->hasEnrolled($course)) {
@@ -148,7 +148,7 @@ class CourseController extends Controller
                     $course->increment('students_count');
                 }
             } else {
-                return redirect()->route('courses.show', $course)->with('error', 'Please enroll in this course first.');
+                return redirect()->route('courses.show', $course)->with('error', __('Please enroll in this course first.'));
             }
         }
 
@@ -166,14 +166,14 @@ class CourseController extends Controller
     {
         if (! auth()->check()) {
             return $request->expectsJson()
-                ? response()->json(['message' => 'Unauthenticated.'], 401)
+                ? response()->json(['message' => __('Unauthenticated.')], 401)
                 : redirect()->route('login');
         }
 
         $course = $lesson->chapter->course;
         if (! auth()->user()->hasEnrolled($course)) {
             return $request->expectsJson()
-                ? response()->json(['message' => 'Not enrolled in this course.'], 403)
+                ? response()->json(['message' => __('Not enrolled in this course.')], 403)
                 : redirect()->route('courses.show', $course);
         }
 
@@ -201,8 +201,8 @@ class CourseController extends Controller
                 'completed_count' => $completedCount,
                 'total_lessons' => $totalLessons,
                 'message' => $completion->wasRecentlyCreated
-                    ? 'Progress saved automatically.'
-                    : 'Lesson already completed.',
+                    ? __('Progress saved automatically.')
+                    : __('Lesson already completed.'),
             ]);
         }
 
@@ -210,10 +210,10 @@ class CourseController extends Controller
             ?? $lesson->chapter->course->chapters->where('sort_order', '>', $lesson->chapter->sort_order)->first()?->lessons->first();
 
         if ($nextLesson) {
-            return redirect()->route('courses.lessons.show', [$course, $nextLesson])->with('success', 'Lesson marked complete.');
+            return redirect()->route('courses.lessons.show', [$course, $nextLesson])->with('success', __('Lesson marked complete.'));
         }
 
-        return redirect()->route('courses.show', $course)->with('success', 'Lesson marked complete. You have finished this course!');
+        return redirect()->route('courses.show', $course)->with('success', __('Lesson marked complete. You have finished this course!'));
     }
 
     /**

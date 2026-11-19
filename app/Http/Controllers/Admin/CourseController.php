@@ -47,25 +47,25 @@ class CourseController extends Controller
 
         $kpis = [
             [
-                'label' => 'Courses',
+                'label' => __('Courses'),
                 'value' => $totalCourses,
                 'icon' => 'book',
                 'tone' => 'primary',
             ],
             [
-                'label' => 'Published',
+                'label' => __('Published'),
                 'value' => $publishedCourses,
                 'icon' => 'check',
                 'tone' => 'success',
             ],
             [
-                'label' => 'Draft',
+                'label' => __('Draft'),
                 'value' => $draftCourses,
                 'icon' => 'book',
                 'tone' => 'accent',
             ],
             [
-                'label' => 'Enrollments',
+                'label' => __('Enrollments'),
                 'value' => $totalEnrollments,
                 'icon' => 'users',
                 'tone' => 'slate',
@@ -108,7 +108,8 @@ class CourseController extends Controller
             'access_level' => ['nullable', Rule::in(array_keys(Course::accessLevels()))],
             'partner_organization_id' => ['nullable', 'integer', 'exists:partner_organizations,id', 'required_if:access_level,'.Course::ACCESS_PARTNER],
         ];
-        $validated = $request->validate($rules);
+        $validated = $request->validate(array_merge($rules, Course::translationRules()));
+        unset($validated['tr']);
 
         $validated['slug'] = \Illuminate\Support\Str::slug($validated['title']).'-'.uniqid();
         $validated['price'] = ($request->boolean('is_free') || empty($request->input('price'))) ? 0 : (float) $request->input('price');
@@ -128,9 +129,10 @@ class CourseController extends Controller
 
         unset($validated['banner'], $validated['is_free']);
         $course = Course::create($validated);
+        $course->saveTranslations($request->input('tr', []));
         $course->category->increment('courses_count');
 
-        return redirect()->route('admin.courses.edit', $course)->with('success', 'Course created. Add sections and lessons below.')->with('tab', 'curriculum');
+        return redirect()->route('admin.courses.edit', $course)->with('success', __('Course created. Add sections and lessons below.'))->with('tab', 'curriculum');
     }
 
     public function edit(Course $course): View
@@ -164,7 +166,8 @@ class CourseController extends Controller
             'access_level' => ['nullable', Rule::in(array_keys(Course::accessLevels()))],
             'partner_organization_id' => ['nullable', 'integer', 'exists:partner_organizations,id', 'required_if:access_level,'.Course::ACCESS_PARTNER],
         ];
-        $validated = $request->validate($rules);
+        $validated = $request->validate(array_merge($rules, Course::translationRules()));
+        unset($validated['tr']);
 
         $validated['price'] = ($request->boolean('is_free') || $request->input('price') === '' || $request->input('price') === null) ? 0 : (float) $request->input('price');
         $validated['level'] = $validated['level'] ?? 'beginner';
@@ -185,15 +188,16 @@ class CourseController extends Controller
 
         $oldCategoryId = $course->category_id;
         $course->update($validated);
+        $course->saveTranslations($request->input('tr', []));
         if ($oldCategoryId != $course->category_id) {
             Category::where('id', $oldCategoryId)->decrement('courses_count');
             $course->category->increment('courses_count');
         }
 
-        $message = 'Course updated.';
+        $message = __('Course updated.');
         $outside = $course->fresh()->enrolledOutsideAudienceCount();
         if ($outside > 0) {
-            $message .= " {$outside} already-enrolled ".\Illuminate\Support\Str::plural('learner', $outside).' fall outside the new audience; they keep their access, but no new learners outside it can enroll.';
+            $message .= ' '.trans_choice('{1} :count already-enrolled learner falls outside the new audience; they keep their access, but no new learners outside it can enroll.|[2,*] :count already-enrolled learners fall outside the new audience; they keep their access, but no new learners outside it can enroll.', $outside);
         }
 
         return redirect()->route('admin.courses.edit', $course)->with('success', $message);
@@ -207,11 +211,11 @@ class CourseController extends Controller
 
         $course->update(['status' => $validated['status']]);
 
-        $label = $validated['status'] === Course::STATUS_PUBLISHED ? 'published' : 'saved as draft';
+        $message = $validated['status'] === Course::STATUS_PUBLISHED ? __('Course published.') : __('Course saved as draft.');
 
         return redirect()
             ->back()
-            ->with('success', "Course {$label}.");
+            ->with('success', $message);
     }
 
     public function destroy(Course $course): RedirectResponse
@@ -222,6 +226,6 @@ class CourseController extends Controller
         $course->category->decrement('courses_count');
         $course->delete();
 
-        return redirect()->route('admin.courses.index')->with('success', 'Course deleted.');
+        return redirect()->route('admin.courses.index')->with('success', __('Course deleted.'));
     }
 }

@@ -53,7 +53,7 @@ class LoginRequest extends FormRequest
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => 'This account has been deactivated. Contact an administrator.',
+                'email' => __('This account has been deactivated. Contact an administrator.'),
             ]);
         }
 

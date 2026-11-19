@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Reports & Analytics')
-@section('header', 'Reports & Analytics')
+@section('title', __('Reports & Analytics'))
+@section('header', __('Reports & Analytics'))
 
 @section('content')
     @php
@@ -42,20 +42,20 @@
     <form method="get" action="{{ route('admin.reports.index') }}" class="mb-5 rounded-2xl border border-slate-200 bg-white px-4 py-3">
         <div class="flex flex-wrap items-end gap-3">
             <div>
-                <label for="from" class="block text-xs text-slate-500 mb-1">From</label>
+                <label for="from" class="block text-xs text-slate-500 mb-1">{{ __('From') }}</label>
                 <input type="date" name="from" id="from" value="{{ $dateFrom->format('Y-m-d') }}" class="rounded-xl border-slate-200 text-sm">
             </div>
             <div>
-                <label for="to" class="block text-xs text-slate-500 mb-1">To</label>
+                <label for="to" class="block text-xs text-slate-500 mb-1">{{ __('To') }}</label>
                 <input type="date" name="to" id="to" value="{{ $dateTo->format('Y-m-d') }}" class="rounded-xl border-slate-200 text-sm">
             </div>
-            <button type="submit" class="admin-btn-accent">Apply</button>
-            <a href="{{ route('admin.reports.index') }}" class="admin-btn-secondary">Reset</a>
+            <button type="submit" class="admin-btn-accent">{{ __('Apply') }}</button>
+            <a href="{{ route('admin.reports.index') }}" class="admin-btn-secondary">{{ __('Reset') }}</a>
         </div>
     </form>
 
     <section class="mb-5" aria-labelledby="reports-kpi-heading">
-        <h2 id="reports-kpi-heading" class="sr-only">Key metrics</h2>
+        <h2 id="reports-kpi-heading" class="sr-only">{{ __('Key metrics') }}</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             @foreach($kpis as $kpi)
                 @php $styles = $kpiStyles($kpi['tone'] ?? 'primary'); @endphp
@@ -78,7 +78,7 @@
 
     <section class="mb-8" aria-labelledby="engagement-heading">
         <div class="flex items-center justify-between gap-3 mb-3">
-            <h2 id="engagement-heading" class="font-display font-semibold text-sm text-navy">Engagement</h2>
+            <h2 id="engagement-heading" class="font-display font-semibold text-sm text-navy">{{ __('Engagement') }}</h2>
         </div>
         <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
             @foreach($engagementKpis as $kpi)
@@ -104,16 +104,16 @@
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-8">
         <section class="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div class="px-4 py-3 border-b border-slate-100">
-                <h2 class="font-display font-semibold text-sm text-navy">Most popular courses</h2>
+                <h2 class="font-display font-semibold text-sm text-navy">{{ __('Most popular courses') }}</h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead class="bg-slate-50 text-slate-500">
                         <tr>
                             <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">#</th>
-                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Category</th>
-                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Enrolled</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Category') }}</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Enrolled') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -133,7 +133,7 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">No courses yet.</td></tr>
+                            <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No courses yet.') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -142,12 +142,12 @@
 
         <section class="bg-white rounded-xl border border-slate-200 overflow-hidden">
             <div class="px-4 py-3 border-b border-slate-100">
-                <h2 class="font-display font-semibold text-sm text-navy">Enrollments by month</h2>
-                <p class="text-[11px] text-slate-400 mt-0.5">{{ number_format($totalEnrollmentsInPeriod) }} in selected period</p>
+                <h2 class="font-display font-semibold text-sm text-navy">{{ __('Enrollments by month') }}</h2>
+                <p class="text-[11px] text-slate-400 mt-0.5">{{ __(':count in selected period', ['count' => number_format($totalEnrollmentsInPeriod)]) }}</p>
             </div>
             <div class="p-4">
                 @if($enrollmentsOverTime->isEmpty())
-                    <p class="text-sm text-slate-500 py-6 text-center">No enrollments in this period.</p>
+                    <p class="text-sm text-slate-500 py-6 text-center">{{ __('No enrollments in this period.') }}</p>
                 @else
                     <div class="flex flex-wrap gap-2">
                         @foreach($enrollmentsOverTime as $e)
@@ -163,8 +163,8 @@
                 <table class="min-w-full text-sm">
                     <thead class="bg-slate-50 text-slate-500">
                         <tr>
-                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">All-time</th>
+                            <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                            <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('All-time') }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -183,8 +183,8 @@
     <section class="mb-8 bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="px-4 py-3 border-b border-slate-100 flex flex-wrap items-baseline justify-between gap-2">
             <div>
-                <h2 class="font-display font-semibold text-sm text-navy">Revenue by course</h2>
-                <p class="text-[11px] text-slate-400 mt-0.5">Estimated from price × enrollments</p>
+                <h2 class="font-display font-semibold text-sm text-navy">{{ __('Revenue by course') }}</h2>
+                <p class="text-[11px] text-slate-400 mt-0.5">{{ __('Estimated from price × enrollments') }}</p>
             </div>
             <p class="font-display font-bold text-lg text-accent-darker tabular-nums">${{ number_format($totalRevenue, 0) }}</p>
         </div>
@@ -192,10 +192,10 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Price</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Enrollments</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Est. revenue</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Price') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Enrollments') }}</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Est. revenue') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -206,14 +206,14 @@
                                 @if(($r->price ?? 0) > 0)
                                     <span class="inline-flex px-2 py-0.5 rounded-md bg-accent-light text-accent-darker text-xs font-medium tabular-nums">${{ number_format($r->price, 0) }}</span>
                                 @else
-                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">Free</span>
+                                    <span class="inline-flex px-2 py-0.5 rounded-md bg-success-light text-success-darker text-xs font-medium">{{ __('Free') }}</span>
                                 @endif
                             </td>
                             <td class="px-4 py-3 tabular-nums text-slate-600">{{ $r->enrollments_count }}</td>
                             <td class="px-4 py-3 text-right font-medium text-navy tabular-nums">${{ number_format($r->estimated_revenue ?? 0, 0) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">No revenue data.</td></tr>
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No revenue data.') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -222,17 +222,17 @@
 
     <section class="mb-8 bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="px-4 py-3 border-b border-slate-100">
-            <h2 class="font-display font-semibold text-sm text-navy">Instructor earnings</h2>
-            <p class="text-[11px] text-slate-400 mt-0.5">Estimated from course price × enrollments</p>
+            <h2 class="font-display font-semibold text-sm text-navy">{{ __('Instructor earnings') }}</h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">{{ __('Estimated from course price × enrollments') }}</p>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Instructor</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Courses</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Enrollments</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Est. earnings</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Instructor') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Courses') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Enrollments') }}</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Est. earnings') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -246,7 +246,7 @@
                             <td class="px-4 py-3 text-right font-medium text-navy tabular-nums">${{ number_format($e->estimated_earnings, 0) }}</td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">No instructors yet.</td></tr>
+                        <tr><td colspan="4" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No instructors yet.') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -255,19 +255,19 @@
 
     <section class="mb-2 bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div class="px-4 py-3 border-b border-slate-100">
-            <h2 class="font-display font-semibold text-sm text-navy">Course performance</h2>
-            <p class="text-[11px] text-slate-400 mt-0.5">Completion rate = finished all lessons · Avg % = mean progress across enrolled students</p>
+            <h2 class="font-display font-semibold text-sm text-navy">{{ __('Course performance') }}</h2>
+            <p class="text-[11px] text-slate-400 mt-0.5">{{ __('Completion rate = finished all lessons · Avg % = mean progress across enrolled students') }}</p>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-50 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Course</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Enrolled</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Lessons</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">Completed all</th>
-                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">Completion</th>
-                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">Avg %</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Course') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Enrolled') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Lessons') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider whitespace-nowrap">{{ __('Completed all') }}</th>
+                        <th class="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wider">{{ __('Completion') }}</th>
+                        <th class="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wider">{{ __('Avg %') }}</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -285,7 +285,7 @@
                             <td class="px-4 py-3 text-right tabular-nums text-slate-600">{{ $p->avg_completion_percent }}%</td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">No course performance data.</td></tr>
+                        <tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-500">{{ __('No course performance data.') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>
