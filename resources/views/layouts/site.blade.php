@@ -7,6 +7,14 @@
     <title>@yield('title', 'Learn Online') — {{ config('app.name') }}</title>
     <x-brand-meta />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        /* Header menu: keep every link on one line (Kinyarwanda words are longer), and make room on laptop widths. */
+        .site-nav a { white-space: nowrap; }
+        @media (min-width: 1024px) and (max-width: 1279px) {
+            .site-nav { gap: 1rem !important; }
+            .site-partner-note { display: none !important; }
+        }
+    </style>
     @stack('styles')
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col" x-data="{ mobileOpen: false }">
@@ -18,11 +26,11 @@
                 </a>
 
                 <div class="hidden md:flex items-center gap-2 shrink-0" style="border-left: 1px solid #e2e8f0; padding-left: 1rem;">
-                    <span class="text-xs text-slate-500 leading-tight" style="max-width: 5.5rem;">{{ __('In partnership with') }}</span>
+                    <span class="site-partner-note text-xs text-slate-500 leading-tight" style="max-width: 5.5rem;">{{ __('In partnership with') }}</span>
                     <img src="{{ asset('images/partners/mastercard.webp') }}" alt="Mastercard" style="height: 34px; width: auto;" loading="eager">
                 </div>
 
-                <nav class="hidden lg:flex items-center gap-7" aria-label="{{ __('Primary') }}">
+                <nav class="site-nav hidden lg:flex items-center gap-7" aria-label="{{ __('Primary') }}">
                     <a href="{{ route('home') }}" class="text-sm font-medium transition {{ request()->routeIs('home') ? 'text-primary' : 'text-slate-600 hover:text-primary' }}">{{ __('Home') }}</a>
                     <a href="{{ route('courses.index') }}" class="text-sm font-medium transition {{ request()->routeIs('courses.*') && ! request()->routeIs('courses.my-courses') ? 'text-primary' : 'text-slate-600 hover:text-primary' }}">{{ __('Courses') }}</a>
                     <a href="{{ route('bundles.index') }}" class="text-sm font-medium transition {{ request()->routeIs('bundles.*') && ! request()->routeIs('bundles.my-bundles') ? 'text-primary' : 'text-slate-600 hover:text-primary' }}">{{ __('Bundles') }}</a>
