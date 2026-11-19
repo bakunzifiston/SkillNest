@@ -195,4 +195,26 @@ class ContentTranslationAdminTest extends TestCase
 
         $this->get(route('admin.courses.index'))->assertOk()->assertSee('Original Title')->assertSee('RW');
     }
+
+    public function test_the_default_description_migration_translates_only_untouched_courses(): void
+    {
+        $default = 'Learn essential skills with hands-on projects and expert instruction. Perfect for beginners and intermediate learners.';
+        $plain = $this->publishedCourse(['title' => 'Plain', 'slug' => 'plain', 'description' => $default]);
+        $written = $this->publishedCourse(['title' => 'Written', 'slug' => 'written', 'description' => $default]);
+        $written->saveTranslations(['rw' => ['description' => 'Ibisobanuro byanditswe n\'umuyobozi']]);
+        $other = $this->publishedCourse(['title' => 'Other', 'slug' => 'other', 'description' => 'A different description']);
+
+        $migration = require database_path('migrations/2026_11_19_120000_add_kinyarwanda_to_default_course_description.php');
+        $migration->up();
+        $migration->up(); // running it twice changes nothing more
+
+        $this->assertStringStartsWith('Iga ubumenyi bw\'ingenzi', $plain->fresh()->translationFor('description', 'rw'));
+        $this->assertSame('Ibisobanuro byanditswe n\'umuyobozi', $written->fresh()->translationFor('description', 'rw')); // admin text kept
+        $this->assertNull($other->fresh()->translations);                                                                  // other text untouched
+        $this->assertSame($default, $plain->fresh()->description);                                                         // English original intact
+
+        $migration->down();
+        $this->assertNull($plain->fresh()->translations);
+        $this->assertSame('Ibisobanuro byanditswe n\'umuyobozi', $written->fresh()->translationFor('description', 'rw'));
+    }
 }
