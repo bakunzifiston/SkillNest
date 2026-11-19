@@ -42,7 +42,7 @@ class LocalizationTest extends TestCase
         $this->from(route('home'))->post(route('locale.update'), ['locale' => 'rw'])
             ->assertRedirect(route('home'))
             ->assertCookie(config('localization.cookie'), 'rw')
-            ->assertSessionHas('locale', 'rw');
+            ->assertSessionHas(config('localization.session_key'), 'rw');
 
         $html = $this->get(route('home'))->assertOk()->assertHeader('Content-Language', 'rw')->getContent();
         $this->assertStringContainsString('<html lang="rw"', $html);
@@ -287,5 +287,74 @@ class LocalizationTest extends TestCase
         User::factory()->create(['locale' => 'rw'])->sendPasswordResetNotification('t');
 
         $this->assertSame('en', app()->getLocale());   // sending a Kinyarwanda email must not switch the app
+    }
+
+    // ------------------------------------------------------------------ first visit (initial language)
+
+    public function test_a_first_time_visitor_gets_the_initial_language(): void
+    {
+        config(['localization.initial' => 'rw']);
+
+        $response = $this->get(route('home'))->assertOk()->assertHeader('Content-Language', 'rw');
+
+        $this->assertStringContainsString('<html lang="rw"', $response->getContent());
+        // The automatic initial language is NOT stored as if the visitor had chosen it.
+        $response->assertCookieMissing(config('localization.cookie'));
+        $this->assertNull(session(config('localization.session_key')));
+    }
+
+    public function test_an_explicit_english_choice_beats_the_initial_language(): void
+    {
+        config(['localization.initial' => 'rw']);
+
+        $this->post(route('locale.update'), ['locale' => 'en'])->assertCookie(config('localization.cookie'), 'en');
+
+        $this->get(route('home'))->assertHeader('Content-Language', 'en');
+        $this->withCookie(config('localization.cookie'), 'en')->flushSession()->get(route('home'))->assertHeader('Content-Language', 'en');
+    }
+
+    public function test_users_without_a_saved_choice_follow_the_initial_language_and_saved_choices_win(): void
+    {
+        config(['localization.initial' => 'rw']);
+
+        $none = User::factory()->create(['locale' => null]);
+        $this->actingAs($none)->get(route('home'))->assertHeader('Content-Language', 'rw');
+        $this->assertNull($none->fresh()->locale);                       // nothing is saved on their account automatically
+
+        $english = User::factory()->create(['locale' => 'en']);
+        $this->actingAs($english)->get(route('home'))->assertHeader('Content-Language', 'en');
+    }
+
+    public function test_emails_follow_the_initial_language_when_no_choice_was_saved(): void
+    {
+        config(['localization.initial' => 'rw']);
+
+        $this->assertSame('rw', User::factory()->make(['locale' => null])->preferredLocale());
+        $this->assertSame('en', User::factory()->make(['locale' => 'en'])->preferredLocale());
+        config(['localization.initial' => 'xx']);                         // a typo in .env must not break anything
+        $this->assertSame('en', User::factory()->make(['locale' => null])->preferredLocale());
+    }
+
+    public function test_the_content_base_language_and_fallback_stay_english_when_the_initial_language_is_kinyarwanda(): void
+    {
+        config(['localization.initial' => 'rw']);
+
+        $this->assertSame('en', config('localization.default'));
+        $this->assertSame('en', config('app.fallback_locale'));
+
+        // Translations are still edited as "Kinyarwanda translations" of English originals.
+        $course = $this->course();
+        $course->saveTranslations(['rw' => ['title' => 'Isomo'], 'en' => ['title' => 'ignored']]);
+        $this->assertSame(['rw' => ['title' => 'Isomo']], $course->fresh()->translations);
+        $this->get(route('home'));
+        $this->assertSame('Isomo', $course->fresh()->tr('title'));       // current language is rw on a first visit
+        $this->assertSame('English Title', $course->fresh()->title);     // the original is untouched
+    }
+
+    public function test_an_invalid_initial_language_falls_back_to_english(): void
+    {
+        config(['localization.initial' => 'zz']);
+
+        $this->get(route('home'))->assertHeader('Content-Language', 'en');
     }
 }

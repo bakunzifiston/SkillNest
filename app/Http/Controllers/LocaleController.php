@@ -18,7 +18,7 @@ class LocaleController extends Controller
         ]);
         $locale = $validated['locale'];
 
-        $request->session()->put('locale', $locale);
+        $request->session()->put(config('localization.session_key'), $locale);
         Cookie::queue(config('localization.cookie'), $locale, (int) config('localization.cookie_minutes'));
 
         if ($user = $request->user()) {

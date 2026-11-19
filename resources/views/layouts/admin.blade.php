@@ -89,7 +89,7 @@
                         </button>
                         <div class="min-w-0">
                             <h1 class="text-lg sm:text-xl font-display font-semibold text-navy truncate">@yield('header', __('Admin'))</h1>
-                            <p class="hidden sm:block text-xs text-slate-400 truncate">KoraLink Agents Academy</p>
+                            <p class="hidden sm:block text-xs text-slate-400 truncate">{{ __('KoraLink Agents Academy') }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 sm:gap-3 shrink-0">

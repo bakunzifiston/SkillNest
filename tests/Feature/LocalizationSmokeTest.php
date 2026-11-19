@@ -152,7 +152,7 @@ class LocalizationSmokeTest extends TestCase
         $request = match ($actor) {
             'admin' => $this->actingAs($this->admin),
             'student' => $this->actingAs($this->student),
-            default => $this->withSession(['locale' => $locale]),
+            default => $this->withSession([config('localization.session_key') => $locale]),
         };
         $response = $request->get(route($route, $params));
         $this->assertSame(200, $response->getStatusCode(), "{$name} [{$locale}] ({$route}) did not render");

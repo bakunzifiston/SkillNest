@@ -9,12 +9,21 @@ return [
     */
     'default' => 'en',
 
+    /*
+    | The language a brand-new visitor sees on their very first visit (before they or their account
+    | have chosen one). Change it with APP_INITIAL_LOCALE in .env. Keep 'default' as it is: it is the
+    | language the original course content is written in, and the fallback when a translation is missing.
+    */
+    'initial' => env('APP_INITIAL_LOCALE', 'rw'),
+
     'locales' => [
         'en' => ['name' => 'English', 'native' => 'English', 'short' => 'EN'],
         'rw' => ['name' => 'Kinyarwanda', 'native' => 'Ikinyarwanda', 'short' => 'RW'],
     ],
 
-    // Guests keep their choice in this cookie (minutes). Signed-in users also get it saved on their account.
-    'cookie' => 'locale',
+    // Only a real choice is remembered (never the automatic initial language): in the session, in this cookie
+    // (minutes) and, for signed-in users, on their account. New names, so values stored by older versions are ignored.
+    'session_key' => 'locale_choice',
+    'cookie' => 'koralink_lang',
     'cookie_minutes' => 60 * 24 * 365,
 ];

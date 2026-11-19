@@ -77,7 +77,7 @@
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-16 lg:py-20">
             <div class="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
                 <div class="lg:col-span-6">
-                    <p class="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] text-accent">KoraLink Agents Academy</p>
+                    <p class="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] text-accent">{{ __('KoraLink Agents Academy') }}</p>
                     <h1 class="mt-4 font-display font-bold text-4xl sm:text-5xl lg:text-[3.25rem] leading-[1.08] tracking-tight text-white">
                         {{ __('Build Digital Skills.') }}<br class="hidden sm:block">
                         <span class="text-accent">{{ __('Grow Your Impact.') }}</span>
@@ -270,7 +270,7 @@
             <div class="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
                 <div class="lg:col-span-5 order-2 lg:order-1">
                     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-accent">{{ __('Program') }}</p>
-                    <h2 class="mt-3 font-display font-bold text-2xl lg:text-3xl text-navy">KoraLink Agents Academy</h2>
+                    <h2 class="mt-3 font-display font-bold text-2xl lg:text-3xl text-navy">{{ __('KoraLink Agents Academy') }}</h2>
                     <p class="mt-4 text-slate-600 leading-relaxed">
                         {{ __('The official learning platform supporting Digital Jobs for Youth in Health and the development of Digital Community Champions.') }}
                     </p>

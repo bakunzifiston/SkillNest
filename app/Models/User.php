@@ -94,9 +94,15 @@ class User extends Authenticatable implements HasLocalePreference
     /** Emails and notifications to this user are written in their language. */
     public function preferredLocale(): string
     {
-        return in_array($this->locale, array_keys(config('localization.locales')), true)
-            ? $this->locale
-            : config('localization.default');
+        $supported = array_keys(config('localization.locales'));
+
+        if (in_array($this->locale, $supported, true)) {
+            return $this->locale;
+        }
+
+        $initial = config('localization.initial');
+
+        return in_array($initial, $supported, true) ? $initial : config('localization.default');
     }
 
     public function partnerOrganization(): BelongsTo
