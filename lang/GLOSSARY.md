@@ -8,7 +8,7 @@ English is the default and the fallback: any missing translation shows in Englis
 - Natural, clear, respectful Kinyarwanda for adult learners. Address the reader as **wowe** (singular "you"): *ushobora…, ugomba…, injira…*
 - Short buttons use the imperative: **Bika** (Save), **Siba** (Delete), **Hindura** (Edit).
 - Keep placeholders exactly as written (`:name`, `:count`, `:date`…) and keep punctuation and capital letters at the start of sentences.
-- Do **not** translate brand and product names: **Koralink**, **KoraLink Agents Academy**, **Mastercard**, **SFH**, **Digital Jobs for Youth in Health** (translate only the surrounding sentence).
+- Do **not** translate brand and product names: **Koralink**, **KoraLink**, **Mastercard**, **SFH**, **Digital Jobs for Youth in Health** (translate only the surrounding sentence).
 - Use the words below every time, so the platform reads consistently.
 
 ## Core terms
@@ -36,6 +36,7 @@ English is the default and the fallback: any missing translation shows in Englis
 | Agent / Agents | Agent / Aba-agent | loanword, widely used in Rwanda |
 | Partner / Partners | Umufatanyabikorwa / Abafatanyabikorwa | |
 | Partner organization | Umuryango mufatanyabikorwa | |
+| Academy | Ishuri | e.g. "KoraLink Agents Academy" = "Ishuri ry'Aba-agent rya KoraLink" |
 | Instructor | Umwarimu / Abarimu | |
 | Bundle / Learning path | Ipaki y'amasomo / Amapaki y'amasomo | |
 | Live session | Isomo rya live | |
