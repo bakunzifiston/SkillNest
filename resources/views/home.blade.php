@@ -476,7 +476,6 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-10">
                 <h2 class="font-display font-bold text-2xl lg:text-3xl text-navy">{{ __('Our Partners') }}</h2>
-                <p class="mt-2 text-slate-600">{{ __('Working together to strengthen digital skills, innovation, and community impact.') }}</p>
             </div>
 
             @if($partners->isNotEmpty())

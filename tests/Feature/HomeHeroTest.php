@@ -201,4 +201,16 @@ class HomeHeroTest extends TestCase
         $this->assertStringContainsString('aria-label="Reba ifoto ya 2"', $rw);
         $this->assertStringContainsString('aria-label="Amafoto y&#039;ibanze"', $rw);
     }
+
+    public function test_the_partners_heading_has_no_subtitle_line(): void
+    {
+        foreach (['en', 'rw'] as $locale) {
+            $this->post(route('locale.update'), ['locale' => $locale]);
+            $html = $this->get(route('home'))->assertOk()->getContent();
+
+            $this->assertStringContainsString($locale === 'en' ? 'Our Partners' : 'Abafatanyabikorwa bacu', $html);
+            $this->assertStringNotContainsString('Working together to strengthen digital skills, innovation, and community impact.', $html);
+            $this->assertStringNotContainsString('Dufatanya gukomeza ubumenyi mu ikoranabuhanga, guhanga udushya no guteza imbere umuryango.', $html);
+        }
+    }
 }
