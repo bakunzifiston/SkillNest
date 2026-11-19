@@ -401,7 +401,6 @@
     "Explore Courses": "Reba amasomo",
     "Explore courses": "Reba amasomo",
     "Explore practical courses designed for KoraLink Agents, or reach out if you have questions about the Academy or the program.": "Reba amasomo afatika yagenewe aba-agent ba KoraLink, cyangwa utwandikire niba ufite ibibazo ku Ishuri cyangwa kuri gahunda.",
-    "Explore practical courses designed to help you build skills and grow your impact.": "Reba amasomo afatika agufasha kwiyubakamo ubumenyi no kongera umusaruro wawe.",
     "Explore practical courses designed to help you learn, improve your work, and create greater impact in your community.": "Reba amasomo yagufasha kwiga, kunoza akazi kawe no kugira uruhare runini mwiterambere ryumuryango.",
     "Export CSV": "Kura CSV",
     "Export the student progress CSV from your previous platform.": "Kura dosiye ya CSV y'aho abanyeshuri bageze ku rubuga rwawe rwa mbere.",
@@ -1091,5 +1090,8 @@
     "← Back to Login": "← Subira ku kwinjira",
     "KoraLink Agents Academy": "Ishuri ry'Aba-agent rya KoraLink",
     "Ready to grow": "Witeguye kongera",
-    "your digital skills?": "ubumenyi bwawe mu ikoranabuhanga?"
+    "your digital skills?": "ubumenyi bwawe mu ikoranabuhanga?",
+    "KoraLink agents checking a phone together in the field": "Aba-agent ba KoraLink barebera hamwe kuri telefone mu kazi",
+    "Banner photos": "Amafoto y'ibanze",
+    "Show photo :number": "Reba ifoto ya :number"
 }

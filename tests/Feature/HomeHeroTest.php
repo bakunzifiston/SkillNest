@@ -143,4 +143,62 @@ class HomeHeroTest extends TestCase
             'Reba amasomo yagufasha kwiga, kunoza akazi kawe no kugira uruhare runini mwiterambere ryumuryango.'
         );
     }
+
+    public function test_the_courses_heading_has_no_subtitle_line(): void
+    {
+        foreach (['en', 'rw'] as $locale) {
+            $this->post(route('locale.update'), ['locale' => $locale]);
+            $html = $this->get(route('home'))->assertOk()->getContent();
+
+            $this->assertStringContainsString($locale === 'en' ? 'Start Learning Today' : 'Tangira kwiga uyu munsi', $html);
+            $this->assertStringNotContainsString('Explore practical courses designed to help you build skills and grow your impact.', $html);
+            $this->assertStringNotContainsString('Reba amasomo afatika agufasha kwiyubakamo ubumenyi no kongera umusaruro wawe.', $html);
+        }
+    }
+
+    public function test_the_hero_photos_rotate_and_the_page_still_works_without_javascript(): void
+    {
+        $html = $this->get(route('home'))->assertOk()->getContent();
+
+        // Three of your photos, in order; only the first is visible until the script rotates them (so no-JS visitors see photo 1).
+        preg_match_all('/<img\s+class="home-hero-slide([^"]*)"\s+src="[^"]*\/(agents-[a-z]+\.jpg)"/s', $html, $m, PREG_SET_ORDER);
+        $this->assertSame(['agents-field.jpg', 'agents-workshop.jpg', 'agents-training.jpg'], array_column($m, 2));
+        $this->assertSame([true, false, false], array_map(fn ($x) => str_contains($x[1], 'is-active'), $m));
+        foreach (['agents-field.jpg', 'agents-workshop.jpg', 'agents-training.jpg'] as $file) {
+            $this->assertFileExists(public_path('images/banner/'.$file));
+        }
+
+        // Dots to pick a photo by hand: three buttons, labelled, the first one current.
+        $this->assertSame(3, preg_match_all('/<button type="button" class="home-hero-dot[ "]/', $html));
+        $this->assertStringContainsString('aria-label="Show photo 1"', $html);
+        $this->assertStringContainsString('aria-label="Show photo 3"', $html);
+        $this->assertStringContainsString('aria-label="Banner photos"', $html);
+
+        // Behaviour: fades, pauses on hover/focus, and no autoplay for people who asked for less motion.
+        $this->assertStringContainsString('data-hero-slides', $html);
+        $this->assertStringContainsString("(prefers-reduced-motion: reduce)').matches", $html);
+        $this->assertStringContainsString("['mouseenter', 'focusin']", $html);
+        $this->assertStringContainsString('document.hidden', $html);                      // does not rotate in a background tab
+        // The dots stay hidden until the script runs (they do nothing without JavaScript).
+        $this->assertStringContainsString('.home-hero-dots { display: none;', $html);
+        $this->assertStringContainsString('.home-hero-art.is-slideshow .home-hero-dots { display: flex; }', $html);
+    }
+
+    public function test_every_hero_photo_has_its_own_description_in_both_languages(): void
+    {
+        $en = $this->get(route('home'))->getContent();
+        foreach ([
+            'KoraLink agents checking a phone together in the field',
+            'KoraLink agents learning together in a training workshop',
+            'KoraLink agents during a hands-on training session',
+        ] as $alt) {
+            $this->assertStringContainsString('alt="'.$alt.'"', $en);
+        }
+
+        $this->post(route('locale.update'), ['locale' => 'rw']);
+        $rw = $this->get(route('home'))->getContent();
+        $this->assertStringContainsString('alt="Aba-agent ba KoraLink barebera hamwe kuri telefone mu kazi"', $rw);
+        $this->assertStringContainsString('aria-label="Reba ifoto ya 2"', $rw);
+        $this->assertStringContainsString('aria-label="Amafoto y&#039;ibanze"', $rw);
+    }
 }

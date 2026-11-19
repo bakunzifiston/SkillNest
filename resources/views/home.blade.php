@@ -85,7 +85,16 @@
         .home-btn--ghost:hover { background: rgba(255, 255, 255, .12); transform: translateY(-2px); }
         .home-hero-art { position: relative; isolation: isolate; width: min(100%, 29rem); margin: 0 auto; }
         .home-hero-photo { position: relative; aspect-ratio: 1; border-radius: 50%; border: 5px solid #F16029; padding: 10px; background: #fff; box-shadow: 0 30px 60px -26px rgba(0, 0, 0, .55); }
-        .home-hero-photo img { width: 100%; height: 100%; display: block; border-radius: 50%; object-fit: cover; object-position: 50% 32%; }
+        .home-hero-slides { position: relative; width: 100%; height: 100%; overflow: hidden; border-radius: 50%; background: #102C5E; }
+        .home-hero-slide { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; opacity: 0; transform: scale(1.07); transition: opacity 1s ease, transform 6.5s ease-out; }
+        .home-hero-slide.is-active { opacity: 1; transform: scale(1); }
+        .home-hero-dots { display: none; justify-content: center; gap: .5rem; margin-top: 1.4rem; }
+        .home-hero-art.is-slideshow .home-hero-dots { display: flex; }
+        .home-hero-dot { width: .6rem; height: .6rem; padding: 0; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .45); cursor: pointer; transition: width .3s ease, background-color .3s ease; }
+        .home-hero-dot:hover { background: rgba(255, 255, 255, .8); }
+        .home-hero-dot.is-active { width: 1.7rem; background: #F16029; }
+        .home-hero-dot:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+        @media (prefers-reduced-motion: reduce) { .home-hero-slide { transition: opacity .01s; transform: none; } .home-hero-dot { transition: none; } }
         .home-hero-blob { position: absolute; z-index: -1; right: -7%; bottom: -5%; width: 36%; aspect-ratio: 1; border-radius: 50%; background: #F16029; }
         .home-hero-ring { position: absolute; z-index: -1; left: -9%; top: 6%; width: 22%; aspect-ratio: 1; border-radius: 50%; border: 2px solid rgba(201, 214, 238, .55); }
         .home-hero-chip { position: absolute; left: -4%; bottom: 12%; max-width: 12.5rem; padding: .7rem .9rem; border-radius: .9rem; background: #fff; color: #0B1B33; box-shadow: 0 16px 30px -14px rgba(0, 0, 0, .5); }
@@ -158,13 +167,31 @@
                 <div class="home-hero-art">
                     <span class="home-hero-ring" aria-hidden="true"></span>
                     <span class="home-hero-blob" aria-hidden="true"></span>
+                    @php
+                        $heroSlides = [
+                            ['file' => 'agents-field.jpg', 'alt' => __('KoraLink agents checking a phone together in the field'), 'pos' => '50% 32%'],
+                            ['file' => 'agents-workshop.jpg', 'alt' => __('KoraLink agents learning together in a training workshop'), 'pos' => '50% 40%'],
+                            ['file' => 'agents-training.jpg', 'alt' => __('KoraLink agents during a hands-on training session'), 'pos' => '50% 62%'],
+                        ];
+                    @endphp
                     <div class="home-hero-photo">
-                        <img
-                            src="{{ asset('images/banner/agents-field.jpg') }}"
-                            alt="{{ __('KoraLink agents learning together in a training workshop') }}"
-                            width="1024" height="682"
-                            fetchpriority="high"
-                        >
+                        <div class="home-hero-slides" data-hero-slides>
+                            @foreach($heroSlides as $i => $slide)
+                                <img
+                                    class="home-hero-slide{{ $i === 0 ? ' is-active' : '' }}"
+                                    src="{{ asset('images/banner/'.$slide['file']) }}"
+                                    alt="{{ $slide['alt'] }}"
+                                    style="object-position: {{ $slide['pos'] }};"
+                                    width="1024" height="682"
+                                    @if($i === 0) fetchpriority="high" @endif
+                                >
+                            @endforeach
+                        </div>
+                    </div>
+                    <div class="home-hero-dots" role="group" aria-label="{{ __('Banner photos') }}">
+                        @foreach($heroSlides as $i => $slide)
+                            <button type="button" class="home-hero-dot{{ $i === 0 ? ' is-active' : '' }}" aria-label="{{ __('Show photo :number', ['number' => $i + 1]) }}" @if($i === 0) aria-current="true" @endif></button>
+                        @endforeach
                     </div>
                     <div class="home-hero-chip">
                         <strong>{{ __('Youth in Health') }}</strong>
@@ -261,7 +288,6 @@
             <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
                 <div class="max-w-2xl">
                     <h2 class="font-display font-bold text-2xl lg:text-3xl text-navy">{{ __('Start Learning Today') }}</h2>
-                    <p class="mt-2 text-slate-600">{{ __('Explore practical courses designed to help you build skills and grow your impact.') }}</p>
                 </div>
                 <a href="{{ route('courses.index') }}" class="text-primary hover:text-accent-dark font-semibold inline-flex items-center gap-1 shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded">
                     {{ __('View All Courses') }}
@@ -538,6 +564,40 @@
 
             items.forEach(function (el) { observer.observe(el); });
         })();
+    </script>
+    <script>
+            // ---- Hero photos: rotate with a fade, dots to choose, paused on hover/focus, no autoplay with reduced motion ----
+            (function () {
+                var root = document.querySelector('[data-hero-slides]');
+                if (!root) return;
+                var art = root.closest('.home-hero-art');
+                var slides = Array.prototype.slice.call(root.querySelectorAll('.home-hero-slide'));
+                var dots = art ? Array.prototype.slice.call(art.querySelectorAll('.home-hero-dot')) : [];
+                if (slides.length < 2) return;
+                art.classList.add('is-slideshow');                       // shows the dots (they do nothing without JavaScript)
+
+                var current = 0, timer = null, paused = false;
+                var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                function show(n) {
+                    n = (n + slides.length) % slides.length;
+                    slides[current].classList.remove('is-active');
+                    if (dots[current]) { dots[current].classList.remove('is-active'); dots[current].removeAttribute('aria-current'); }
+                    current = n;
+                    slides[current].classList.add('is-active');
+                    if (dots[current]) { dots[current].classList.add('is-active'); dots[current].setAttribute('aria-current', 'true'); }
+                }
+                function start() {
+                    if (reduce) return;                                  // people who asked for less motion choose photos with the dots
+                    clearInterval(timer);
+                    timer = setInterval(function () { if (!paused && !document.hidden) show(current + 1); }, 5500);
+                }
+
+                dots.forEach(function (dot, n) { dot.addEventListener('click', function () { show(n); start(); }); });
+                ['mouseenter', 'focusin'].forEach(function (e) { art.addEventListener(e, function () { paused = true; }); });
+                ['mouseleave', 'focusout'].forEach(function (e) { art.addEventListener(e, function () { paused = false; }); });
+                start();
+            })();
     </script>
 @endpush
 @endsection
