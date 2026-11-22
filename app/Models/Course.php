@@ -346,8 +346,9 @@ class Course extends Model
      * @param  iterable<int>  $completedLessonIds
      * @return array<int, string>
      */
-    public function lessonStatuses(iterable $completedLessonIds, ?User $viewer = null): array
+    public function lessonStatuses(iterable $completedLessonIds, ?User $viewer = null, ?iterable $takenQuizIds = null): array
     {
+        $taken = collect($takenQuizIds ?? $viewer?->submittedQuizIds() ?? [])->map(fn ($id) => (int) $id)->flip();
         $done = collect($completedLessonIds)->map(fn ($id) => (int) $id)->flip();
         $inOrder = $this->sequential_lessons !== false && ! $viewer?->canAccessAdmin();
 
@@ -364,10 +365,51 @@ class Course extends Model
                 default => 'locked',
             };
 
-            $previousDone = $isDone;
+            // A lesson that has a quiz under it only lets the next lesson open once that quiz has been taken.
+            $previousDone = $isDone && $this->pendingQuizAfter($lesson, $taken) === null;
         }
 
         return $statuses;
+    }
+
+    /**
+     * The published quiz under this lesson that the student has not taken yet (it holds back the next lesson), or null.
+     *
+     * @param  \Illuminate\Support\Collection<int, int>  $takenQuizIds  quiz ids as keys (a flipped id list)
+     */
+    public function pendingQuizAfter(Lesson $lesson, \Illuminate\Support\Collection $takenQuizIds): ?Quiz
+    {
+        $this->loadMissing('quizzes');
+
+        return $this->quizzes
+            ->filter(fn ($quiz) => (int) $quiz->lesson_id === $lesson->id && $quiz->is_published)
+            ->first(fn ($quiz) => ! $takenQuizIds->has($quiz->id));
+    }
+
+    /**
+     * Why a locked lesson is locked: the first step before it that is not finished, as [lesson, quiz|null].
+     * The quiz is set when the lesson is done but the quiz under it has not been taken.
+     *
+     * @return array{0: Lesson, 1: ?Quiz}|null
+     */
+    public function blockingStepBefore(Lesson $target, iterable $completedLessonIds, ?User $viewer = null): ?array
+    {
+        $done = collect($completedLessonIds)->map(fn ($id) => (int) $id)->flip();
+        $taken = collect($viewer?->submittedQuizIds() ?? [])->map(fn ($id) => (int) $id)->flip();
+
+        foreach ($this->orderedLessons() as $lesson) {
+            if ($lesson->id === $target->id) {
+                return null;
+            }
+            if (! $done->has($lesson->id)) {
+                return [$lesson, null];
+            }
+            if ($quiz = $this->pendingQuizAfter($lesson, $taken)) {
+                return [$lesson, $quiz];
+            }
+        }
+
+        return null;
     }
 
     /**

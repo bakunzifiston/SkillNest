@@ -166,7 +166,12 @@ class CourseController extends Controller
         $lessonStatuses = $course->lessonStatuses($completedLessonIds, auth()->user());
         $lessonStatus = $lessonStatuses[$lesson->id] ?? 'open';
         if ($lessonStatus === 'locked') {
-            $blocker = $course->orderedLessons()->first(fn ($l) => ($lessonStatuses[$l->id] ?? null) === 'in_progress');
+            [$blocker, $blockerQuiz] = $course->blockingStepBefore($lesson, $completedLessonIds, auth()->user()) ?? [null, null];
+
+            if ($blockerQuiz) {
+                return redirect()->route('courses.quizzes.show', [$course, $blockerQuiz])
+                    ->with('error', __('Take the quiz ":quiz" first to unlock the next lesson.', ['quiz' => $blockerQuiz->tr('title')]));
+            }
 
             return $blocker
                 ? redirect()->route('courses.lessons.show', [$course, $blocker])
@@ -174,11 +179,16 @@ class CourseController extends Controller
                 : redirect()->route('courses.show', $course);
         }
 
+        // The quiz under this lesson that must be taken before the next lesson opens.
+        $pendingQuiz = $course->sequential_lessons !== false && ! auth()->user()->canAccessAdmin()
+            ? $course->pendingQuizAfter($lesson, auth()->user()->submittedQuizIds()->flip())
+            : null;
+
         $completed = $completedLessonIds->contains($lesson->id);
         $completedCount = auth()->user()->completedLessonsCountForCourse($course);
         $totalLessons = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
 
-        return view('courses.lesson', compact('course', 'lesson', 'completed', 'completedLessonIds', 'completedCount', 'totalLessons', 'lessonStatuses', 'lessonStatus'));
+        return view('courses.lesson', compact('course', 'lesson', 'completed', 'completedLessonIds', 'completedCount', 'totalLessons', 'lessonStatuses', 'lessonStatus', 'pendingQuiz'));
     }
 
     public function completeLesson(Request $request, Lesson $lesson): RedirectResponse|JsonResponse

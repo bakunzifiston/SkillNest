@@ -371,6 +371,12 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->hasMany(Enrollment::class);
     }
 
+    /** Ids of the quizzes this user has taken (submitted at least once). */
+    public function submittedQuizIds(): \Illuminate\Support\Collection
+    {
+        return QuizAttempt::where('user_id', $this->id)->whereNotNull('submitted_at')->pluck('quiz_id')->unique()->values();
+    }
+
     public function lessonCompletions()
     {
         return $this->hasMany(LessonCompletion::class);

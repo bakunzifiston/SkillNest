@@ -211,8 +211,28 @@
                         <span></span>
                     @endif
 
-                    @php $nextLocked = $nextLesson && (($lessonStatuses ?? [])[$nextLesson->id] ?? 'open') === 'locked'; @endphp
-                    @if($nextLesson)
+                    @php
+                        $nextLocked = $nextLesson && (($lessonStatuses ?? [])[$nextLesson->id] ?? 'open') === 'locked';
+                        $quizFirst = $nextLesson && ($pendingQuiz ?? null);
+                    @endphp
+                    @if($nextLesson && $quizFirst)
+                        @if(! $completed)
+                            <span data-next-locked class="inline-flex flex-col items-end gap-1">
+                                <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-200 text-slate-500 font-semibold cursor-not-allowed" aria-disabled="true">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z"/></svg>
+                                    {{ __('Next lesson') }}
+                                </span>
+                                <span class="text-xs text-slate-500">{{ __('Complete this lesson and take its quiz to unlock the next one.') }}</span>
+                            </span>
+                        @endif
+                        <span data-next-quiz class="{{ $completed ? '' : 'hidden ' }}inline-flex flex-col items-end gap-1">
+                            <a href="{{ route('courses.quizzes.show', [$course, $pendingQuiz]) }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-semibold hover:opacity-90 transition">
+                                {{ __('Take the quiz to continue') }}
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                            <span class="text-xs text-slate-500">{{ __('Take the quiz ":quiz" to unlock the next lesson.', ['quiz' => $pendingQuiz->tr('title')]) }}</span>
+                        </span>
+                    @elseif($nextLesson)
                         @if($nextLocked)
                             <span data-next-locked class="inline-flex flex-col items-end gap-1">
                                 <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-200 text-slate-500 font-semibold cursor-not-allowed" aria-disabled="true">
@@ -249,6 +269,8 @@
                 done = true;
                 var locked = document.querySelector('[data-next-locked]');
                 var open = document.querySelector('[data-next-open]');
+                var quiz = document.querySelector('[data-next-quiz]');
+                if (quiz) { if (locked) { locked.classList.add('hidden'); } quiz.classList.remove('hidden'); }
                 if (locked) { locked.classList.add('hidden'); }
                 if (open) {
                     open.classList.remove('hidden');

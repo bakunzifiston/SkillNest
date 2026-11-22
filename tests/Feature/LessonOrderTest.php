@@ -55,7 +55,7 @@ class LessonOrderTest extends TestCase
     {
         $course = Course::find($this->course->id);
 
-        return $course->lessonStatuses($this->student->lessonCompletions()->pluck('lesson_id'), $viewer);
+        return $course->lessonStatuses($this->student->lessonCompletions()->pluck("lesson_id"), $viewer, $this->student->submittedQuizIds());
     }
 
     private function lessonStatus(int $n, ?User $viewer = null): string
@@ -289,5 +289,85 @@ class LessonOrderTest extends TestCase
 
         $this->get(route('courses.show', $this->course))->assertDontSee('Locked until the lessons before it are completed');
         $this->get(route('courses.lessons.show', [$this->course, $this->l[1]]))->assertDontSee('<div data-quiz-locked', false);
+    }
+
+    // ---------------------------------------------------------------- quiz under a lesson holds back the next lesson
+
+    private function lessonQuiz(int $n): Quiz
+    {
+        return $this->quiz(['lesson_id' => $this->l[$n]->id, 'chapter_id' => $this->l[$n]->chapter_id]);
+    }
+
+    private function submitAttempt(Quiz $quiz): void
+    {
+        \App\Models\QuizAttempt::create(['quiz_id' => $quiz->id, 'user_id' => $this->student->id, 'started_at' => now(), 'submitted_at' => now(), 'score' => 0, 'total_points' => 1, 'passed' => false]);
+    }
+
+    public function test_the_next_lesson_stays_locked_until_the_quiz_under_the_lesson_is_taken(): void
+    {
+        $quiz = $this->lessonQuiz(1);
+        $this->complete(1);
+
+        $this->assertSame('completed', $this->lessonStatus(1));
+        $this->assertSame('locked', $this->lessonStatus(2));
+
+        $this->actingAs($this->student)->get(route('courses.lessons.show', [$this->course, $this->l[2]]))
+            ->assertRedirect(route('courses.quizzes.show', [$this->course, $quiz]))
+            ->assertSessionHas('error', 'Take the quiz "Final quiz" first to unlock the next lesson.');
+    }
+
+    public function test_taking_the_quiz_unlocks_the_next_lesson(): void
+    {
+        $quiz = $this->lessonQuiz(1);
+        $this->complete(1);
+        $this->submitAttempt($quiz);
+
+        $this->assertSame('in_progress', $this->lessonStatus(2));
+        $this->actingAs($this->student)->get(route('courses.lessons.show', [$this->course, $this->l[2]]))->assertOk();
+    }
+
+    public function test_an_unsubmitted_attempt_does_not_count_as_taking_the_quiz(): void
+    {
+        $quiz = $this->lessonQuiz(1);
+        $this->complete(1);
+        \App\Models\QuizAttempt::create(['quiz_id' => $quiz->id, 'user_id' => $this->student->id, 'started_at' => now()]);
+
+        $this->assertSame('locked', $this->lessonStatus(2));
+    }
+
+    public function test_an_unpublished_quiz_does_not_hold_anything_back(): void
+    {
+        $this->lessonQuiz(1)->update(['is_published' => false]);
+        $this->complete(1);
+
+        $this->assertSame('in_progress', $this->lessonStatus(2));
+    }
+
+    public function test_lesson_page_offers_the_quiz_instead_of_next_lesson(): void
+    {
+        $quiz = $this->lessonQuiz(1);
+        $url = route('courses.lessons.show', [$this->course, $this->l[1]]);
+
+        $this->actingAs($this->student)->get($url)->assertSee('<span data-next-locked', false)->assertSee('<span data-next-quiz class="hidden ', false);
+
+        $this->complete(1);
+
+        $this->get($url)->assertDontSee('<span data-next-locked', false)
+            ->assertSee('Take the quiz to continue')->assertSee(route('courses.quizzes.show', [$this->course, $quiz]), false)
+            ->assertDontSee('<span data-next-quiz class="hidden ', false);
+
+        $this->submitAttempt($quiz);
+
+        $this->get($url)->assertDontSee('Take the quiz to continue')->assertSee(route('courses.lessons.show', [$this->course, $this->l[2]]), false);
+    }
+
+    public function test_staff_and_free_order_courses_are_not_held_back_by_the_quiz(): void
+    {
+        $this->lessonQuiz(1);
+        $this->complete(1);
+        $this->course->update(['sequential_lessons' => false]);
+
+        $this->assertNotContains('locked', $this->statuses());
+        $this->actingAs($this->student)->get(route('courses.lessons.show', [$this->course, $this->l[1]]))->assertDontSee('Take the quiz to continue');
     }
 }
