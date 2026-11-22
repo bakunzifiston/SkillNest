@@ -370,6 +370,42 @@ class Course extends Model
         return $statuses;
     }
 
+    /**
+     * The lessons a student must have completed before this quiz opens: everything up to the lesson the quiz
+     * sits after, up to the end of its chapter, or the whole course for a course-wide quiz.
+     */
+    public function lessonsRequiredBefore(Quiz $quiz): \Illuminate\Support\Collection
+    {
+        $ordered = $this->orderedLessons();
+
+        if ($quiz->lesson_id) {
+            $position = $ordered->search(fn ($lesson) => $lesson->id === (int) $quiz->lesson_id);
+
+            return $position === false ? collect() : $ordered->take($position + 1)->values();
+        }
+
+        if ($quiz->chapter_id) {
+            $last = $ordered->filter(fn ($lesson) => (int) $lesson->chapter_id === (int) $quiz->chapter_id)->last();
+            $position = $last ? $ordered->search(fn ($lesson) => $lesson->id === $last->id) : false;
+
+            return $position === false ? collect() : $ordered->take($position + 1)->values();
+        }
+
+        return $ordered;
+    }
+
+    /** The first required lesson the student has not completed yet (the quiz is locked), or null when the quiz is open. Staff are never blocked. */
+    public function quizBlocker(Quiz $quiz, iterable $completedLessonIds, ?User $viewer = null): ?Lesson
+    {
+        if ($viewer?->canAccessAdmin()) {
+            return null;
+        }
+
+        $done = collect($completedLessonIds)->map(fn ($id) => (int) $id)->flip();
+
+        return $this->lessonsRequiredBefore($quiz)->first(fn ($lesson) => ! $done->has($lesson->id));
+    }
+
     public function totalLessonsCount(): int
     {
         return $this->chapters->sum(fn ($ch) => $ch->lessons->count());

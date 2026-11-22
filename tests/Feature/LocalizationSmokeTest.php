@@ -56,6 +56,7 @@ class LocalizationSmokeTest extends TestCase
         QuestionOption::create(['question_id' => $question->id, 'option_text' => 'B', 'is_correct' => false, 'sort_order' => 2]);
 
         Enrollment::create(['user_id' => $this->student->id, 'course_id' => $course->id]);
+        \App\Models\LessonCompletion::create(['user_id' => $this->student->id, 'lesson_id' => $lesson->id, 'completed_at' => now()]); // the quiz opens once its lessons are done
         $bundle = Bundle::create(['title' => 'Starter path', 'slug' => 'starter-path', 'description' => 'Bundle', 'status' => Bundle::STATUS_PUBLISHED]);
         $bundle->courses()->attach([$course->id => ['order' => 1]]);
         $session = LiveSession::create([

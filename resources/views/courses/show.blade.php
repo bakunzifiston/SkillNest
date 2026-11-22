@@ -260,7 +260,15 @@
                                     <h2 class="font-display font-bold text-xl text-navy mb-5">{{ __('Quizzes') }}</h2>
                                     <div class="space-y-3">
                                         @foreach($generalQuizzes as $quiz)
-                                            @if($enrolled)
+                                            @if($enrolled && $course->quizBlocker($quiz, $completedLessonIds, auth()->user()))
+                                                <div class="rounded-2xl border border-slate-200 bg-slate-50/60 p-5 flex items-center justify-between gap-3 cursor-not-allowed" title="{{ __('Locked until the lessons before it are completed') }}">
+                                                    <div>
+                                                        <span class="font-semibold text-slate-400">{{ $quiz->tr('title') }}</span>
+                                                        <p class="text-sm text-slate-500 mt-1">{{ __('Locked until the lessons before it are completed') }}</p>
+                                                    </div>
+                                                    @include('courses.partials.lesson-status', ['status' => 'locked'])
+                                                </div>
+                                            @elseif($enrolled)
                                                 <a href="{{ route('courses.quizzes.show', [$course, $quiz]) }}" class="block rounded-2xl border border-slate-200 bg-white p-5 hover:border-primary-muted hover:shadow-brand transition">
                                                     <span class="font-semibold text-navy">{{ $quiz->tr('title') }}</span>
                                                     <p class="text-sm text-slate-500 mt-1">{{ __('Passing grade: :grade%', ['grade' => $quiz->passing_grade]) }} · {{ trans_choice('{1} :count question|[2,*] :count questions', $quiz->questions_count ?? 0) }}</p>

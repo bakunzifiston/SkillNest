@@ -29,6 +29,10 @@ class QuizController extends Controller
         if (! $quiz->is_published) {
             return redirect()->route('courses.show', $course)->with('error', __('This quiz is not available.'));
         }
+        if ($blocker = $course->quizBlocker($quiz, auth()->user()->lessonCompletions()->pluck('lesson_id'), auth()->user())) {
+            return redirect()->route('courses.lessons.show', [$course, $blocker])
+                ->with('error', __('This quiz is locked. Finish ":lesson" first to unlock it.', ['lesson' => $blocker->tr('title')]));
+        }
         $quiz->load('questions.options');
         $state = $quiz->attemptStateFor(auth()->user());
         return view('quizzes.show', compact('course', 'quiz', 'state'));
@@ -41,6 +45,10 @@ class QuizController extends Controller
         }
         if ($quiz->course_id !== $course->id || ! $quiz->is_published) {
             abort(404);
+        }
+        if ($blocker = $course->quizBlocker($quiz, auth()->user()->lessonCompletions()->pluck('lesson_id'), auth()->user())) {
+            return redirect()->route('courses.lessons.show', [$course, $blocker])
+                ->with('error', __('This quiz is locked. Finish ":lesson" first to unlock it.', ['lesson' => $blocker->tr('title')]));
         }
         $user = auth()->user();
         $blocked = null;

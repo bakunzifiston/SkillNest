@@ -100,6 +100,7 @@ class PageBannersTest extends TestCase
         $quiz = Quiz::create(['course_id' => $course->id, 'title' => 'Q', 'passing_grade' => 70, 'is_published' => true]);
         $learner = User::factory()->create();
         Enrollment::create(['user_id' => $learner->id, 'course_id' => $course->id]);
+        \App\Models\LessonCompletion::create(['user_id' => $learner->id, 'lesson_id' => $lesson->id, 'completed_at' => now()]); // the quiz opens once its lessons are done
 
         foreach ([route('courses.lessons.show', [$course, $lesson]), route('courses.quizzes.show', [$course, $quiz])] as $url) {
             $html = $this->actingAs($learner)->get($url)->assertOk()->getContent();

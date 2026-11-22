@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use App\Models\LessonCompletion;
+use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -210,5 +211,83 @@ class LessonOrderTest extends TestCase
 
         $this->put(route('admin.courses.update', $this->course), $payload + ['sequential_lessons' => '1'])->assertSessionHasNoErrors();
         $this->assertTrue($this->course->fresh()->sequential_lessons);
+    }
+
+    // ---------------------------------------------------------------- quizzes
+
+    private function quiz(array $placement = []): Quiz
+    {
+        return Quiz::create(array_merge(['course_id' => $this->course->id, 'title' => 'Final quiz', 'passing_grade' => 50, 'is_published' => true], $placement));
+    }
+
+    public function test_a_course_wide_quiz_needs_every_lesson_completed(): void
+    {
+        $quiz = $this->quiz();
+        $this->complete(1, 2);
+
+        $this->actingAs($this->student)->get(route('courses.quizzes.show', [$this->course, $quiz]))
+            ->assertRedirect(route('courses.lessons.show', [$this->course, $this->l[3]]))
+            ->assertSessionHas('error', 'This quiz is locked. Finish "Lesson three" first to unlock it.');
+
+        $this->complete(3);
+        $this->get(route('courses.quizzes.show', [$this->course, $quiz]))->assertOk();
+    }
+
+    public function test_a_quiz_after_a_lesson_only_needs_the_lessons_up_to_it(): void
+    {
+        $quiz = $this->quiz(['lesson_id' => $this->l[2]->id, 'chapter_id' => $this->l[2]->chapter_id]);
+
+        $this->actingAs($this->student)->get(route('courses.quizzes.show', [$this->course, $quiz]))
+            ->assertRedirect(route('courses.lessons.show', [$this->course, $this->l[1]]));
+
+        $this->complete(1);
+        $this->get(route('courses.quizzes.show', [$this->course, $quiz]))
+            ->assertRedirect(route('courses.lessons.show', [$this->course, $this->l[2]]));
+
+        $this->complete(2); // lesson three is not required for this quiz
+        $this->get(route('courses.quizzes.show', [$this->course, $quiz]))->assertOk();
+    }
+
+    public function test_a_chapter_quiz_needs_the_whole_chapter(): void
+    {
+        $quiz = $this->quiz(['chapter_id' => $this->l[1]->chapter_id]);
+        $this->complete(1);
+
+        $this->actingAs($this->student)->get(route('courses.quizzes.show', [$this->course, $quiz]))->assertRedirect();
+
+        $this->complete(2);
+        $this->get(route('courses.quizzes.show', [$this->course, $quiz]))->assertOk();
+    }
+
+    public function test_a_locked_quiz_cannot_be_started(): void
+    {
+        $quiz = $this->quiz();
+
+        $this->actingAs($this->student)->post(route('courses.quizzes.start', [$this->course, $quiz]))->assertRedirect();
+
+        $this->assertSame(0, \App\Models\QuizAttempt::count());
+    }
+
+    public function test_staff_can_open_a_locked_quiz(): void
+    {
+        $quiz = $this->quiz();
+        $admin = User::factory()->create(['is_admin' => true]);
+        Enrollment::create(['user_id' => $admin->id, 'course_id' => $this->course->id]);
+
+        $this->actingAs($admin)->get(route('courses.quizzes.show', [$this->course, $quiz]))->assertOk();
+    }
+
+    public function test_quiz_shows_as_locked_on_the_course_page_and_sidebar_until_unlocked(): void
+    {
+        $quiz = $this->quiz(['lesson_id' => $this->l[1]->id, 'chapter_id' => $this->l[1]->chapter_id]);
+
+        $this->actingAs($this->student)->get(route('courses.show', $this->course))
+            ->assertSee('Locked until the lessons before it are completed');
+        $this->get(route('courses.lessons.show', [$this->course, $this->l[1]]))->assertSee('data-quiz-locked', false);
+
+        $this->complete(1);
+
+        $this->get(route('courses.show', $this->course))->assertDontSee('Locked until the lessons before it are completed');
+        $this->get(route('courses.lessons.show', [$this->course, $this->l[1]]))->assertDontSee('<div data-quiz-locked', false);
     }
 }

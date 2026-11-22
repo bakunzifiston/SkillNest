@@ -1118,5 +1118,7 @@
     "This lesson is locked until the previous lesson is completed.": "Iki cyigwa gifunze kugeza icyabanje kirangiye.",
     "Locked until the previous lesson is completed": "Gifunze kugeza icyabanje kirangiye",
     "Students must complete lessons in order": "Abanyeshuri bagomba kurangiza ibyigwa ku murongo",
-    "Each lesson unlocks when the previous one is completed. Turn off to let students open lessons in any order.": "Buri cyigwa gifungurwa iyo icyabanje cyarangiye. Zimya kugira ngo abanyeshuri bashobore gufungura ibyigwa mu mwanya uwo ari wo wose."
+    "Each lesson unlocks when the previous one is completed. Turn off to let students open lessons in any order.": "Buri cyigwa gifungurwa iyo icyabanje cyarangiye. Zimya kugira ngo abanyeshuri bashobore gufungura ibyigwa mu mwanya uwo ari wo wose.",
+    "This quiz is locked. Finish \":lesson\" first to unlock it.": "Iri suzuma rifunze. Banza urangize \":lesson\" kugira ngo rigufungurirwe.",
+    "Locked until the lessons before it are completed": "Rifunze kugeza ibyigwa biribanziriza birangiye"
 }

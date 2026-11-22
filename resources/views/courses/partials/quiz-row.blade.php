@@ -1,5 +1,15 @@
 <li class="bg-primary-light/40">
-    @if($enrolled)
+    @php $quizBlocker = $enrolled ? $course->quizBlocker($quiz, $completedLessonIds ?? collect(), auth()->user()) : null; @endphp
+    @if($enrolled && $quizBlocker)
+        <div class="flex items-center gap-3 px-5 py-3.5 cursor-not-allowed" title="{{ __('Locked until the lessons before it are completed') }}">
+            <span class="flex-shrink-0 w-6 text-[10px] font-semibold uppercase tracking-wide text-slate-400">{{ __('Quiz') }}</span>
+            <span class="flex-1 min-w-0">
+                <span class="block font-medium text-slate-400">{{ $quiz->tr('title') }}</span>
+                <span class="block text-xs text-slate-500">{{ __('Locked until the lessons before it are completed') }}</span>
+            </span>
+            @include('courses.partials.lesson-status', ['status' => 'locked'])
+        </div>
+    @elseif($enrolled)
         <a href="{{ route('courses.quizzes.show', [$course, $quiz]) }}" class="flex items-center gap-3 px-5 py-3.5 hover:bg-primary-light transition group">
             <span class="flex-shrink-0 w-6 text-[10px] font-semibold uppercase tracking-wide text-primary">{{ __('Quiz') }}</span>
             <span class="flex-1 min-w-0">
