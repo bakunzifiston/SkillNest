@@ -6,8 +6,10 @@ use App\Models\Course;
 use App\Models\Quiz;
 use App\Models\QuizAttempt;
 use App\Models\QuizAttemptAnswer;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class QuizController extends Controller
@@ -28,7 +30,8 @@ class QuizController extends Controller
             return redirect()->route('courses.show', $course)->with('error', __('This quiz is not available.'));
         }
         $quiz->load('questions.options');
-        return view('quizzes.show', compact('course', 'quiz'));
+        $state = $quiz->attemptStateFor(auth()->user());
+        return view('quizzes.show', compact('course', 'quiz', 'state'));
     }
 
     public function start(Course $course, Quiz $quiz): RedirectResponse
@@ -39,12 +42,39 @@ class QuizController extends Controller
         if ($quiz->course_id !== $course->id || ! $quiz->is_published) {
             abort(404);
         }
-        $attempt = QuizAttempt::create([
-            'user_id' => auth()->id(),
-            'quiz_id' => $quiz->id,
-            'started_at' => now(),
-            'total_points' => $quiz->questions()->sum('points'),
-        ]);
+        $user = auth()->user();
+        $blocked = null;
+
+        // One at a time: a double click must not create two attempts or slip past the maximum.
+        $attempt = DB::transaction(function () use ($quiz, $user, &$blocked) {
+            Quiz::whereKey($quiz->id)->lockForUpdate()->first();
+            $state = $quiz->attemptStateFor($user);
+
+            if ($state['unfinished']) {
+                return $state['unfinished'];                                  // resume instead of starting over
+            }
+            if (! $state['canStart']) {
+                $blocked = $state['reason'];
+
+                return null;
+            }
+
+            return QuizAttempt::create([
+                'user_id' => $user->id,
+                'quiz_id' => $quiz->id,
+                'started_at' => now(),
+                'total_points' => $quiz->questions()->sum('points'),
+            ]);
+        });
+
+        if ($attempt === null) {
+            $message = $blocked === 'passed'
+                ? __('You already passed this quiz and cannot retake it.')
+                : __('You have used all :max attempts for this quiz.', ['max' => $quiz->max_attempts]);
+
+            return redirect()->route('courses.quizzes.show', [$course, $quiz])->with('error', $message);
+        }
+
         return redirect()->route('quizzes.take', $attempt);
     }
 
@@ -57,7 +87,37 @@ class QuizController extends Controller
             return redirect()->route('quizzes.result', $quizAttempt)->with('info', __('You already submitted this attempt.'));
         }
         $quizAttempt->load(['quiz.course', 'quiz.questions.options']);
-        return view('quizzes.take', compact('quizAttempt'));
+        if ($quizAttempt->isExpired()) {
+            $quizAttempt->closeAsTimedOut();
+
+            return redirect()->route('quizzes.result', $quizAttempt)->with('info', __('Time is up. Your attempt was closed.'));
+        }
+        $remainingSeconds = $quizAttempt->remainingSeconds();
+        $draft = $quizAttempt->draft_answers ?? [];
+        return view('quizzes.take', compact('quizAttempt', 'remainingSeconds', 'draft'));
+    }
+
+    /** Autosave while answering: keeps the answers on the server (resume, closed tab, and auto-submit at the deadline). */
+    public function autosave(Request $request, QuizAttempt $quizAttempt): JsonResponse
+    {
+        if ($quizAttempt->user_id !== auth()->id()) {
+            abort(403);
+        }
+        if ($quizAttempt->submitted_at !== null) {
+            return response()->json(['closed' => true, 'redirect' => route('quizzes.result', $quizAttempt)], 409);
+        }
+        $quizAttempt->loadMissing('quiz');
+        // The time ran out while the student was answering: submit what was saved, and tell the page.
+        if ($quizAttempt->isExpired()) {
+            $quizAttempt->closeAsTimedOut();
+
+            return response()->json(['closed' => true, 'redirect' => route('quizzes.result', $quizAttempt)], 409);
+        }
+
+        $request->validate(['answers' => ['nullable', 'array']]);
+        $quizAttempt->saveDraft($request->input('answers', []));
+
+        return response()->json(['saved' => true, 'remaining' => $quizAttempt->remainingSeconds()]);
     }
 
     public function submit(Request $request, QuizAttempt $quizAttempt): RedirectResponse
@@ -69,32 +129,17 @@ class QuizController extends Controller
             return redirect()->route('quizzes.result', $quizAttempt);
         }
         $quiz = $quizAttempt->quiz;
-        $totalPoints = $quiz->questions()->sum('points');
-        $score = 0;
-        foreach ($quiz->questions as $question) {
-            $selectedId = $request->input('question_' . $question->id);
-            $correctOption = $question->options->firstWhere('is_correct', true);
-            $selectedOption = $selectedId ? $question->options->find($selectedId) : null;
-            $isCorrect = $selectedOption && $selectedOption->is_correct;
-            $pointsEarned = $isCorrect ? $question->points : 0;
-            $score += $pointsEarned;
-            QuizAttemptAnswer::create([
-                'quiz_attempt_id' => $quizAttempt->id,
-                'question_id' => $question->id,
-                'question_option_id' => $selectedOption?->id,
-                'is_correct' => $isCorrect,
-                'points_earned' => $pointsEarned,
-            ]);
+        // The time limit is enforced here, not only in the browser: answers that arrive too late are not graded.
+        if ($quizAttempt->isExpired(QuizAttempt::GRACE_SECONDS)) {
+            $quizAttempt->closeAsTimedOut();
+
+            return redirect()->route('quizzes.result', $quizAttempt)->with('info', __('Time is up. Your attempt was closed.'));
         }
-        $percentage = $totalPoints > 0 ? round(($score / $totalPoints) * 100, 2) : 0;
-        $passed = $percentage >= $quiz->passing_grade;
-        $quizAttempt->update([
-            'score' => $score,
-            'total_points' => $totalPoints,
-            'percentage' => $percentage,
-            'passed' => $passed,
-            'submitted_at' => now(),
-        ]);
+        $selected = [];
+        foreach ($quiz->questions as $question) {
+            $selected[$question->id] = $request->input('question_'.$question->id);
+        }
+        $quizAttempt->submitAnswers($selected);
         return redirect()->route('quizzes.result', $quizAttempt)->with('success', __('Quiz submitted.'));
     }
 

@@ -104,6 +104,7 @@ class CourseController extends Controller
             'level' => 'nullable|string|in:beginner,intermediate,advanced',
             'status' => 'required|in:'.Course::STATUS_DRAFT.','.Course::STATUS_PUBLISHED,
             'is_free' => 'nullable|boolean',
+            'sequential_lessons' => 'nullable|boolean',
             'price' => 'nullable|numeric|min:0',
             'access_level' => ['nullable', Rule::in(array_keys(Course::accessLevels()))],
             'partner_organization_id' => ['nullable', 'integer', 'exists:partner_organizations,id', 'required_if:access_level,'.Course::ACCESS_PARTNER],
@@ -117,6 +118,7 @@ class CourseController extends Controller
         $validated['status'] = $validated['status'] ?? Course::STATUS_DRAFT;
         $validated['instructor_id'] = $request->input('instructor_id') ?: null;
         $validated['access_level'] = $validated['access_level'] ?? Course::ACCESS_ALL;
+        $validated['sequential_lessons'] = $request->has('sequential_lessons') ? $request->boolean('sequential_lessons') : true;
         $validated['partner_organization_id'] = $validated['access_level'] === Course::ACCESS_PARTNER
             ? ($validated['partner_organization_id'] ?? null)
             : null;
@@ -162,6 +164,7 @@ class CourseController extends Controller
             'level' => 'nullable|string|in:beginner,intermediate,advanced',
             'status' => 'required|in:'.Course::STATUS_DRAFT.','.Course::STATUS_PUBLISHED,
             'is_free' => 'nullable|boolean',
+            'sequential_lessons' => 'nullable|boolean',
             'price' => 'nullable|numeric|min:0',
             'access_level' => ['nullable', Rule::in(array_keys(Course::accessLevels()))],
             'partner_organization_id' => ['nullable', 'integer', 'exists:partner_organizations,id', 'required_if:access_level,'.Course::ACCESS_PARTNER],
@@ -172,6 +175,11 @@ class CourseController extends Controller
         $validated['price'] = ($request->boolean('is_free') || $request->input('price') === '' || $request->input('price') === null) ? 0 : (float) $request->input('price');
         $validated['level'] = $validated['level'] ?? 'beginner';
         $validated['instructor_id'] = $request->input('instructor_id') ?: null;
+        if ($request->has('sequential_lessons')) {
+            $validated['sequential_lessons'] = $request->boolean('sequential_lessons');
+        } else {
+            unset($validated['sequential_lessons']);
+        }
         // Not sent (e.g. older clients): keep the course's current audience.
         $validated['access_level'] = $validated['access_level'] ?? $course->accessLevelOrAll();
         $validated['partner_organization_id'] = $validated['access_level'] === Course::ACCESS_PARTNER

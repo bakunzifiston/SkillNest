@@ -92,6 +92,8 @@ class QuizController extends Controller
             'description' => 'nullable|string|max:5000',
             'passing_grade' => 'required|integer|min:0|max:100',
             'time_limit_minutes' => 'nullable|integer|min:1|max:300',
+            'max_attempts' => 'nullable|integer|min:1|max:100',
+            'allow_retake_after_pass' => 'nullable|boolean',
             'is_published' => 'nullable|boolean',
             'chapter_id' => 'nullable|integer|exists:chapters,id',
             'lesson_id' => 'nullable|integer|exists:lessons,id',
@@ -99,6 +101,8 @@ class QuizController extends Controller
         unset($validated['tr']);
         $validated = $this->resolvePlacement($validated, (int) ($validated['course_id'] ?? $courseIdForPlacement ?? 0));
         $validated['sort_order'] = Quiz::where('course_id', $validated['course_id'])->max('sort_order') + 1;
+        $validated['max_attempts'] = $request->filled('max_attempts') ? (int) $request->input('max_attempts') : null;
+        $validated['allow_retake_after_pass'] = $request->boolean('allow_retake_after_pass', true);
         $validated['is_published'] = $request->boolean('is_published');
         $quiz = Quiz::create($validated);
         $quiz->saveTranslations($request->input('tr', []));
@@ -120,12 +124,19 @@ class QuizController extends Controller
             'description' => 'nullable|string|max:5000',
             'passing_grade' => 'required|integer|min:0|max:100',
             'time_limit_minutes' => 'nullable|integer|min:1|max:300',
+            'max_attempts' => 'nullable|integer|min:1|max:100',
+            'allow_retake_after_pass' => 'nullable|boolean',
             'is_published' => 'nullable|boolean',
             'chapter_id' => 'nullable|integer|exists:chapters,id',
             'lesson_id' => 'nullable|integer|exists:lessons,id',
         ] + Quiz::translationRules());
         unset($validated['tr']);
         $validated = $this->resolvePlacement($validated, (int) ($validated['course_id'] ?? $courseIdForPlacement ?? 0));
+        $validated['max_attempts'] = $request->filled('max_attempts') ? (int) $request->input('max_attempts') : null;
+        // Not sent (an older form): keep the quiz's current setting.
+        $validated['allow_retake_after_pass'] = $request->has('allow_retake_after_pass')
+            ? $request->boolean('allow_retake_after_pass')
+            : $quiz->allow_retake_after_pass;
         $validated['is_published'] = $request->boolean('is_published');
         $quiz->update($validated);
         $quiz->saveTranslations($request->input('tr', []));

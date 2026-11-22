@@ -1,6 +1,7 @@
 @php
     $currentLesson = $currentLesson ?? null;
     $completedLessonIds = $completedLessonIds ?? collect();
+    $lessonStatuses = $lessonStatuses ?? [];
     $sidebarClass = $sidebarClass ?? '';
     $lessonNumber = 0;
     $quizzes = $course->relationLoaded('quizzes') ? $course->quizzes : collect();
@@ -45,6 +46,7 @@
                             'lesson' => $l,
                             'currentLesson' => $currentLesson,
                             'completedLessonIds' => $completedLessonIds,
+                            'lessonStatuses' => $lessonStatuses,
                             'lessonNumber' => $lessonNumber,
                             'label' => $chapter->tr('title'),
                         ])
@@ -76,6 +78,7 @@
                                     'lesson' => $l,
                                     'currentLesson' => $currentLesson,
                                     'completedLessonIds' => $completedLessonIds,
+                                    'lessonStatuses' => $lessonStatuses,
                                     'lessonNumber' => $lessonNumber,
                                     'label' => $label,
                                 ])

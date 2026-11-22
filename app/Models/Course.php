@@ -29,6 +29,7 @@ class Course extends Model
         'level',
         'status',
         'access_level',
+        'sequential_lessons',
         'partner_organization_id',
         'students_count',
     ];
@@ -51,6 +52,10 @@ class Course extends Model
             self::ACCESS_PARTNER => __('Specific Partner organization'),
         ];
     }
+
+    protected $casts = [
+        'sequential_lessons' => 'boolean',
+    ];
 
     protected static function booted(): void
     {
@@ -318,6 +323,51 @@ class Course extends Model
     {
         return $this->belongsToMany(Bundle::class, 'bundle_courses')
             ->withPivot('order');
+    }
+
+    /** Every lesson in learning order: chapters by their order, then lessons by their order. */
+    public function orderedLessons(): \Illuminate\Support\Collection
+    {
+        $this->loadMissing('chapters.lessons');
+
+        return $this->chapters->sortBy('sort_order')
+            ->flatMap(fn ($chapter) => $chapter->lessons->sortBy('sort_order'))
+            ->values();
+    }
+
+    /**
+     * Where a student stands on each lesson: id => completed | in_progress | locked | open.
+     *
+     * With lessons in order (the default), a lesson is open to the student when it is already completed
+     * or the lesson before it is completed (the first lesson is always open). Open but unfinished = in_progress.
+     * Everything after the first unfinished lesson is locked. Staff, and courses that turned the rule off,
+     * have no locks ("open" = no restriction).
+     *
+     * @param  iterable<int>  $completedLessonIds
+     * @return array<int, string>
+     */
+    public function lessonStatuses(iterable $completedLessonIds, ?User $viewer = null): array
+    {
+        $done = collect($completedLessonIds)->map(fn ($id) => (int) $id)->flip();
+        $inOrder = $this->sequential_lessons !== false && ! $viewer?->canAccessAdmin();
+
+        $statuses = [];
+        $previousDone = true;
+
+        foreach ($this->orderedLessons() as $lesson) {
+            $isDone = $done->has($lesson->id);
+
+            $statuses[$lesson->id] = match (true) {
+                $isDone => 'completed',
+                ! $inOrder => 'open',
+                $previousDone => 'in_progress',
+                default => 'locked',
+            };
+
+            $previousDone = $isDone;
+        }
+
+        return $statuses;
     }
 
     public function totalLessonsCount(): int

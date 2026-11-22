@@ -38,6 +38,7 @@
                 <input type="number" name="time_limit_minutes" id="time_limit_minutes" value="{{ old('time_limit_minutes') }}" min="1" max="300" placeholder="{{ __('No limit') }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-accent focus:ring-accent">
                 @error('time_limit_minutes')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
+            @include('admin.quizzes.partials.attempt-rules', ['quiz' => null])
             <div>
                 <label class="flex items-center gap-2">
                     <input type="hidden" name="is_published" value="0">

@@ -20,6 +20,7 @@
             'course' => $course,
             'currentLesson' => $lesson,
             'completedLessonIds' => $completedLessonIds,
+            'lessonStatuses' => $lessonStatuses ?? [],
             'completedCount' => $completedCount,
             'totalLessons' => $totalLessons,
         ])
@@ -42,6 +43,8 @@
                                 <p class="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{{ $chapterTitle }}</p>
                             @endif
                             <h1 class="mt-1 font-display font-bold text-2xl sm:text-3xl text-navy tracking-tight">{{ $lesson->tr('title') }}</h1>
+                            @php $headerStatus = $completed ? 'completed' : (($lessonStatus ?? 'open') === 'in_progress' ? 'in_progress' : 'open'); @endphp
+                            <div id="lesson-status-badge" class="mt-2">@include('courses.partials.lesson-status', ['status' => $headerStatus])</div>
                             @if($lessonPosition && $totalLessons > 0)
                                 <p class="mt-2 text-sm text-slate-500 tabular-nums">
                                     {{ __('Lesson :position of :total', ['position' => $lessonPosition, 'total' => $totalLessons]) }}
@@ -59,6 +62,9 @@
             </div>
 
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+                @if(session('error'))
+                    <div class="mb-6 p-4 rounded-xl bg-red-50 text-red-800 border border-red-200" role="alert">{{ session('error') }}</div>
+                @endif
                 @if(session('success'))
                     <div class="mb-6 p-4 rounded-xl bg-success-light text-success-darker border border-success-muted">{{ session('success') }}</div>
                 @endif
@@ -205,8 +211,18 @@
                         <span></span>
                     @endif
 
+                    @php $nextLocked = $nextLesson && (($lessonStatuses ?? [])[$nextLesson->id] ?? 'open') === 'locked'; @endphp
                     @if($nextLesson)
-                        <a href="{{ route('courses.lessons.show', [$course, $nextLesson]) }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
+                        @if($nextLocked)
+                            <span data-next-locked class="inline-flex flex-col items-end gap-1">
+                                <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-200 text-slate-500 font-semibold cursor-not-allowed" aria-disabled="true">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z"/></svg>
+                                    {{ __('Next lesson') }}
+                                </span>
+                                <span class="text-xs text-slate-500">{{ __('Complete this lesson to unlock the next one.') }}</span>
+                            </span>
+                        @endif
+                        <a href="{{ route('courses.lessons.show', [$course, $nextLesson]) }}" @if($nextLocked) data-next-open data-next-id="{{ $nextLesson->id }}" @endif class="{{ $nextLocked ? 'hidden ' : '' }}inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition">
                             {{ __('Next lesson') }}
                             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         </a>
@@ -222,5 +238,33 @@
 @endsection
 
 @push('scripts')
+    <script>
+        // Unlocks the next lesson in the page the moment this one is marked completed.
+        (function () {
+            var control = document.getElementById('lesson-complete-control');
+            if (!control) { return; }
+            var done = false;
+            function unlock() {
+                if (done || control.dataset.completed !== '1') { return; }
+                done = true;
+                var locked = document.querySelector('[data-next-locked]');
+                var open = document.querySelector('[data-next-open]');
+                if (locked) { locked.classList.add('hidden'); }
+                if (open) {
+                    open.classList.remove('hidden');
+                    var id = open.getAttribute('data-next-id');
+                    var row = document.querySelector('[data-lock-row="' + id + '"]');
+                    var link = document.querySelector('[data-open-row="' + id + '"]');
+                    if (row) { row.classList.add('hidden'); }
+                    if (link) { link.classList.remove('hidden'); }
+                }
+                var badge = document.getElementById('lesson-status-badge');
+                if (badge) { badge.classList.add('hidden'); }
+                document.querySelectorAll('[data-role="progress-dot"]').forEach(function (d) { if (d.closest('[aria-current]')) { d.classList.add('hidden'); } });
+            }
+            new MutationObserver(unlock).observe(control, { attributes: true, attributeFilter: ['data-completed'] });
+            unlock();
+        })();
+    </script>
     @vite('resources/js/lesson-progress.js')
 @endpush

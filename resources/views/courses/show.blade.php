@@ -9,6 +9,7 @@
             @include('courses.partials.curriculum-sidebar', [
                 'course' => $course,
                 'completedLessonIds' => $completedLessonIds,
+                'lessonStatuses' => $lessonStatuses ?? [],
                 'completedCount' => $completedCount,
                 'totalLessons' => $totalLessons,
                 'sidebarClass' => 'order-first',
@@ -184,17 +185,20 @@
                                                 @forelse($chapter->lessons as $lessonIndex => $lesson)
                                                     <li>
                                                         @if($enrolled)
-                                                            <a href="{{ route('courses.lessons.show', [$course, $lesson]) }}" class="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition group">
-                                                                <span class="flex-shrink-0 w-6 text-xs tabular-nums text-slate-400">{{ $lessonIndex + 1 }}</span>
-                                                                <span class="flex-1 min-w-0 font-medium text-slate-700 group-hover:text-primary transition">{{ $lesson->tr('title') }}</span>
-                                                                @if($completedLessonIds->contains($lesson->id))
-                                                                    <span class="inline-flex h-6 w-6 items-center justify-center rounded-full bg-success-light text-success-dark" aria-label="{{ __('Completed') }}">
-                                                                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                                                    </span>
-                                                                @else
-                                                                    <svg class="h-4 w-4 text-slate-300 group-hover:text-primary transition" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                                                @endif
-                                                            </a>
+                                                            @php $lessonStatus = ($lessonStatuses ?? [])[$lesson->id] ?? ($completedLessonIds->contains($lesson->id) ? 'completed' : 'open'); @endphp
+                                                            @if($lessonStatus === 'locked')
+                                                                <div class="flex items-center gap-3 px-5 py-3.5 bg-slate-50/60 cursor-not-allowed" title="{{ __('Locked until the previous lesson is completed') }}">
+                                                                    <span class="flex-shrink-0 w-6 text-xs tabular-nums text-slate-400">{{ $lessonIndex + 1 }}</span>
+                                                                    <span class="flex-1 min-w-0 font-medium text-slate-400">{{ $lesson->tr('title') }}</span>
+                                                                    @include('courses.partials.lesson-status', ['status' => 'locked'])
+                                                                </div>
+                                                            @else
+                                                                <a href="{{ route('courses.lessons.show', [$course, $lesson]) }}" class="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50 transition group">
+                                                                    <span class="flex-shrink-0 w-6 text-xs tabular-nums text-slate-400">{{ $lessonIndex + 1 }}</span>
+                                                                    <span class="flex-1 min-w-0 font-medium text-slate-700 group-hover:text-primary transition">{{ $lesson->tr('title') }}</span>
+                                                                    @include('courses.partials.lesson-status', ['status' => $lessonStatus])
+                                                                </a>
+                                                            @endif
                                                         @else
                                                             <div class="flex items-center gap-3 px-5 py-3.5">
                                                                 <span class="flex-shrink-0 w-6 text-xs tabular-nums text-slate-400">{{ $lessonIndex + 1 }}</span>

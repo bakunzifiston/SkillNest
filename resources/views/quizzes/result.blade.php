@@ -24,6 +24,15 @@
                 @endif
             </div>
             <p class="mt-4 text-sm text-slate-500">{{ __('Passing grade: :grade%', ['grade' => $quizAttempt->quiz->passing_grade]) }}</p>
+            @if($quizAttempt->timed_out)
+                <p class="mt-4 p-3 rounded-xl bg-accent-light text-accent-darker text-sm font-medium">
+                    @if($quizAttempt->answeredCount() > 0)
+                        {{ __('The time limit ran out, so the answers you had saved were submitted automatically.') }}
+                    @else
+                        {{ __('The time limit ran out, so this attempt was closed without answers.') }}
+                    @endif
+                </p>
+            @endif
         </div>
         <div class="mt-8 bg-white rounded-2xl border border-slate-200 overflow-hidden">
             <h2 class="px-6 py-4 border-b border-slate-200 font-display font-semibold text-slate-900">{{ __('Your answers') }}</h2>

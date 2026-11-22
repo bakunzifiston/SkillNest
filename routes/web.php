@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/courses/{course}/quizzes/{quiz}', [\App\Http\Controllers\QuizController::class, 'show'])->name('courses.quizzes.show');
     Route::post('/courses/{course}/quizzes/{quiz}/start', [\App\Http\Controllers\QuizController::class, 'start'])->name('courses.quizzes.start');
     Route::get('/quizzes/attempts/{quizAttempt}', [\App\Http\Controllers\QuizController::class, 'take'])->name('quizzes.take');
+    Route::post('/quizzes/attempts/{quizAttempt}/autosave', [\App\Http\Controllers\QuizController::class, 'autosave'])->middleware('throttle:120,1')->name('quizzes.autosave');
     Route::post('/quizzes/attempts/{quizAttempt}/submit', [\App\Http\Controllers\QuizController::class, 'submit'])->name('quizzes.submit');
     Route::get('/quizzes/attempts/{quizAttempt}/result', [\App\Http\Controllers\QuizController::class, 'result'])->name('quizzes.result');
 });

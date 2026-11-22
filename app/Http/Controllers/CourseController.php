@@ -30,6 +30,7 @@ class CourseController extends Controller
 
         $resumeLesson = null;
         $completedLessonIds = collect();
+        $lessonStatuses = [];
         if ($enrolled && $totalLessons > 0) {
             $completedLessonIds = auth()->user()->lessonCompletions()->pluck('lesson_id');
             foreach ($course->chapters as $chapter) {
@@ -41,11 +42,16 @@ class CourseController extends Controller
             }
         }
 
+        if ($enrolled) {
+            $lessonStatuses = $course->lessonStatuses(auth()->user()->lessonCompletions()->pluck('lesson_id'), auth()->user());
+        }
+
         $audienceWarning = $enrolled ? null : $course->audienceWarning(auth()->user());
 
         return view('courses.show', compact(
             'course',
             'audienceWarning',
+            'lessonStatuses',
             'enrolled',
             'completedCount',
             'totalLessons',
@@ -155,11 +161,24 @@ class CourseController extends Controller
         $course->load(['chapters.lessons', 'quizzes' => fn ($q) => $q->where('is_published', true)->orderBy('sort_order')->withCount('questions')]);
         $lesson->load('chapter');
         $completedLessonIds = auth()->user()->lessonCompletions()->pluck('lesson_id');
+
+        // Lessons unlock in order: a lesson stays locked until the one before it is completed.
+        $lessonStatuses = $course->lessonStatuses($completedLessonIds, auth()->user());
+        $lessonStatus = $lessonStatuses[$lesson->id] ?? 'open';
+        if ($lessonStatus === 'locked') {
+            $blocker = $course->orderedLessons()->first(fn ($l) => ($lessonStatuses[$l->id] ?? null) === 'in_progress');
+
+            return $blocker
+                ? redirect()->route('courses.lessons.show', [$course, $blocker])
+                    ->with('error', __('This lesson is locked. Finish ":lesson" first to unlock it.', ['lesson' => $blocker->tr('title')]))
+                : redirect()->route('courses.show', $course);
+        }
+
         $completed = $completedLessonIds->contains($lesson->id);
         $completedCount = auth()->user()->completedLessonsCountForCourse($course);
         $totalLessons = $course->chapters->sum(fn ($ch) => $ch->lessons->count());
 
-        return view('courses.lesson', compact('course', 'lesson', 'completed', 'completedLessonIds', 'completedCount', 'totalLessons'));
+        return view('courses.lesson', compact('course', 'lesson', 'completed', 'completedLessonIds', 'completedCount', 'totalLessons', 'lessonStatuses', 'lessonStatus'));
     }
 
     public function completeLesson(Request $request, Lesson $lesson): RedirectResponse|JsonResponse
@@ -175,6 +194,17 @@ class CourseController extends Controller
             return $request->expectsJson()
                 ? response()->json(['message' => __('Not enrolled in this course.')], 403)
                 : redirect()->route('courses.show', $course);
+        }
+
+        // Without this, a student could unlock the next lessons by sending "complete" for a lesson that is still locked.
+        $course->loadMissing('chapters.lessons');
+        $statuses = $course->lessonStatuses(auth()->user()->lessonCompletions()->pluck('lesson_id'), auth()->user());
+        if (($statuses[$lesson->id] ?? null) === 'locked') {
+            $message = __('This lesson is locked until the previous lesson is completed.');
+
+            return $request->expectsJson()
+                ? response()->json(['message' => $message], 403)
+                : redirect()->route('courses.show', $course)->with('error', $message);
         }
 
         $completion = LessonCompletion::firstOrCreate(
