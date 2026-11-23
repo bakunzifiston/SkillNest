@@ -14,7 +14,7 @@ return [
     | have chosen one). Change it with APP_INITIAL_LOCALE in .env. Keep 'default' as it is: it is the
     | language the original course content is written in, and the fallback when a translation is missing.
     */
-    'initial' => env('APP_INITIAL_LOCALE', 'rw'),
+    'initial' => env('APP_INITIAL_LOCALE', 'en'),
 
     'locales' => [
         'en' => ['name' => 'English', 'native' => 'English', 'short' => 'EN'],
