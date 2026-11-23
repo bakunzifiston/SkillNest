@@ -64,7 +64,7 @@
                 @foreach($chapters as $chapter)
                     <article id="{{ $chapter['slug'] }}" class="doc-chapter doc-body" style="scroll-margin-top:16px;">
                         <p class="doc-eyebrow">{{ __('Chapter :number', ['number' => $chapter['number']]) }}</p>
-                        {!! preg_replace('/src="images\//', 'src="'.e(url('/admin/documentation/'.$book.'/image')).'/', $chapter['html']) !!}
+                        {!! preg_replace('/src="images\//', 'src="'.e(str_replace('__f__', '', route('admin.documentation.image', [$book, '__f__'], false))).'', $chapter['html']) !!}
                     </article>
                 @endforeach
             </div>

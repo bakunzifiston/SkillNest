@@ -73,6 +73,25 @@ class AdminDocumentationTest extends TestCase
         $this->get(route('admin.documentation.show', 'nope'))->assertNotFound();
     }
 
+    public function test_screenshots_use_site_relative_urls_and_are_served(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $html = $this->actingAs($admin)->get(route('admin.documentation.show', 'user-guide'))->assertOk()->getContent();
+
+        // Only the documents' own images are checked (the page header has an absolute logo URL).
+        preg_match_all('#<article[^>]*class="doc-chapter[^"]*".*?</article>#s', $html, $articles);
+        $body = implode('', $articles[0]);
+        $this->assertNotSame('', $body);
+
+        // Relative to the site (no http://host), so they also load behind https proxies and in sub-folders.
+        $this->assertSame(1, preg_match('#<img[^>]*src="/admin/documentation/user-guide/image/[A-Za-z0-9._-]+\.png"#', $body));
+        $this->assertSame(0, preg_match('#<img[^>]*src="images/#', $body));
+        $this->assertSame(0, preg_match('#<img[^>]*src="https?://#', $body));
+
+        preg_match('#src="(/admin/documentation/user-guide/image/[^"]+)"#', $html, $m);
+        $this->get($m[1])->assertOk()->assertHeader('Content-Type', 'image/png');
+    }
+
     public function test_the_printable_html_download_is_a_complete_standalone_page(): void
     {
         $admin = User::factory()->admin()->create();
