@@ -16,6 +16,7 @@ return [
         'Assessments' => ['quizzes', 'quiz_results'],
         'Analytics' => ['reports'],
         'Site' => ['settings', 'partners'],
+        'Help' => ['documentation'],
     ],
 
     'modules' => [
@@ -220,6 +221,19 @@ return [
                 ],
             ],
         ],
+        'documentation' => [
+            'label' => 'Documentation',
+            'icon' => 'book',
+            'actions' => ['view'],
+            'nav' => [
+                [
+                    'label' => 'Documentation',
+                    'route' => 'admin.documentation.index',
+                    'icon' => 'book',
+                    'active' => 'admin.documentation.*',
+                ],
+            ],
+        ],
         'partners' => [
             'label' => 'Partner Logos',
             'icon' => 'image',
@@ -258,6 +272,7 @@ return [
         'admin.reports' => 'reports',
         'admin.settings' => 'settings',
         'admin.partners' => 'partners',
+        'admin.documentation' => 'documentation',
         'admin.contact-messages' => 'settings',
     ],
 

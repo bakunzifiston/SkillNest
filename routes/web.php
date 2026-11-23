@@ -64,6 +64,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::put('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
     Route::patch('users/{user}/status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.status');
     Route::delete('users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('documentation', [\App\Http\Controllers\Admin\DocumentationController::class, 'index'])->name('documentation.index');
+    Route::get('documentation/{book}/image/{file}', [\App\Http\Controllers\Admin\DocumentationController::class, 'image'])->name('documentation.image');
+    Route::get('documentation/{book}/download/{format}', [\App\Http\Controllers\Admin\DocumentationController::class, 'download'])->name('documentation.download');
+    Route::get('documentation/{book}', [\App\Http\Controllers\Admin\DocumentationController::class, 'show'])->name('documentation.show');
     Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->except(['show']);
     Route::get('imports/students', [\App\Http\Controllers\Admin\StudentImportController::class, 'create'])->name('imports.students.create');
     Route::post('imports/students/preview', [\App\Http\Controllers\Admin\StudentImportController::class, 'preview'])->name('imports.students.preview');
